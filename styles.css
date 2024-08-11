@@ -350,10 +350,10 @@ html {
 
 body {
   font-family: 'Avenir', sans-serif;
-  color:rgba(1, 41, 53, 0.65);
+  color:rgba(1, 41, 53, 0.75);
   text-rendering: optimizeLegibility;
   background: #ffffff;
-  font-size: 120%;
+  font-size: 140%;
 }
 
 h1, h2, h3, h4, h5, h6 {
