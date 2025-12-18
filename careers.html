@@ -53,6 +53,7 @@
 
 <body>
 
+
  <!-- Top Bar -->
   <div id="topBar" class="bg-black w-full fixed top-0 left-0 z-50 h-32 flex justify-center items-center">
     <a href="https://www.oncko.com" class="h-auto">
@@ -61,7 +62,7 @@
     <button id="menuToggle" class="text-white text-7xl absolute right-4 md:hidden" onclick="toggleMenu()">☰</button>
   </div>
 
-  <!-- Navbar -->
+<!-- Navbar -->
   <nav id="mainNavbar" class="bg-gradient-to-r from-[#CEE444] to-[#68e9ca] w-full md:fixed md:top-32 left-0 z-40 p-4 md:flex hidden justify-evenly">
     <ul class="flex w-full justify-evenly text-2xl font-bold">
       <li><a href="https://www.oncko.com" class="text-black font-bold px-4 py-2 hover:bg-white focus:bg-white active:bg-white hover:border hover:border-black rounded-lg">Home</a></li>
@@ -87,7 +88,7 @@
     <li><a href="https://www.oncko.com/contact" class="text-black text-2xl font-bold px-2 py-2 hover:bg-white focus:bg-white active:bg-white rounded-lg block">Contact</a></li>
     <li><a href="https://www.oncko.com/careers" class="text-black text-2xl font-bold px-2 py-2 hover:bg-white focus:bg-white active:bg-white rounded-lg block">Careers</a></li>
   </ul>
-  
+
 <style>
   #starCanvas {
     position: fixed;
@@ -99,68 +100,34 @@
   }
 </style>
 
-
 <canvas class="filter brightness-100" id="starCanvas"></canvas>
-<main class="scroll-pt-40 max-w-7xl mx-auto px-4 py-10 pt-32 md:pt-36">
-    <section class="text-center mb-1">
-    <div class="bg-black/0">
-      <h1 id="pubs" class="scroll-mt-60 text-5xl font-bold mb-1">Our Publications</h1>
-    </div>
-    </section>
 
-<div class="flex flex-wrap justify-center grid gap-6 md:grid-cols-3 lg:grid-cols-4">
-      <!-- Publication Card -->
-      <div class="max-w-sm bg-white/95 border-4 border-slate-500 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-        <img class="h-48 w-full object-contain border-b border-slate-500" src="img/perturbseq.png" alt="Publication 1" class="w-full object-contain">
-        <div class="p-4 flex flex-col h-full">
-          <h3 class="text-xl text-slate-700 font-semibold mb-2">Perturb-seq</h3>
-          <p class="text-sm text-gray-500 mb-4"><u>Dixit</u>, Parnas,....Regev</p>
-          <p class="text-sm text-gray-700 mb-4">Massive perturbation + scRNA-seq screens. Limited combo scale</p>
-          <a href="https://www.cell.com/cell/fulltext/S0092-8674(16)31610-5" class="text-blue-600 hover:underline font-bold mt-auto">Read More</a>
-        </div>
-      </div>
-      <!-- Repeat the card for other publications -->
-        <div class="max-w-sm  bg-white/95 border-4 border-slate-500 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-         <img class="h-48 w-full object-contain border-b border-slate-500" src="img/shuffle.png" alt="Publication 2" class="w-full object-contain">
-        <div class="p-4 flex flex-col h-full">
-             <h3 class="text-xl text-slate-700 font-semibold mb-2">Shuffle-seq</h3>
-          <p class="text-sm text-gray-500 mb-4"><u>Dixit</u>, Feldman, Kuksenko, Regev</p>
-          <p class="text-sm text-gray-700 mb-4">Combo screen tech scalable to 1B</p>
-          <a href="https://www.biorxiv.org/content/10.1101/861443v1" class="text-blue-600 hover:underline font-bold mt-auto">Read More</a>
-        </div>
-      </div>
+<div class="bg-black/0">
+<div class="content mt-64 flex flex-col items-center text-center">
 
-
-
-
-      <!-- Add more publication cards here -->
-      <div class="max-w-sm bg-white/95 border-4 border-slate-500 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-        <img class="h-48 w-full object-contain border-b border-slate-500" src="img/multidrug.png" alt="Publication 3" class="w-full object-contain">
-        <div class="p-4 flex flex-col h-full">
-          <h3 class="text-xl text-slate-700 font-semibold mb-2">Multi-drug toxicity</h3>
-          <p class="text-sm text-gray-500 mb-4">Anastopoulos...<u>Dixit</u></p>
-          <p class="text-sm text-gray-700 mb-4">Predict combo toxicity using real world patient data</p>
-          <a href="https://www.mdpi.com/1660-4601/18/5/2600" class="text-blue-600 hover:underline font-bold mt-auto">Read More</a>
-        </div>
-      </div>
-
-      <!-- Add more publication cards here -->
-      <div class="max-w-sm bg-white/95 border-4 border-slate-500 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-        <img class="h-48 w-full object-contain border-b border-slate-500" src="img/crisprxresistance.png" alt="Publication 4" class="w-full object-contain">
-        <div class="p-4 flex flex-col h-full">
-          <h3 class="text-xl text-slate-700 font-semibold mb-2">Combo cancer cures</h3>
-          <p class="text-sm text-gray-500 mb-4"><u>Palmer</u>...Sorger</p>
-          <p class="text-sm text-gray-700 mb-4">Successful cancer cures have low cross resistance in vitro</p>
-          <a href="https://elifesciences.org/articles/50036" class="text-blue-600 hover:underline font-bold mt-auto">Read More</a>
-
-        </div>
-      </div>
-    </div>
-  </main>
-</main>
+  <a
+    href="https://form.typeform.com/to/RBb2ck9d"
+    class="inline-flex items-center justify-center
+           rounded-2xl
+           bg-[#CEE444]
+           border border-white/30
+           px-10 py-5
+           text-2xl font-semibold tracking-wide text-black
+           transition duration-200 ease-out
+           hover:bg-[#b9d73c]
+           hover:border-black/50
+           hover:-translate-y-[1px]
+           focus:outline-none
+           focus:ring-2 focus:ring-black/20"
+  >
+    Defeat the SuperTumor with us<br>apply now
+    
+  </a>
+</div>
+</div>
 
   <script src="script.js"></script>
-    <script>
+     <script>
     function toggleMenu() {
       document.getElementById("mobileMenu").classList.toggle("hidden");
     }
@@ -170,8 +137,13 @@
       let topBar = document.getElementById("topBar");
       let scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      topBar.classList.remove("hidden-top");
-
+      if (scrollTop > lastScrollTop) {
+        // Scrolling Down
+        topBar.classList.add("hidden-top");
+      } else {
+        // Scrolling Up
+        topBar.classList.remove("hidden-top");
+      }
       lastScrollTop = scrollTop;
     });
   </script>
