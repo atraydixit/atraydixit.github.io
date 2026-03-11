@@ -110,6 +110,7 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       box-shadow: var(--shadow);
+      overflow: visible;
     }
     .side-nav::before {
       content: "";
@@ -126,6 +127,8 @@
     .nav-dot {
       position: relative;
       z-index: 1;
+      display: block;
+      cursor: pointer;
       width: 14px;
       height: 14px;
       border-radius: 999px;
@@ -148,8 +151,8 @@
       box-shadow: 0 0 0 4px rgba(206, 228, 68, 0.10), 0 0 22px rgba(104, 233, 202, 0.18);
       transform: scale(1.18);
     }
-    .nav-dot::after {
-      content: attr(data-label);
+    .nav-dot::after { content: none; }
+    .nav-label {
       position: absolute;
       right: 24px;
       top: 50%;
@@ -160,18 +163,17 @@
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.02em;
-      text-transform: none;
       color: rgba(244, 250, 248, 0.92);
-      background: rgba(8, 24, 21, 0.88);
+      background: rgba(8, 24, 21, 0.92);
       border: 1px solid rgba(255,255,255,0.08);
       padding: 6px 9px;
       border-radius: 999px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.24);
       transition: opacity 180ms ease, transform 180ms ease;
     }
-    .nav-dot.active::after,
-    .nav-dot:hover::after,
-    .nav-dot:focus-visible::after {
+    .nav-dot.active .nav-label,
+    .nav-dot:hover .nav-label,
+    .nav-dot:focus-visible .nav-label {
       opacity: 1;
       transform: translateY(-50%) translateX(0);
     }
@@ -268,31 +270,77 @@
     .contact-grid { grid-template-columns: 0.8fr 1.2fr; align-items: start; }
 
     .hero-orb {
-      width: min(420px, 90vw);
+      width: min(340px, 74vw);
       aspect-ratio: 1;
       margin-inline: auto;
       border-radius: 999px;
-      background:
-        radial-gradient(circle at 50% 45%, rgba(255, 248, 214, 0.92), rgba(255, 214, 106, 0.72) 32%, rgba(255, 184, 77, 0.14) 58%, rgba(255, 184, 77, 0.02) 74%),
-        radial-gradient(circle at 58% 44%, rgba(104, 233, 202, 0.12), transparent 46%);
-      box-shadow:
-        0 0 120px rgba(255, 214, 106, 0.14),
-        0 0 48px rgba(104, 233, 202, 0.09),
-        inset 0 0 46px rgba(255,255,255,0.15);
       position: relative;
       isolation: isolate;
+      display: grid;
+      place-items: center;
     }
     .hero-orb::before,
     .hero-orb::after {
       content: "";
       position: absolute;
-      inset: -10%;
       border-radius: inherit;
-      border: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+    .hero-orb::before {
+      inset: -16%;
+      background:
+        radial-gradient(circle at 38% 30%, rgba(206, 228, 68, 0.34), transparent 34%),
+        radial-gradient(circle at 72% 68%, rgba(104, 233, 202, 0.30), transparent 38%),
+        radial-gradient(circle at 50% 50%, rgba(255, 214, 106, 0.22), rgba(255, 214, 106, 0.08) 34%, transparent 68%);
+      filter: blur(22px);
+      opacity: 0.96;
+      animation: heroAura 7.4s ease-in-out infinite;
     }
     .hero-orb::after {
-      inset: 12%;
-      border-color: rgba(104, 233, 202, 0.16);
+      inset: -6%;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 38px rgba(255,255,255,0.04);
+      animation: heroRing 6.4s ease-in-out infinite;
+    }
+    .hero-logo-wrap {
+      position: relative;
+      width: 62%;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 45%, rgba(14, 31, 27, 0.88), rgba(9, 21, 18, 0.64) 64%, rgba(9, 21, 18, 0.16) 100%);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), inset 0 0 24px rgba(255,255,255,0.05);
+      backdrop-filter: blur(8px);
+    }
+    .hero-logo-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -14%;
+      border-radius: inherit;
+      background: radial-gradient(circle, rgba(255, 214, 106, 0.18), rgba(255, 214, 106, 0.05) 42%, transparent 72%);
+      filter: blur(18px);
+      opacity: 0.9;
+      animation: heroCoreGlow 4.8s ease-in-out infinite;
+    }
+    .hero-logo-mark {
+      position: relative;
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(206, 228, 68, 0.16)) drop-shadow(0 0 24px rgba(104, 233, 202, 0.16));
+    }
+    @keyframes heroAura {
+      0%, 100% { transform: scale(0.96); opacity: 0.82; filter: blur(20px); }
+      50% { transform: scale(1.04); opacity: 1; filter: blur(26px); }
+    }
+    @keyframes heroRing {
+      0%, 100% { transform: scale(0.98); opacity: 0.72; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+    @keyframes heroCoreGlow {
+      0%, 100% { transform: scale(0.94); opacity: 0.74; }
+      50% { transform: scale(1.06); opacity: 1; }
     }
 
     .card {
@@ -301,6 +349,7 @@
       background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
       backdrop-filter: blur(16px);
       box-shadow: var(--shadow);
+      overflow: visible;
     }
 
     .stat-grid {
@@ -444,6 +493,7 @@
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       border: 1px solid rgba(255,255,255,0.08);
       box-shadow: var(--shadow);
+      overflow: visible;
     }
     .pipeline-table th,
     .pipeline-table td {
@@ -567,7 +617,7 @@
         width: 15px;
         height: 15px;
       }
-      .nav-dot::after {
+      .nav-label {
         right: 26px;
         font-size: 10px;
         padding: 5px 8px;
@@ -629,13 +679,13 @@
 <body>
   <nav class="side-nav" aria-label="Section navigation">
 
-    <a aria-label="Home" class="nav-dot active" data-label="Home" href="#home"></a>
-    <a aria-label="Problem" class="nav-dot" data-label="Problem" href="#problem"></a>
-    <a aria-label="Platform" class="nav-dot" data-label="Platform" href="#platform"></a>
-    <a aria-label="Pipeline" class="nav-dot" data-label="Pipeline" href="#pipeline"></a>
-    <a aria-label="Team" class="nav-dot" data-label="Team" href="#team"></a>
-    <a aria-label="Team" class="nav-dot" data-label="Advisors" href="#advisors"></a>
-    <a aria-label="Contact" class="nav-dot" data-label="Contact" href="#contact"></a>
+    <a aria-label="Home" class="nav-dot active" data-label="Home" href="#home"><span class="nav-label">Home</span></a>
+    <a aria-label="Problem" class="nav-dot" data-label="Problem" href="#problem"><span class="nav-label">Problem</span></a>
+    <a aria-label="Platform" class="nav-dot" data-label="Platform" href="#platform"><span class="nav-label">Platform</span></a>
+    <a aria-label="Pipeline" class="nav-dot" data-label="Pipeline" href="#pipeline"><span class="nav-label">Pipeline</span></a>
+    <a aria-label="Team" class="nav-dot" data-label="Team" href="#team"><span class="nav-label">Team</span></a>
+    <a aria-label="Advisors" class="nav-dot" data-label="Advisors" href="#advisors"><span class="nav-label">Advisors</span></a>
+    <a aria-label="Contact" class="nav-dot" data-label="Contact" href="#contact"><span class="nav-label">Contact</span></a>
   </nav>
 
         <header class="site-header">
@@ -653,7 +703,11 @@
           </p>
         </div>
         <div>
-          <div class="hero-orb" aria-hidden="true"></div>
+          <div class="hero-orb" aria-hidden="true">
+            <div class="hero-logo-wrap">
+              <img src="img/ONCKO-ICON.png" alt="" class="hero-logo-mark">
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -767,6 +821,7 @@
                 <circle id="orbHalo" cx="380" cy="165" r="58" fill="rgba(255,209,102,0.08)" filter="url(#softGlow)" opacity="0.08"></circle>
                 <circle id="orbOuter" cx="380" cy="165" r="34" fill="url(#goldOrb)" filter="url(#softGlow)" opacity="0.08"></circle>
                 <circle id="orbInner" cx="380" cy="165" r="18" fill="rgba(255,245,210,0.98)" opacity="0.06"></circle>
+                <image id="orbLogo" href="img/ONCKO-ICON.png" x="326" y="111" width="108" height="108" opacity="0.0" preserveAspectRatio="xMidYMid meet"></image>
               </g>
             </svg>
             <div class="tag">Discover combo partners → optimize regimen</div>
@@ -797,7 +852,6 @@
           <div class="eyebrow">Pipeline</div>
           <h2>Our novel multi-drug combos.</h2>
           <p class="lede" style="max-width: 42ch;">
-            A platform biotech pipeline should communicate where optimized combinations are being advanced, without forcing a traditional clinical-stage story too early.
           </p>
         </div>
         <div>
@@ -965,6 +1019,7 @@
     const orbInner = document.getElementById("orbInner");
     const scoreStage = document.getElementById("scoreStage");
     const scoreSub = document.getElementById("scoreSub");
+    const orbLogo = document.getElementById("orbLogo");
 
     let currentStage = scoreStage.textContent;
     let currentSub = scoreSub.textContent;
@@ -1158,16 +1213,23 @@
       const orbT = time < optimizeEnd ? 0 : time < finalEnd ? easeInOut((time - optimizeEnd) / (finalEnd - optimizeEnd)) : 0;
       const stable = time >= finalEnd - 2200 && time < finalEnd;
       const orbPulse = stable ? 0 : 0.5 + 0.5 * Math.sin(now * 0.0018);
-      const haloR = lerp(58, 94, orbT) + orbPulse * 1.8;
-      const outerR = lerp(34, 57, orbT) + orbPulse * 0.9;
+      const haloR = lerp(58, 102, orbT) + orbPulse * 1.2;
+      const outerR = lerp(34, 57, orbT) + orbPulse * 0.45;
       const innerR = lerp(18, 28, orbT);
       const orbOpacity = time < optimizeEnd ? 0.08 : time < finalEnd ? lerp(0.12, 1, orbT) : 0.08;
+      const logoSize = lerp(86, 122, orbT);
+      const logoOpacity = time < optimizeEnd ? 0 : time < finalEnd ? lerp(0.0, 0.96, orbT) : 0;
       orbHalo.setAttribute("r", haloR.toFixed(2));
       orbOuter.setAttribute("r", outerR.toFixed(2));
       orbInner.setAttribute("r", innerR.toFixed(2));
-      orbHalo.setAttribute("opacity", (orbOpacity * 0.72).toFixed(3));
+      orbHalo.setAttribute("opacity", (orbOpacity * 0.82).toFixed(3));
       orbOuter.setAttribute("opacity", orbOpacity.toFixed(3));
       orbInner.setAttribute("opacity", Math.min(0.95, orbOpacity + 0.08).toFixed(3));
+      orbLogo.setAttribute("width", logoSize.toFixed(2));
+      orbLogo.setAttribute("height", logoSize.toFixed(2));
+      orbLogo.setAttribute("x", (CENTER.x - logoSize / 2).toFixed(2));
+      orbLogo.setAttribute("y", (CENTER.y - logoSize / 2).toFixed(2));
+      orbLogo.setAttribute("opacity", logoOpacity.toFixed(3));
 
       requestAnimationFrame(render);
     }
