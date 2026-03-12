@@ -1,38 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SZGFS13KK4"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-SZGFS13KK4');
-  </script>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SZGFS13KK4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-SZGFS13KK4');
+</script>
+  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <title>Oncko</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="icon" href="img/favicon/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-chrome-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="img/favicon/android-chrome-512x512.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+
+  <!-- Favicons -->
+<link rel="icon" href="img/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+
+<link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+
+<link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-chrome-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="img/favicon/android-chrome-512x512.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <header class="site-header">
-    <img src="img/ONCKO-LOGO.svg" alt="Oncko" class="logo">
-  </header>
-
   <nav class="side-nav" aria-label="Section navigation">
+
     <a aria-label="Home" class="nav-dot active" data-label="Home" href="#home"><span class="nav-label">Home</span></a>
     <a aria-label="Problem" class="nav-dot" data-label="Problem" href="#problem"><span class="nav-label">Problem</span></a>
     <a aria-label="Platform" class="nav-dot" data-label="Platform" href="#platform"><span class="nav-label">Platform</span></a>
@@ -42,19 +46,22 @@
     <a aria-label="Contact" class="nav-dot" data-label="Contact" href="#contact"><span class="nav-label">Contact</span></a>
   </nav>
 
+        <header class="site-header">
+        <img src="img/ONCKO-LOGO.svg" alt="Oncko" class="logo">
+        </header>
+
   <main class="shell">
-    <section class="section" id="home" data-nav="0">
+    <section class="section section-reveal" id="home" data-nav="0">
       <div class="container hero-grid">
-        <div class="hero-copy reveal-group">
-          <div class="hero-mobile-offset" aria-hidden="true"></div>
+        <div>
           <div class="eyebrow reveal">Combination intelligence</div>
           <h1 class="reveal-up reveal-delay-1">Engineering cancer drug combinations.</h1>
           <p class="lede reveal-up reveal-delay-2">
-            Cancer evolves resistance quickly. Drug combinations are among the most effective treatments. But finding the right drugs, doses, and timing is a massive search problem. Oncko is building the platform to solve it.
+            Cancer evolves resistance quickly. Drug combinations are among the most effective treatments. But finding the right drugs, doses, and timing is a massive search problem. We’re building the platform to solve it.
           </p>
         </div>
-        <div class="reveal-right reveal-delay-2">
-          <div class="hero-orb" aria-hidden="true">
+        <div>
+          <div class="hero-orb reveal-scale reveal-delay-2" aria-hidden="true">
             <div class="hero-logo-wrap">
               <img src="img/ONCKO-ICON.png" alt="" class="hero-logo-mark">
             </div>
@@ -63,53 +70,77 @@
       </div>
     </section>
 
-    <section class="section" id="problem" data-nav="1">
+    <section class="section section-reveal" id="problem" data-nav="1">
       <div class="container problem-grid">
         <div>
           <div class="eyebrow reveal">Problem</div>
-          <h2 class="reveal-up reveal-delay-1">The search space is the bottleneck.</h2>
+          <h2 class="reveal-up">Drugs x Dose x Schedule x Cancer Biology</h2>
         </div>
         <div>
-          <h3 class="reveal"><span class="accent-mint">Drugs x Dose x Schedule x Cancer Biology</span></h3>
-          <p class="body-copy reveal reveal-delay-1">
-            Even with a limited starting set of oncology agents, the number of possible combinations can be in the <span class="accent-mint"><strong>millions to billions</strong></span>. Traditional workflows explore only a tiny fraction of this space, making it hard to identify regimens that maximize efficacy while controlling toxicity. In contrast, some of the most successful cancer regimens are multi-drug combos.
+          <h3 class="reveal reveal-delay-1">The search space is the bottleneck.</h3>
+          <p class="body-copy reveal reveal-delay-2">            
+            Even with a limited starting set of oncology agents, the number of possible combinations can be in the <strong>millions to billions</strong>. Traditional workflows explore only a tiny fraction of this space, making it hard to identify regimens that maximize efficacy while controlling toxicity. In contrast, some of the most successful cancer regimens are multi-drug combos.
           </p>
-          <div class="stat-grid reveal-stagger">
-            <div class="card stat"><div class="kicker">Lung cancer</div><div class="value">2-drug</div><p>Platinum doublet</p></div>
-            <div class="card stat"><div class="kicker">Testicular cancer</div><div class="value">3-drug</div><p>BEP</p></div>
-            <div class="card stat"><div class="kicker">Colorectal cancer</div><div class="value">4-drug</div><p>FOLFOXIRI</p></div>
-            <div class="card stat"><div class="kicker">Pancreatic cancer</div><div class="value">4-drug</div><p>FOLFIRINOX - different schedule</p></div>
-            <div class="card stat"><div class="kicker">Lymphoma</div><div class="value">5-drug</div><p>R-CHOP</p></div>
-            <div class="card stat"><div class="kicker">Pediatric ALL</div><div class="value">8-drug</div><p>Various 8+ drug regimens</p></div>
+          <div class="stat-grid">
+            <div class="card stat reveal-up reveal-delay-1">
+              <div class="kicker">Lung cancer</div>
+              <div class="value">2-drug</div>
+              <p>Platinum doublet</p>
+            </div>
+             <div class="card stat reveal-up reveal-delay-2">
+              <div class="kicker">Testicular cancer</div>
+              <div class="value">3-drug</div>
+              <p>BEP</p>
+            </div>
+            <div class="card stat">
+              <div class="kicker">Colorectal Cancer</div>
+              <div class="value">4-drug</div>
+              <p>FOLFOXIRI</p>
+            </div>
+            <div class="card stat reveal-up reveal-delay-3">
+              <div class="kicker">Myeloma</div>
+              <div class="value">4-drug</div>
+              <p>D-VRd</p>
+            </div>
+            <div class="card stat">
+              <div class="kicker">Lymphoma</div>
+              <div class="value">5-drug</div>
+              <p>R-CHOP</p>
+            </div>
+            <div class="card stat reveal-up reveal-delay-4">
+              <div class="kicker">Pediatric ALL</div>
+              <div class="value">8-drug</div>
+              <p>various regimens</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="platform" data-nav="2">
+    <section class="section section-reveal" id="platform" data-nav="2">
       <div class="container solve-grid">
         <div class="platform-copy">
           <div class="eyebrow reveal">How we solve it</div>
-          <h2 class="reveal-up reveal-delay-1">A platform for combination discovery and optimization.</h2>
-          <p class="lede reveal-up reveal-delay-2 platform-lede">
+          <h2 class="reveal-up">A platform for combination discovery and optimization.</h2>
+          <p class="lede reveal reveal-delay-1" style="max-width: 48ch;">
             We generate large-scale experimental data on drug combinations, evaluate efficacy and toxicity, and use that signal to guide optimization toward better regimens.
           </p>
-          <div class="bullet-list reveal-stagger">
-            <div class="card bullet-item">
+          <div class="bullet-list">
+            <div class="card bullet-item reveal-left reveal-delay-1">
               <div class="bullet-index">01</div>
               <div>
                 <h3>Screen against SuperTumor™</h3>
                 <p>Combos are tested in SuperTumor™, a preclinical model that represents a large diversity of post-treatment cancer biology.</p>
               </div>
             </div>
-            <div class="card bullet-item">
+            <div class="card bullet-item reveal-left reveal-delay-2">
               <div class="bullet-index">02</div>
               <div>
                 <h3>Measure efficacy and toxicity together</h3>
                 <p>Capture the tradeoff that determines whether a candidate is worth advancing.</p>
               </div>
             </div>
-            <div class="card bullet-item">
+            <div class="card bullet-item reveal-left reveal-delay-3">
               <div class="bullet-index">03</div>
               <div>
                 <h3>Optimize toward stronger regimens</h3>
@@ -135,7 +166,10 @@
                 </linearGradient>
                 <filter id="softGlow">
                   <feGaussianBlur stdDeviation="8" result="blur"></feGaussianBlur>
-                  <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+                  <feMerge>
+                    <feMergeNode in="blur"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                  </feMerge>
                 </filter>
               </defs>
               <g id="stars"></g>
@@ -170,71 +204,159 @@
       </div>
     </section>
 
-    <section class="section" id="pipeline" data-nav="3">
+    <section class="section section-reveal" id="pipeline" data-nav="3">
       <div class="container pipeline-wrap">
         <div>
           <div class="eyebrow reveal">Pipeline</div>
-          <h2 class="reveal-up reveal-delay-1">Our novel multi-drug combos.</h2>
+          <h2 class="reveal-up">Our novel multi-drug combos.</h2>
+          <p class="lede" style="max-width: 42ch;">
+          </p>
         </div>
-        <div class="reveal-up reveal-delay-2">
-          <table class="pipeline-table" aria-label="Pipeline table">
+        <div>
+          <table class="pipeline-table reveal-up reveal-delay-1" aria-label="Pipeline table">
             <thead>
-              <tr><th>Program</th><th>Indication</th><th>Focus</th><th>In vivo efficacy</th><th>Stage</th></tr>
+              <tr>
+                <th>Program</th>
+                <th>Indication</th>
+                <th>Focus</th>
+                <th>In vivo efficacy</th>
+                <th>Stage</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><td data-label="Program">Combo #1</td><td data-label="Indication">2L NSCLC</td><td data-label="Focus">4-drug, all oral, orthogonal mechanisms</td><td data-label="In vivo efficacy">✓</td><td data-label="Stage"><span class="stage-pill">Preclinical</span></td></tr>
-              <tr><td data-label="Program">Discovery campaign #2</td><td data-label="Indication">2L NSCLC</td><td data-label="Focus">Resistance-targeting regimens</td><td data-label="In vivo efficacy"></td><td data-label="Stage"><span class="stage-pill">Discovery</span></td></tr>
-              <tr><td data-label="Program">Discovery campaign #3</td><td data-label="Indication">2L CRC</td><td data-label="Focus">Resistance-targeting regimens</td><td data-label="In vivo efficacy"></td><td data-label="Stage"><span class="stage-pill">Discovery</span></td></tr>
+              <tr>
+                <td data-label="Program">Combo #1</td>
+                <td data-label="Indication">2L NSCLC</td>
+                <td data-label="Focus">4-drug, orthogonal mechanisms</td>
+                <td data-label="InVivo">✓</td>
+                <td data-label="Stage"><span class="stage-pill">Preclinical</span></td>
+              </tr>
+              <tr>
+                <td data-label="Program">Discovery campaign #2</td>
+                <td data-label="Indication">2L NSCLC</td>
+                <td data-label="Focus">Resistance-targeting regimens</td>
+                <td data-label="InVivo"> </td>
+                <td data-label="Stage"><span class="stage-pill">Discovery</span></td>
+              </tr>
+              <tr>
+                <td data-label="Program">Discovery campaign #2</td>
+                <td data-label="Indication">2L CRC</td>
+                <td data-label="Focus">Resistance-targeting regimens</td>
+                <td data-label="InVivo"> </td>
+                <td data-label="Stage"><span class="stage-pill">Discovery</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <section class="section" id="team" data-nav="4">
+    <section class="section section-reveal" id="team" data-nav="4">
       <div class="container">
-        <div class="eyebrow reveal">Team</div>
-        <h2 class="reveal-up reveal-delay-1">Built by scientists and operators who know combinations.</h2>
-        <p class="lede team-lede reveal-up reveal-delay-2">Oncko brings together expertise in cancer therapeutics, large-scale experimental platforms, and machine learning.</p>
-        <div class="team-grid reveal-stagger">
-          <article class="card team-card"><div class="team-photo">AD</div><h3>Atray Dixit</h3><div class="team-role">Co-founder, CEO</div></article>
-          <article class="card team-card"><div class="team-photo">TS</div><h3>Tim Sproul</h3><div class="team-role">Head of Preclinical</div></article>
-          <article class="card team-card"><div class="team-photo">GW</div><h3>Glenn Wozniak</h3><div class="team-role">Principal Scientist</div></article>
-          <article class="card team-card"><div class="team-photo">AMM</div><h3>Andrés Mañas</h3><div class="team-role">AI Engineer</div></article>
-          <article class="card team-card"><div class="team-photo">MN</div><h3>Madinah Najib</h3><div class="team-role">Senior Research Associate</div></article>
+      <div class="eyebrow reveal">Team</div>
+        <h2>Built by scientists and operators who know combinations.</h2>
+        <p class="lede reveal reveal-delay-1" style="max-width: 56ch; margin-bottom: 28px;">
+          Oncko brings together expertise in cancer therapeutics, large-scale experimental platforms, and machine learning.
+        </p>
+        <div class="team-grid">
+          <a href="https://www.linkedin.com/in/atray-dixit/" target="_blank" rel="noopener noreferrer" aria-label="Atray Dixit on LinkedIn" class="card team-card team-link reveal-up reveal-delay-1">
+            <div class="team-link-badge"><i class="fa fa-linkedin-square" style="font-size:30px"></i></div>
+            <div class="team-photo">AD</div>
+            <h3>Atray Dixit</h3>
+            <div class="team-role">Co-founder, CEO</div>
+            <p>Inventor of Perturb-seq and co-developer of Shuffle-seq, building scalable discovery systems for combination therapeutics.</p>
+          </a>
+          <a href="https://www.linkedin.com/in/tim-sproul/" target="_blank" rel="noopener noreferrer" aria-label="Tim Sproul on LinkedIn" class="card team-card team-link reveal-up reveal-delay-2">
+            <div class="team-link-badge"><i class="fa fa-linkedin-square" style="font-size:30px"></i></div>
+            <div class="team-photo">TS</div>
+            <h3>Tim Sproul</h3>
+            <div class="team-role">Head of Preclinical</div>
+            <p>Leads preclinical strategy and translational execution across Oncko’s multi-drug combination programs.</p>
+          </a>
+          <a href="https://www.linkedin.com/in/glenn-wozniak-00520511/" target="_blank" rel="noopener noreferrer" aria-label="Glenn Wozniak on LinkedIn" class="card team-card team-link reveal-up reveal-delay-3">
+            <div class="team-link-badge"><i class="fa fa-linkedin-square" style="font-size:30px"></i></div>
+            <div class="team-photo">GW</div>
+            <h3>Glenn Wozniak</h3>
+            <div class="team-role">Principal Scientist</div>
+            <p>Principal scientist focused on experimental rigor, combination screening, and platform development.</p>
+          </a>
+          <a href="https://linkedin.com/in/andresmanas/" target="_blank" rel="noopener noreferrer" aria-label="Andrés Mañas on LinkedIn" class="card team-card team-link reveal-up reveal-delay-4">
+            <div class="team-link-badge"><i class="fa fa-linkedin-square" style="font-size:30px"></i></div>
+            <div class="team-photo">AMM</div>
+            <h3>Andrés Mañas</h3>
+            <div class="team-role">AI Engineer</div>
+            <p>AI engineer developing the models and infrastructure that connect experimental signal to regimen optimization.</p>
+          </a>
+          <a href="https://www.linkedin.com/in/madinah-n-030724146/" target="_blank" rel="noopener noreferrer" aria-label="Madinah Najib on LinkedIn" class="card team-card team-link reveal-up reveal-delay-4">
+            <div class="team-link-badge"><i class="fa fa-linkedin-square" style="font-size:30px"></i></div>
+            <div class="team-photo">MN</div>
+            <h3>Madinah Najib</h3>
+            <div class="team-role">Senior Research Associate</div>
+            <p>Senior research associate driving assay execution and high-quality data generation across discovery campaigns.</p>
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="section" id="advisors" data-nav="5">
+
+  <section class="section section-reveal" id="advisors" data-nav="5">
       <div class="container">
-        <div class="eyebrow reveal">Advisors</div>
-        <h2 class="reveal-up reveal-delay-1">Supported by a world-class advising team</h2>
-        <div class="team-grid reveal-stagger advisors-grid">
-          <article class="card team-card"><div class="team-photo">BG</div><h3>Bill Grossman</h3><div class="team-role">Co-founder, Strategic Advisor</div><p>Oncology drug development leader who has developed cancer combos through clinical trials, including senior leadership roles at Arcus Biosciences and Gilead.</p></article>
-          <article class="card team-card"><div class="team-photo">AS</div><h3>Alice Shaw</h3><div class="team-role">Chair Department of Medical Oncology, DFCI</div><p>An expert in clinical NSCLC and drug resistance. Dr. Shaw was previously vice president and global head of translational clinical oncology at Novartis for almost five years.</p></article>
-          <article class="card team-card"><div class="team-photo">AP</div><h3>Adam Palmer</h3><div class="team-role">Professor UNC</div><p>Demonstrated independent drug action explains a large portion of successful cancer combos and showed a roadmap to designing better ones.</p></article>
-          <article class="card team-card"><div class="team-photo">LG</div><h3>Luke Gilbert</h3><div class="team-role">Professor, Arc Institute</div><p>Cancer biology and combo CRISPR screening expert.</p></article>
+      <div class="eyebrow reveal">Advisors</div>
+        <h2 class="reveal-up">Supported by a world-class advising team</h2>
+        <p class="lede" style="max-width: 56ch; margin-bottom: 28px;">
+        </p>
+        <div class="team-grid">
+          <article class="card team-card reveal-up reveal-delay-1">
+            <div class="team-photo">BG</div>
+            <h3>Bill Grossman</h3>
+            <div class="team-role">Co-founder, Strategic Advisor</div>
+            <p>Oncology drug development leader who has developed cancer combos through clinical trials, including senior leadership roles at Arcus Biosciences and Gilead.</p>
+          </article>
+          <article class="card team-card reveal-up reveal-delay-2">
+            <div class="team-photo">AS</div>
+            <h3>Alice Shaw</h3>
+            <div class="team-role">Chair Department of Medical Oncology, DFCI</div>
+            <p>An expert in clinical NSCLC and drug resistance. Dr. Shaw was previously vice president and global head of translational clinical oncology at Novartis for almost five years. </p>
+          </article>
+          <article class="card team-card reveal-up reveal-delay-3">
+            <div class="team-photo">AP</div>
+            <h3>Adam Palmer</h3>
+            <div class="team-role">Professor UNC</div>
+            <p>Demonstrated independent drug action explains large portion of successful cancer combos and showed a roadmap to designing better ones.</p>
+          </article>
+          <article class="card team-card reveal-up reveal-delay-4">
+            <div class="team-photo">LG</div>
+            <h3>Luke Gilbert</h3>
+            <div class="team-role">Professor Arc Institute</div>
+            <p>Cancer biology and combo CRISPR screening expert</p>
+          </article>
+
+
         </div>
       </div>
     </section>
 
-    <section class="section" id="contact" data-nav="6">
+    <section class="section" id="contact" data-nav="5">
       <div class="container contact-grid">
         <div>
           <div class="eyebrow reveal">Contact</div>
-          <h2 class="reveal-up reveal-delay-1">Let’s talk.</h2>
+          <h2 class="reveal-up">Let’s talk.</h2>
         </div>
-        <div class="contact-stack reveal-stagger">
-          <div class="card contact-card contact-item"><div class="contact-label">Email</div><div class="contact-value">info@oncko.com</div></div>
-          <div class="card contact-card contact-item"><div class="contact-label">Address</div><div class="contact-value">500 Lincoln Centre Dr, Foster City, CA</div></div>
+        <div class="contact-stack">
+          <div class="card contact-card contact-item reveal-up reveal-delay-1">
+            <div class="contact-label">Email</div>
+            <div class="contact-value">info@oncko.com</div>
+          </div>
+          <div class="card contact-card contact-item reveal-up reveal-delay-2">
+            <div class="contact-label">Address</div>
+            <div class="contact-value">500 Lincoln Centre Dr Foster City, CA</div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
   <footer>© 2026 Oncko. All rights reserved.</footer>
-
   <script src="js/main.js"></script>
 </body>
 </html>
