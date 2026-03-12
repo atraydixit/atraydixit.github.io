@@ -1,47 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SZGFS13KK4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SZGFS13KK4');
+  </script>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-SZGFS13KK4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-SZGFS13KK4');
-</script>
-  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <title>Oncko</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Favicons -->
-<link rel="icon" href="img/favicon/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <link rel="icon" href="img/favicon/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="img/favicon/android-chrome-512x512.png">
 
-<link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon.png">
-
-<link rel="icon" type="image/png" sizes="192x192" href="img/favicon/android-chrome-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="img/favicon/android-chrome-512x512.png">
-
-    <link rel="stylesheet" href="css/styles.css">
-
-
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-    <header class="site-header">
+  <header class="site-header">
     <img src="img/ONCKO-LOGO.svg" alt="Oncko" class="logo">
-    </header>
+  </header>
 
   <nav class="side-nav" aria-label="Section navigation">
-
     <a aria-label="Home" class="nav-dot active" data-label="Home" href="#home"><span class="nav-label">Home</span></a>
     <a aria-label="Problem" class="nav-dot" data-label="Problem" href="#problem"><span class="nav-label">Problem</span></a>
     <a aria-label="Platform" class="nav-dot" data-label="Platform" href="#platform"><span class="nav-label">Platform</span></a>
@@ -51,20 +42,18 @@
     <a aria-label="Contact" class="nav-dot" data-label="Contact" href="#contact"><span class="nav-label">Contact</span></a>
   </nav>
 
-
-
   <main class="shell">
     <section class="section" id="home" data-nav="0">
       <div class="container hero-grid">
-        <div>
-          <div style="height:20px;"></div>
-          <div class="eyebrow">Combination intelligence</div>
-          <h1>Engineering cancer drug combinations.</h1>
-          <p class="lede">
+        <div class="hero-copy reveal-group">
+          <div class="hero-mobile-offset" aria-hidden="true"></div>
+          <div class="eyebrow reveal">Combination intelligence</div>
+          <h1 class="reveal-up reveal-delay-1">Engineering cancer drug combinations.</h1>
+          <p class="lede reveal-up reveal-delay-2">
             Cancer evolves resistance quickly. Drug combinations are among the most effective treatments. But finding the right drugs, doses, and timing is a massive search problem. Oncko is building the platform to solve it.
           </p>
         </div>
-        <div>
+        <div class="reveal-right reveal-delay-2">
           <div class="hero-orb" aria-hidden="true">
             <div class="hero-logo-wrap">
               <img src="img/ONCKO-ICON.png" alt="" class="hero-logo-mark">
@@ -77,45 +66,21 @@
     <section class="section" id="problem" data-nav="1">
       <div class="container problem-grid">
         <div>
-          <div class="eyebrow">Problem</div>
-          <h2>The search space is the bottleneck.</h2>
+          <div class="eyebrow reveal">Problem</div>
+          <h2 class="reveal-up reveal-delay-1">The search space is the bottleneck.</h2>
         </div>
         <div>
-          <h3><span style="color:#68e9ca;">Drugs x Dose x Schedule x Cancer Biology</span></h3>
-          <p class="body-copy">            
-            Even with a limited starting set of oncology agents, the number of possible combinations can be in the <span style="color:#68e9ca;"><strong>millions to billions</strong></span>. Traditional workflows explore only a tiny fraction of this space, making it hard to identify regimens that maximize efficacy while controlling toxicity. In contrast, some of the most successful cancer regimens are multi-drug combos.
+          <h3 class="reveal"><span class="accent-mint">Drugs x Dose x Schedule x Cancer Biology</span></h3>
+          <p class="body-copy reveal reveal-delay-1">
+            Even with a limited starting set of oncology agents, the number of possible combinations can be in the <span class="accent-mint"><strong>millions to billions</strong></span>. Traditional workflows explore only a tiny fraction of this space, making it hard to identify regimens that maximize efficacy while controlling toxicity. In contrast, some of the most successful cancer regimens are multi-drug combos.
           </p>
-          <div class="stat-grid">
-            <div class="card stat">
-              <div class="kicker">Lung cancer</div>
-              <div class="value">2-drug</div>
-              <p>Platinum doublet</p>
-            </div>
-             <div class="card stat">
-              <div class="kicker">Testicular cancer</div>
-              <div class="value">3-drug</div>
-              <p>BEP</p>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Colorectal Cancer</div>
-              <div class="value">4-drug</div>
-              <p>FOLFOXIRI</p>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Pancreatic Cancer</div>
-              <div class="value">4-drug</div>
-              <p>FOLFIRINOX - different schedule</p>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Lymphoma</div>
-              <div class="value">5-drug</div>
-              <p>R-CHOP</p>
-            </div>
-            <div class="card stat">
-              <div class="kicker">Pediatric ALL</div>
-              <div class="value">8-drug</div>
-              <p>various 8+ drug regimens</p>
-            </div>
+          <div class="stat-grid reveal-stagger">
+            <div class="card stat"><div class="kicker">Lung cancer</div><div class="value">2-drug</div><p>Platinum doublet</p></div>
+            <div class="card stat"><div class="kicker">Testicular cancer</div><div class="value">3-drug</div><p>BEP</p></div>
+            <div class="card stat"><div class="kicker">Colorectal cancer</div><div class="value">4-drug</div><p>FOLFOXIRI</p></div>
+            <div class="card stat"><div class="kicker">Pancreatic cancer</div><div class="value">4-drug</div><p>FOLFIRINOX - different schedule</p></div>
+            <div class="card stat"><div class="kicker">Lymphoma</div><div class="value">5-drug</div><p>R-CHOP</p></div>
+            <div class="card stat"><div class="kicker">Pediatric ALL</div><div class="value">8-drug</div><p>Various 8+ drug regimens</p></div>
           </div>
         </div>
       </div>
@@ -124,12 +89,12 @@
     <section class="section" id="platform" data-nav="2">
       <div class="container solve-grid">
         <div class="platform-copy">
-          <div class="eyebrow">How we solve it</div>
-          <h2>A platform for combination discovery and optimization.</h2>
-          <p class="lede" style="max-width: 48ch;">
+          <div class="eyebrow reveal">How we solve it</div>
+          <h2 class="reveal-up reveal-delay-1">A platform for combination discovery and optimization.</h2>
+          <p class="lede reveal-up reveal-delay-2 platform-lede">
             We generate large-scale experimental data on drug combinations, evaluate efficacy and toxicity, and use that signal to guide optimization toward better regimens.
           </p>
-          <div class="bullet-list">
+          <div class="bullet-list reveal-stagger">
             <div class="card bullet-item">
               <div class="bullet-index">01</div>
               <div>
@@ -153,7 +118,7 @@
             </div>
           </div>
         </div>
-        <div class="card viz-shell">
+        <div class="card viz-shell reveal-right">
           <section class="viz">
             <svg id="scene" viewBox="0 0 760 520" aria-label="Biotech drug combination animation">
               <defs>
@@ -170,10 +135,7 @@
                 </linearGradient>
                 <filter id="softGlow">
                   <feGaussianBlur stdDeviation="8" result="blur"></feGaussianBlur>
-                  <feMerge>
-                    <feMergeNode in="blur"></feMergeNode>
-                    <feMergeNode in="SourceGraphic"></feMergeNode>
-                  </feMerge>
+                  <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
                 </filter>
               </defs>
               <g id="stars"></g>
@@ -211,44 +173,18 @@
     <section class="section" id="pipeline" data-nav="3">
       <div class="container pipeline-wrap">
         <div>
-          <div class="eyebrow">Pipeline</div>
-          <h2>Our novel multi-drug combos.</h2>
-          <p class="lede" style="max-width: 42ch;">
-          </p>
+          <div class="eyebrow reveal">Pipeline</div>
+          <h2 class="reveal-up reveal-delay-1">Our novel multi-drug combos.</h2>
         </div>
-        <div>
+        <div class="reveal-up reveal-delay-2">
           <table class="pipeline-table" aria-label="Pipeline table">
             <thead>
-              <tr>
-                <th>Program</th>
-                <th>Indication</th>
-                <th>Focus</th>
-                <th>In vivo efficacy</th>
-                <th>Stage</th>
-              </tr>
+              <tr><th>Program</th><th>Indication</th><th>Focus</th><th>In vivo efficacy</th><th>Stage</th></tr>
             </thead>
             <tbody>
-              <tr>
-                <td data-label="Program">Combo #1</td>
-                <td data-label="Indication">2L NSCLC</td>
-                <td data-label="Focus">4-drug, all oral, orthogonal mechanisms</td>
-                <td data-label="InVivo">✓</td>
-                <td data-label="Stage"><span class="stage-pill">Preclinical</span></td>
-              </tr>
-              <tr>
-                <td data-label="Program">Discovery campaign #2</td>
-                <td data-label="Indication">2L NSCLC</td>
-                <td data-label="Focus">Resistance-targeting regimens</td>
-                <td data-label="InVivo"> </td>
-                <td data-label="Stage"><span class="stage-pill">Discovery</span></td>
-              </tr>
-              <tr>
-                <td data-label="Program">Discovery campaign #2</td>
-                <td data-label="Indication">2L CRC</td>
-                <td data-label="Focus">Resistance-targeting regimens</td>
-                <td data-label="InVivo"> </td>
-                <td data-label="Stage"><span class="stage-pill">Discovery</span></td>
-              </tr>
+              <tr><td data-label="Program">Combo #1</td><td data-label="Indication">2L NSCLC</td><td data-label="Focus">4-drug, all oral, orthogonal mechanisms</td><td data-label="In vivo efficacy">✓</td><td data-label="Stage"><span class="stage-pill">Preclinical</span></td></tr>
+              <tr><td data-label="Program">Discovery campaign #2</td><td data-label="Indication">2L NSCLC</td><td data-label="Focus">Resistance-targeting regimens</td><td data-label="In vivo efficacy"></td><td data-label="Stage"><span class="stage-pill">Discovery</span></td></tr>
+              <tr><td data-label="Program">Discovery campaign #3</td><td data-label="Indication">2L CRC</td><td data-label="Focus">Resistance-targeting regimens</td><td data-label="In vivo efficacy"></td><td data-label="Stage"><span class="stage-pill">Discovery</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -257,83 +193,28 @@
 
     <section class="section" id="team" data-nav="4">
       <div class="container">
-      <div class="eyebrow">Team</div>
-        <h2>Built by scientists and operators who know combinations.</h2>
-        <p class="lede" style="max-width: 56ch; margin-bottom: 28px;">
-          Oncko brings together expertise in cancer therapeutics, large-scale experimental platforms, and machine learning.
-        </p>
-        <div class="team-grid">
-          <article class="card team-card">
-            <div class="team-photo">AD</div>
-            <h3>Atray Dixit</h3>
-            <div class="team-role">Co-founder, CEO</div>
-            <p></p>
-            <!-- <p>Inventor of Perturb-seq and co-developer of Shuffle-seq. Repeat founder working at the intersection of experimental biology and scalable discovery systems.</p> -->
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">TS</div>
-            <h3>Tim Sproul</h3>
-            <div class="team-role">Head of Preclinical</div>
-            <p></p>
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">GW</div>
-            <h3>Glenn Wozniak</h3>
-            <div class="team-role">Principal Scientist</div>
-            <p></p>
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">AMM</div>
-            <h3>Andrés Mañas</h3>
-            <div class="team-role">AI Engineer</div>
-            <p></p>
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">MN</div>
-            <h3>Madinah Najib</h3>
-            <div class="team-role">Senior Research Associate</div>
-            <p></p>
-          </article>
-
-
+        <div class="eyebrow reveal">Team</div>
+        <h2 class="reveal-up reveal-delay-1">Built by scientists and operators who know combinations.</h2>
+        <p class="lede team-lede reveal-up reveal-delay-2">Oncko brings together expertise in cancer therapeutics, large-scale experimental platforms, and machine learning.</p>
+        <div class="team-grid reveal-stagger">
+          <article class="card team-card"><div class="team-photo">AD</div><h3>Atray Dixit</h3><div class="team-role">Co-founder, CEO</div></article>
+          <article class="card team-card"><div class="team-photo">TS</div><h3>Tim Sproul</h3><div class="team-role">Head of Preclinical</div></article>
+          <article class="card team-card"><div class="team-photo">GW</div><h3>Glenn Wozniak</h3><div class="team-role">Principal Scientist</div></article>
+          <article class="card team-card"><div class="team-photo">AMM</div><h3>Andrés Mañas</h3><div class="team-role">AI Engineer</div></article>
+          <article class="card team-card"><div class="team-photo">MN</div><h3>Madinah Najib</h3><div class="team-role">Senior Research Associate</div></article>
         </div>
       </div>
     </section>
 
-
-  <section class="section" id="advisors" data-nav="5">
+    <section class="section" id="advisors" data-nav="5">
       <div class="container">
-      <div class="eyebrow">Advisors</div>
-        <h2>Supported by a world-class advising team</h2>
-        <p class="lede" style="max-width: 56ch; margin-bottom: 28px;">
-        </p>
-        <div class="team-grid">
-          <article class="card team-card">
-            <div class="team-photo">BG</div>
-            <h3>Bill Grossman</h3>
-            <div class="team-role">Co-founder, Strategic Advisor</div>
-            <p>Oncology drug development leader who has developed cancer combos through clinical trials, including senior leadership roles at Arcus Biosciences and Gilead.</p>
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">AS</div>
-            <h3>Alice Shaw</h3>
-            <div class="team-role">Chair Department of Medical Oncology, DFCI</div>
-            <p>An expert in clinical NSCLC and drug resistance. Dr. Shaw was previously vice president and global head of translational clinical oncology at Novartis for almost five years. </p>
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">AP</div>
-            <h3>Adam Palmer</h3>
-            <div class="team-role">Professor UNC</div>
-            <p>Demonstrated independent drug action explains large portion of successful cancer combos and showed a roadmap to designing better ones.</p>
-          </article>
-          <article class="card team-card">
-            <div class="team-photo">LG</div>
-            <h3>Luke Gilbert</h3>
-            <div class="team-role">Professor Arc Institute</div>
-            <p>Cancer biology and combo CRISPR screening expert</p>
-          </article>
-
-
+        <div class="eyebrow reveal">Advisors</div>
+        <h2 class="reveal-up reveal-delay-1">Supported by a world-class advising team</h2>
+        <div class="team-grid reveal-stagger advisors-grid">
+          <article class="card team-card"><div class="team-photo">BG</div><h3>Bill Grossman</h3><div class="team-role">Co-founder, Strategic Advisor</div><p>Oncology drug development leader who has developed cancer combos through clinical trials, including senior leadership roles at Arcus Biosciences and Gilead.</p></article>
+          <article class="card team-card"><div class="team-photo">AS</div><h3>Alice Shaw</h3><div class="team-role">Chair Department of Medical Oncology, DFCI</div><p>An expert in clinical NSCLC and drug resistance. Dr. Shaw was previously vice president and global head of translational clinical oncology at Novartis for almost five years.</p></article>
+          <article class="card team-card"><div class="team-photo">AP</div><h3>Adam Palmer</h3><div class="team-role">Professor UNC</div><p>Demonstrated independent drug action explains a large portion of successful cancer combos and showed a roadmap to designing better ones.</p></article>
+          <article class="card team-card"><div class="team-photo">LG</div><h3>Luke Gilbert</h3><div class="team-role">Professor, Arc Institute</div><p>Cancer biology and combo CRISPR screening expert.</p></article>
         </div>
       </div>
     </section>
@@ -341,18 +222,12 @@
     <section class="section" id="contact" data-nav="6">
       <div class="container contact-grid">
         <div>
-          <div class="eyebrow">Contact</div>
-          <h2>Let’s talk.</h2>
+          <div class="eyebrow reveal">Contact</div>
+          <h2 class="reveal-up reveal-delay-1">Let’s talk.</h2>
         </div>
-        <div class="contact-stack">
-          <div class="card contact-card contact-item">
-            <div class="contact-label">Email</div>
-            <div class="contact-value">info@oncko.com</div>
-          </div>
-          <div class="card contact-card contact-item">
-            <div class="contact-label">Address</div>
-            <div class="contact-value">500 Lincoln Centre Dr Foster City, CA</div>
-          </div>
+        <div class="contact-stack reveal-stagger">
+          <div class="card contact-card contact-item"><div class="contact-label">Email</div><div class="contact-value">info@oncko.com</div></div>
+          <div class="card contact-card contact-item"><div class="contact-label">Address</div><div class="contact-value">500 Lincoln Centre Dr, Foster City, CA</div></div>
         </div>
       </div>
     </section>
@@ -360,254 +235,6 @@
 
   <footer>© 2026 Oncko. All rights reserved.</footer>
 
-  <script>
-    const DRUG_COUNT = 14;
-    const ACTIVE_COUNT = 4;
-    const LOOP_MS = 24800;
-    const WIDTH = 760;
-    const HEIGHT = 520;
-    const CENTER = { x: 380, y: 165 };
-    const SVG_NS = "http://www.w3.org/2000/svg";
-
-    const drugLayer = document.getElementById("drugs");
-    const lineLayer = document.getElementById("lines");
-    const starLayer = document.getElementById("stars");
-    const simEffFill = document.getElementById("simEffFill");
-    const simToxFill = document.getElementById("simToxFill");
-    const simEffValue = document.getElementById("simEffValue");
-    const simToxValue = document.getElementById("simToxValue");
-    const orbHalo = document.getElementById("orbHalo");
-    const orbOuter = document.getElementById("orbOuter");
-    const orbInner = document.getElementById("orbInner");
-    const scoreStage = document.getElementById("scoreStage");
-    const scoreSub = document.getElementById("scoreSub");
-    const orbLogo = document.getElementById("orbLogo");
-
-    let currentStage = scoreStage.textContent;
-    let currentSub = scoreSub.textContent;
-    let narrativeSwapTimer = null;
-
-    function setNarrative(stage, sub) {
-      if (stage === currentStage && sub === currentSub) return;
-      currentStage = stage;
-      currentSub = sub;
-      scoreStage.classList.add("narrative-swap");
-      scoreSub.classList.add("narrative-swap");
-      if (narrativeSwapTimer) clearTimeout(narrativeSwapTimer);
-      narrativeSwapTimer = setTimeout(() => {
-        scoreStage.textContent = stage;
-        scoreSub.textContent = sub;
-        scoreStage.classList.remove("narrative-swap");
-        scoreSub.classList.remove("narrative-swap");
-      }, 980);
-    }
-
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-    function easeInOut(t) { return 0.5 - 0.5 * Math.cos(Math.PI * t); }
-    function seedNoise(i) { return (Math.sin(i * 91.713) + 1) / 2; }
-    function comboIndices(cycle) {
-      const start = (cycle * 3) % DRUG_COUNT;
-      return Array.from({ length: ACTIVE_COUNT }, (_, i) => (start + i * 2) % DRUG_COUNT);
-    }
-    function scheduleMorph(t, phase) {
-      const v = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 + phase);
-      return { rx: lerp(0.5, 0.18, v), ry: lerp(0.5, 0.34, 1 - v), rot: lerp(-24, 24, v) };
-    }
-    function hsla(h, s, l, a) { return `hsla(${h}, ${s}%, ${l}%, ${a})`; }
-
-    const drugs = Array.from({ length: DRUG_COUNT }, (_, i) => {
-      const angle = (i / DRUG_COUNT) * Math.PI * 2 - Math.PI / 3;
-      const radius = 150 + seedNoise(i + 1) * 90;
-      return {
-        id: i,
-        x: 230 + Math.cos(angle) * radius,
-        y: 215 + Math.sin(angle) * (radius * 0.75),
-        hue: 185 + ((i * 19) % 55),
-        phase: seedNoise(i + 7) * Math.PI * 2,
-        baseDose: 18 + seedNoise(i + 3) * 18
-      };
-    });
-
-    const drugEls = drugs.map((drug) => {
-      const g = document.createElementNS(SVG_NS, "g");
-      const glow = document.createElementNS(SVG_NS, "ellipse");
-      const core = document.createElementNS(SVG_NS, "ellipse");
-      glow.setAttribute("fill", hsla(drug.hue, 82, 68, 0.16));
-      core.setAttribute("fill", hsla(drug.hue, 76, 58, 0.92));
-      core.setAttribute("stroke", "rgba(255,255,255,0.16)");
-      core.setAttribute("stroke-width", "1.2");
-      g.appendChild(glow);
-      g.appendChild(core);
-      drugLayer.appendChild(g);
-      return { g, glow, core };
-    });
-
-    const lines = Array.from({ length: ACTIVE_COUNT }, () => {
-      const line = document.createElementNS(SVG_NS, "line");
-      line.setAttribute("stroke", "url(#lineGrad)");
-      line.setAttribute("stroke-width", "2");
-      line.setAttribute("stroke-linecap", "round");
-      lineLayer.appendChild(line);
-      return line;
-    });
-
-    Array.from({ length: 32 }, (_, i) => {
-      const c = document.createElementNS(SVG_NS, "circle");
-      c.setAttribute("cx", 40 + seedNoise(i + 11) * (WIDTH - 80));
-      c.setAttribute("cy", 24 + seedNoise(i + 23) * (HEIGHT - 40));
-      c.setAttribute("r", 0.8 + seedNoise(i + 31) * 1.8);
-      c.setAttribute("fill", `rgba(255,255,255,${0.18 + seedNoise(i + 39) * 0.45})`);
-      c.dataset.phase = (seedNoise(i + 51) * Math.PI * 2).toFixed(4);
-      starLayer.appendChild(c);
-    });
-
-    function render(now) {
-      const time = now % LOOP_MS;
-      const cycle = Math.floor(now / LOOP_MS);
-      const active = comboIndices(cycle);
-      const activeSet = new Set(active);
-
-      const introEnd = 5200;
-      const evalEnd = 9800;
-      const optimizeEnd = 18400;
-      const finalEnd = 23200;
-
-      let eff = 0, tox = 0;
-      scoreStage.classList.remove("emphasis");
-
-      if (time < introEnd) {
-        setNarrative("Search initialized", "Selecting an initial multi-drug regimen");
-      } else if (time < evalEnd) {
-        setNarrative("Combination evaluation", "Measuring the first efficacy and toxicity profile");
-        eff = 58; tox = 64;
-      } else if (time < optimizeEnd) {
-        setNarrative("Optimization in progress", "Gradually tuning dose and schedule toward a stronger tradeoff");
-        const t = easeInOut((time - evalEnd) / (optimizeEnd - evalEnd));
-        eff = lerp(58, 91, t);
-        tox = lerp(64, 24, t);
-      } else if (time < finalEnd) {
-        setNarrative("Optimized combination", "Converged on a higher-efficacy, lower-toxicity regimen");
-        scoreStage.classList.add("emphasis");
-        eff = 91; tox = 24;
-      } else {
-        setNarrative("Search initialized", "Preparing the next region of combination space");
-      }
-
-      simEffFill.style.width = `${eff}%`;
-      simToxFill.style.width = `${tox}%`;
-      simEffValue.textContent = Math.round(eff);
-      simToxValue.textContent = Math.round(tox);
-
-      const stars = starLayer.children;
-      for (let i = 0; i < stars.length; i++) {
-        const star = stars[i];
-        const phase = parseFloat(star.dataset.phase || "0");
-        const pulse = 0.58 + 0.42 * (0.5 + 0.5 * Math.sin(now * 0.0011 + phase));
-        star.setAttribute("opacity", pulse.toFixed(3));
-      }
-
-      const optimizeT = clamp((time - evalEnd) / (optimizeEnd - evalEnd), 0, 1);
-      const gatherT = clamp(time / introEnd, 0, 1);
-      const mergeT = clamp((time - optimizeEnd) / (finalEnd - optimizeEnd), 0, 1);
-      const settleFinal = time >= optimizeEnd && time < finalEnd;
-
-      active.forEach((idx, localIdx) => {
-        const line = lines[localIdx];
-        const drug = drugs[idx];
-        const drift = 0.5 + 0.5 * Math.sin(now * 0.0012 + drug.phase);
-        const x = lerp(drug.x, CENTER.x, gatherT * 0.8 + optimizeT * 0.2);
-        const y = lerp(drug.y, CENTER.y, gatherT * 0.8 + optimizeT * 0.2);
-        line.setAttribute("x1", x);
-        line.setAttribute("y1", y);
-        line.setAttribute("x2", CENTER.x);
-        line.setAttribute("y2", CENTER.y);
-        line.setAttribute("opacity", time < introEnd ? lerp(0.04, 0.42, gatherT) : time < optimizeEnd ? 0.48 : time < finalEnd ? lerp(0.48, 0.08, mergeT) : 0.08);
-      });
-
-      drugs.forEach((drug, i) => {
-        const { g, glow, core } = drugEls[i];
-        const isActive = activeSet.has(i);
-        const driftX = Math.sin(now * 0.00062 + drug.phase) * 7;
-        const driftY = Math.cos(now * 0.00078 + drug.phase) * 5.5;
-        let x = drug.x + driftX;
-        let y = drug.y + driftY;
-        let opacity = isActive ? 0.98 : 0.34;
-        let rx = lerp(drug.baseDose * 0.76, drug.baseDose * 1.02, 0.5 + 0.5 * Math.sin(now * 0.0012 + drug.phase));
-        let ry = rx * 0.72;
-        let rot = Math.sin(now * 0.00082 + drug.phase) * 10;
-
-        if (isActive) {
-          const toCenter = easeInOut(clamp((time - 900) / (introEnd - 900), 0, 1));
-          x = lerp(x, CENTER.x + Math.sin(drug.phase) * 16, toCenter);
-          y = lerp(y, CENTER.y + Math.cos(drug.phase) * 16, toCenter);
-
-          if (time >= evalEnd && time < optimizeEnd) {
-            const pulse = 0.5 + 0.5 * Math.sin(now * 0.0028 + drug.phase);
-            const morph = scheduleMorph(now * 0.00028 + optimizeT * 0.8, drug.phase);
-            rx = lerp(18, 30, pulse) * morph.rx;
-            ry = lerp(13, 23, 1 - pulse) * (0.98 + morph.ry * 0.32);
-            rot = morph.rot * 0.72 + pulse * 10 - 5;
-          }
-
-          if (settleFinal) {
-            opacity = lerp(0.94, 0.0, mergeT);
-            rx = lerp(rx, 0.1, mergeT);
-            ry = lerp(ry, 0.1, mergeT);
-            x = lerp(x, CENTER.x, mergeT);
-            y = lerp(y, CENTER.y, mergeT);
-            rot = lerp(rot, 0, mergeT);
-          }
-        }
-
-        g.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${rot.toFixed(2)})`);
-        g.setAttribute("opacity", opacity.toFixed(3));
-        glow.setAttribute("cx", 0);
-        glow.setAttribute("cy", 0);
-        glow.setAttribute("rx", (rx * 1.85).toFixed(2));
-        glow.setAttribute("ry", (ry * 1.85).toFixed(2));
-        core.setAttribute("cx", 0);
-        core.setAttribute("cy", 0);
-        core.setAttribute("rx", Math.max(0.1, rx).toFixed(2));
-        core.setAttribute("ry", Math.max(0.1, ry).toFixed(2));
-      });
-
-      const orbT = time < optimizeEnd ? 0 : time < finalEnd ? easeInOut((time - optimizeEnd) / (finalEnd - optimizeEnd)) : 0;
-      const stable = time >= finalEnd - 2200 && time < finalEnd;
-      const orbPulse = stable ? 0 : 0.5 + 0.5 * Math.sin(now * 0.0018);
-      const haloR = lerp(58, 102, orbT) + orbPulse * 1.2;
-      const outerR = lerp(34, 57, orbT) + orbPulse * 0.45;
-      const innerR = lerp(18, 28, orbT);
-      const orbOpacity = time < optimizeEnd ? 0.08 : time < finalEnd ? lerp(0.12, 1, orbT) : 0.08;
-      const logoSize = lerp(86, 122, orbT);
-      const logoOpacity = time < optimizeEnd ? 0 : time < finalEnd ? lerp(0.0, 0.96, orbT) : 0;
-      orbHalo.setAttribute("r", haloR.toFixed(2));
-      orbOuter.setAttribute("r", outerR.toFixed(2));
-      orbInner.setAttribute("r", innerR.toFixed(2));
-      orbHalo.setAttribute("opacity", (orbOpacity * 0.82).toFixed(3));
-      orbOuter.setAttribute("opacity", orbOpacity.toFixed(3));
-      orbInner.setAttribute("opacity", Math.min(0.95, orbOpacity + 0.08).toFixed(3));
-      orbLogo.setAttribute("width", logoSize.toFixed(2));
-      orbLogo.setAttribute("height", logoSize.toFixed(2));
-      orbLogo.setAttribute("x", (CENTER.x - logoSize / 2).toFixed(2));
-      orbLogo.setAttribute("y", (CENTER.y - logoSize / 2).toFixed(2));
-      orbLogo.setAttribute("opacity", logoOpacity.toFixed(3));
-
-      requestAnimationFrame(render);
-    }
-    requestAnimationFrame(render);
-
-    const sections = [...document.querySelectorAll('.section[data-nav]')];
-    const navDots = [...document.querySelectorAll('.nav-dot')];
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        const idx = Number(entry.target.dataset.nav || 0);
-        navDots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
-      });
-    }, { threshold: 0.45 });
-    sections.forEach(section => observer.observe(section));
-  </script>
+  <script src="js/main.js"></script>
 </body>
 </html>
-  <script src="js/main.js"></script>
