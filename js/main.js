@@ -2,7 +2,7 @@ const DRUG_COUNT = 14;
     const ACTIVE_COUNT = 4;
     const LOOP_MS = 24800;
     const WIDTH = 760;
-    const HEIGHT = 520;
+    const HEIGHT = 760;
     const CENTER = { x: 380, y: 165 };
     const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -89,15 +89,6 @@ const DRUG_COUNT = 14;
       return line;
     });
 
-    Array.from({ length: 32 }, (_, i) => {
-      const c = document.createElementNS(SVG_NS, "circle");
-      c.setAttribute("cx", 40 + seedNoise(i + 11) * (WIDTH - 80));
-      c.setAttribute("cy", 24 + seedNoise(i + 23) * (HEIGHT - 40));
-      c.setAttribute("r", 0.8 + seedNoise(i + 31) * 1.8);
-      c.setAttribute("fill", `rgba(255,255,255,${0.18 + seedNoise(i + 39) * 0.45})`);
-      c.dataset.phase = (seedNoise(i + 51) * Math.PI * 2).toFixed(4);
-      starLayer.appendChild(c);
-    });
 
     function render(now) {
       const time = now % LOOP_MS;
@@ -119,12 +110,12 @@ const DRUG_COUNT = 14;
         setNarrative("Combination evaluation", "Measuring the first efficacy and toxicity profile");
         eff = 58; tox = 64;
       } else if (time < optimizeEnd) {
-        setNarrative("Optimization in progress", "Gradually tuning dose and schedule toward a stronger tradeoff");
+        setNarrative("Optimization in progress", "Tuning dose and schedule");
         const t = easeInOut((time - evalEnd) / (optimizeEnd - evalEnd));
         eff = lerp(58, 91, t);
         tox = lerp(64, 24, t);
       } else if (time < finalEnd) {
-        setNarrative("Optimized combination", "Converged on a higher-efficacy, lower-toxicity regimen");
+        setNarrative("Optimized combination", "Achieved higher-efficacy, lower-toxicity regimen");
         scoreStage.classList.add("emphasis");
         eff = 91; tox = 24;
       } else {

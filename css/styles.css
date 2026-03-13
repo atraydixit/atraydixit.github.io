@@ -387,16 +387,17 @@
     .viz-shell {
       position: relative;
       min-height: 560px;
-      padding: 22px;
+      padding: 18px;
     }
     .viz {
       position: relative;
       min-width: 0;
-      height: min(72vh, 520px);
+      height: min(72vh, 500px);
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      padding-bottom: 96px;
+      padding-bottom: 72px;
+      padding-bottom: 150px;
     }
     svg { width: 100%; height: 100%; overflow: visible; display: block; }
     .tag {
