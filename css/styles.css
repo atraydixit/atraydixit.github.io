@@ -230,7 +230,8 @@
       align-items: center;
     }
 
-    .hero-grid { grid-template-columns: 1.1fr 0.9fr; }
+    .hero-grid { grid-template-columns: 1.1fr 0.9fr; 
+      padding-top: 24px; }
     .problem-grid { grid-template-columns: 0.9fr 1.1fr; }
     .solve-grid { grid-template-columns: 0.9fr 1.1fr; }
     .pipeline-wrap { grid-template-columns: 0.8fr 1.2fr; align-items: start; }
@@ -563,13 +564,16 @@
       .solve-grid,
       .pipeline-wrap,
       .contact-grid { grid-template-columns: 1fr; }
-      .team-grid { grid-template-columns: 1fr; }
+      .team-grid { 
+      grid-template-columns: repeat(2, 1fr); 
+    }
       .platform-copy { padding-right: 0; }
       .viz-shell { min-height: 580px; }
     }
 
     @media (max-width: 860px) {
       :root { --side-nav-w: 0px; }
+      .team-grid { grid-template-columns: 1fr; }
       .shell { padding-left: 0; }
       .side-nav {
         right: 10px;
@@ -686,9 +690,6 @@
 .reveal-delay-3 { transition-delay: 270ms; }
 .reveal-delay-4 { transition-delay: 360ms; }
 
-.team-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
 
 .team-card {
   position: relative;
