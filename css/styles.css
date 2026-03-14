@@ -42,11 +42,15 @@
       opacity: 0.18;
       pointer-events: none;
     }
-    a { color: #68e9ca; text-decoration: none; transition: color 0.2s ease; }
+  a {
+    color: #5fcdb6;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
 
-    a:hover {
-      color: #9cf3df;
-    }
+  a:hover {
+    color: #84e0cd;
+  }
 
 
     .site-header {
@@ -503,20 +507,24 @@
       padding: 24px;
       min-height: 100%;
     }
-    .team-photo {
-      width: 64px;
-      height: 64px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      font-weight: 600;
-      color: #071513;
-      background: linear-gradient(135deg, var(--brand-mint), var(--brand-lime));
-      box-shadow: 0 12px 28px rgba(104,233,202,0.18);
-      margin-bottom: 18px;
-    }
+
+.team-photo {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;   /* adds space before the name */
+}
+
+.team-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%; /* shifts face up slightly */
+  display: block;
+}
+
+
     .team-role {
       margin-top: 8px;
       color: var(--muted-2);
