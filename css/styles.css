@@ -42,9 +42,11 @@
       opacity: 0.18;
       pointer-events: none;
     }
-    a { color: inherit; text-decoration: none; }
+    a { color: #68e9ca; text-decoration: none; transition: color 0.2s ease; }
 
-
+    a:hover {
+      color: #9cf3df;
+    }
 
 
     .site-header {
@@ -198,7 +200,7 @@
       line-height: 1.02;
       letter-spacing: -0.04em;
       font-weight: 600;
-      max-width: 12ch;
+      max-width: 18ch;
     }
     h3 {
       font-size: 1.2rem;
@@ -342,7 +344,7 @@
       margin-bottom: 10px;
     }
     .stat .value {
-      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      font-size: clamp(1.4rem, 2.2vw, 1.8rem);
       line-height: 1;
       letter-spacing: -0.04em;
       color: var(--brand-lime);

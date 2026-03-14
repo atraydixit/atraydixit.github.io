@@ -57,7 +57,10 @@
           <div class="eyebrow reveal">Combination intelligence</div>
           <h1 class="reveal-up reveal-delay-1">Engineering cancer drug combinations.</h1>
           <p class="lede reveal-up reveal-delay-2">
-            Cancer evolves resistance quickly. Drug combinations are among the most effective treatments. But finding the right drugs, doses, and timing is a massive search problem. We’re building the platform to solve it.
+Cancer evolves resistance quickly. 
+<br>The most effective treatments are often combinations of drugs.
+<br>But choosing the right drugs, doses, and schedules is hard.
+<br>Our name, Oncko, reflects our mission to solve this search problem in oncology — the combinatorial challenge known as <a href="https://en.wikipedia.org/wiki/Binomial_coefficient">nCk</a>.
           </p>
         </div>
         <div>
@@ -74,26 +77,22 @@
       <div class="container problem-grid">
         <div>
           <div class="eyebrow reveal">Problem</div>
-          <h2 class="reveal-up">Drugs x Dose x Schedule x Cancer Biology</h2>
-        </div>
-        <div>
-          <h3 class="reveal reveal-delay-1">The search space is the bottleneck.</h3>
-          <p class="body-copy reveal reveal-delay-2">            
-            Even with a limited starting set of oncology agents, the number of possible combinations can be in the <strong>millions to billions</strong>. Traditional workflows explore only a tiny fraction of this space, making it hard to identify regimens that maximize efficacy while controlling toxicity. In contrast, some of the most successful cancer regimens are multi-drug combos.
-          </p>
+          <h2 class="reveal-up">Combos work</h2>
+          <p></p>
+
           <div class="stat-grid">
             <div class="card stat reveal-up reveal-delay-1">
-              <div class="kicker">Lung cancer</div>
+              <div class="kicker">Lung</div>
               <div class="value">2-drug</div>
               <p>Platinum doublet</p>
             </div>
              <div class="card stat reveal-up reveal-delay-2">
-              <div class="kicker">Testicular cancer</div>
+              <div class="kicker">Testicular</div>
               <div class="value">3-drug</div>
               <p>BEP</p>
             </div>
             <div class="card stat">
-              <div class="kicker">Colorectal Cancer</div>
+              <div class="kicker">Colorectal</div>
               <div class="value">4-drug</div>
               <p>FOLFOXIRI</p>
             </div>
@@ -113,6 +112,40 @@
               <p>various regimens</p>
             </div>
           </div>
+
+        </div>
+        <div>
+          <h2 class="reveal reveal-delay-1">Discovery is hard</h2>
+          <p>The table below illustrates the challenge of discovering multi-drug combos from a set of 100 drug candidates. First, to find the right drugs and second to optimize dose and schedules.
+            <br><br></p>
+
+          <table class="pipeline-table reveal-up reveal-delay-1" aria-label="Combination search space">
+          <thead>
+            <tr>
+              <th>Drugs / combo</th>
+              <th>Drug combinations</th>
+              <th>+ dose & schedule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Combination size">2-drug</td>
+              <td data-label="Drug combos">~5k</td>
+              <td data-label="Dose schedule">~160k</td>
+            </tr>
+            <tr>
+              <td data-label="Combination size">4-drug</td>
+              <td data-label="Drug combos">~3.9M</td>
+              <td data-label="Dose schedule">~4B</td>
+            </tr>
+            <tr>
+              <td data-label="Combination size">8-drug</td>
+              <td data-label="Drug combos">~186B</td>
+              <td data-label="Dose schedule">~6Q</td>
+            </tr>
+          </tbody>
+        </table>
+
         </div>
       </div>
     </section>
