@@ -466,14 +466,22 @@
 
     .pipeline-table {
       width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
       border-radius: 28px;
+      overflow: hidden;
+
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: var(--shadow);
-      overflow: visible;
+
+      /* stronger visible border */
+      border: 1px solid rgba(255,255,255,0.14);
+
+      /* optional: subtle outer glow to make edge crisp */
+      box-shadow: 
+        0 0 0 1px rgba(255,255,255,0.06),
+        var(--shadow);
     }
+
     .pipeline-table th,
     .pipeline-table td {
       padding: 18px 20px;
