@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>In the nCk of Times</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg-1: #0a1312;
+  --bg-2: #08100f;
+  --bg-3: #0d1917;
+  --brand-lime: #cee444;
+  --brand-mint: #68e9ca;
+  --panel-border: rgba(255,255,255,0.10);
+  --text: #ffffff;
+  --muted: #bfd0ca;
+  --muted-2: #82959a;
+  --shadow: 0 24px 72px rgba(0,0,0,0.28);
+  --radius: 26px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 80% 12%, rgba(104, 233, 202, 0.12), transparent 0%, transparent 26%),
+    radial-gradient(circle at 84% 16%, rgba(206, 228, 68, 0.08), transparent 0%, transparent 18%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.18;
+  pointer-events: none;
+}
+a { color: #84e0cd; text-decoration: none; }
+a:hover { color: #b8fff0; }
+.hero {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(180deg, rgba(5,7,11,0.95) 0%, rgba(5,7,11,0.80) 72%, rgba(5,7,11,0.35) 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.hero-inner, .shell { width: min(1240px, calc(100% - 40px)); margin: 0 auto; }
+.hero-inner { padding: 24px 0 20px; }
+.brand-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.kicker {
+  display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px;
+  border: 1px solid rgba(104, 233, 202, 0.24); background: rgba(104, 233, 202, 0.09);
+  color: rgba(236, 250, 246, 0.92); font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 14px;
+}
+h1 { margin: 0; font-size: clamp(2.3rem, 5vw, 4.4rem); line-height: .98; letter-spacing: -0.05em; font-weight: 600; }
+.subhead { margin: 14px 0 0; max-width: none; color: rgba(239,246,244,0.9); font-size: 17px; line-height: 1.8; position: relative; z-index: 2; }
+.subhead a { color: #9cf0de; text-decoration: underline; pointer-events: auto; }
+.meta-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.pill {
+  border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); color: var(--muted);
+  border-radius: 999px; padding: 10px 14px; font-size: .92rem; white-space: nowrap;
+}
+.controls { display: grid; grid-template-columns: 1.5fr auto auto; gap: 12px; align-items: center; }
+.search {
+  width: 100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05);
+  color: var(--text); padding: 14px 16px; font: inherit; outline: none;
+}
+.search::placeholder { color: #8090ad; }
+.count { justify-self: end; color: var(--muted); font-size: .95rem; }
+.company-timeline {
+  margin-top: 22px;
+  width: 100%;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+.timeline-inner {
+  position: relative;
+  width: 100%;
+  height: 118px;
+}
+.timeline-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+}
+.timeline-progress {
+  position: absolute;
+  top: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    rgba(104, 233, 202, 0.00) 0%,
+    rgba(104, 233, 202, 0.07) 34%,
+    rgba(206, 228, 68, 0.12) 74%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+  box-shadow: 0 0 10px rgba(104, 233, 202, 0.03);
+}
+.timeline-milestone,
+.timeline-today {
+  position: absolute;
+  top: 18px;
+  transform: translate(-50%, -50%);
+}
+.timeline-dot,
+.timeline-today-dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+}
+.timeline-dot {
+  background: linear-gradient(135deg, #cee444, #68e9ca);
+  box-shadow: 0 0 0 4px rgba(206, 228, 68, 0.08);
+}
+.timeline-copy,
+.timeline-today-copy {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 122px;
+  max-width: 122px;
+  text-align: center;
+  color: rgba(239,246,244,0.92);
+}
+.timeline-copy strong,
+.timeline-today-copy strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.15;
+  font-weight: 600;
+}
+.timeline-copy span,
+.timeline-today-copy span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.18;
+  color: rgba(191,208,202,0.82);
+}
+.timeline-milestone.future .timeline-dot {
+  background: rgba(255,255,255,0.14);
+  border: 1px dashed rgba(255,255,255,0.35);
+  box-shadow: none;
+}
+.timeline-milestone.future .timeline-copy { color: rgba(239,246,244,0.72); }
+.timeline-today::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.34);
+}
+.timeline-today-dot {
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  margin-top: 2px;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.08);
+}
+.timeline-today-copy {
+  color: rgba(255,255,255,0.86);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.timeline-today-copy span {
+  letter-spacing: normal;
+  text-transform: none;
+}
+.shell { padding: 28px 0 56px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
+.card {
+  border-radius: var(--radius); overflow: hidden; min-height: 100%; border: 1px solid var(--panel-border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+  backdrop-filter: blur(16px); box-shadow: var(--shadow); transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.card:hover { transform: translateY(-6px); border-color: rgba(104,233,202,0.24); box-shadow: 0 34px 80px rgba(0,0,0,0.34), 0 0 0 1px rgba(104,233,202,0.08); }
+.image-frame { aspect-ratio: 16 / 9; background: rgba(255,255,255,0.03); overflow: hidden; border-radius: 20px; }
+.card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-body { padding: 18px 18px 20px; }
+.date { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brand-lime); margin: 12px 0 10px; }
+.card h2 { margin: 0 0 10px; font-size: clamp(0.98rem, 1.15vw, 1.10rem); line-height: 1.18; letter-spacing: -0.02em; }
+.richtext { color: var(--muted); font-size: 15px; line-height: 1.78; }
+.richtext p { margin: 0 0 12px; }
+.richtext p:last-child { margin-bottom: 0; }
+.richtext strong { color: rgba(244,250,248,0.96); font-weight: 600; }
+.richtext em { color: rgba(232,244,240,0.94); }
+.richtext ul, .richtext ol { margin: 0 0 12px; padding-left: 1.2rem; }
+.richtext li { margin: 0 0 8px; }
+.summary { position: relative; }
+.summary.is-collapsible:not(.expanded) {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.summary.is-collapsible:not(.expanded)::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.8em; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(10,19,18,0), rgba(10,19,18,0.96));
+}
+.read-more-btn {
+  margin-top: 12px; cursor: pointer; color: rgba(236,250,246,0.95); border: 1px solid rgba(104,233,202,0.18);
+  background: rgba(104,233,202,0.08); border-radius: 999px; padding: 8px 12px; font: inherit; font-size: 13px; line-height: 1;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.read-more-btn:hover { background: rgba(104,233,202,0.14); border-color: rgba(104,233,202,0.28); transform: translateY(-1px); }
+.read-more-btn[hidden] { display: none !important; }
+.figure-caption { margin: 12px 0 0; color: rgba(232,244,240,0.88); font-size: 13px; line-height: 1.6; }
+.empty { display: none; padding: 32px; border: 1px dashed rgba(255,255,255,0.16); border-radius: 22px; color: var(--muted); text-align: center; }
+mark.search-hit { background: rgba(206,228,68,0.88); color: #081018; padding: 0 .18em; border-radius: .3em; box-shadow: 0 0 0 1px rgba(206,228,68,0.22); }
+.footer-note { color: var(--muted-2); text-align: center; padding-top: 22px; font-size: .92rem; }
+@media (max-width: 820px) {
+  .brand-row { flex-direction: column; align-items:flex-start; }
+  .controls { grid-template-columns: 1fr; }
+  .count { justify-self:start; }
+  .timeline-inner { height: 104px; }
+  .timeline-copy, .timeline-today-copy { width: 80px; max-width: 80px; }
+  .timeline-copy strong, .timeline-today-copy strong { font-size: 10px; }
+  .timeline-copy span, .timeline-today-copy span { font-size: 9px; }
+  .timeline-dot { width: 14px; height: 14px; }
+  .timeline-today-dot { width: 10px; height: 10px; }
+}
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand-row">
+        <div>
+          <div class="kicker">Oncko newsletter posted March 22, 2026</div>
+          <h1>In the <a href="https://en.wikipedia.org/wiki/Binomial_coefficient" target="_blank" rel="noopener noreferrer">nCk</a> of Times</h1>
+        </div>
+      </div>
+      <div class="company-timeline" aria-label="Company timeline">
+<div class="timeline-inner">
+<div class="timeline-track"></div>
+<div class="timeline-progress" style="left: 4.00%; width: 55.86%;"></div>
+<div class="timeline-milestone" style="left: 4.00%;">
+  <div class="timeline-dot"></div>
+  <div class="timeline-copy">
+    <strong>Founded</strong>
+    <span>October 2024</span>
+  </div>
+</div>
+<div class="timeline-milestone" style="left: 50.00%;">
+  <div class="timeline-dot"></div>
+  <div class="timeline-copy">
+    <strong>1st in vivo efficacy</strong>
+    <span>December 2025</span>
+  </div>
+</div>
+<div class="timeline-milestone future" style="left: 96.00%;">
+  <div class="timeline-dot"></div>
+  <div class="timeline-copy">
+    <strong>1st patient dosed</strong>
+    <span>February 2027 (target)</span>
+  </div>
+</div>
+<div class="timeline-today" style="left: 59.86%;">
+  <div class="timeline-today-dot"></div>
+  <div class="timeline-today-copy"><strong>TODAY</strong><span>March 22, 2026</span></div>
+</div>
+</div>
+</div>
+      <div class="controls">
+        <input class="search" id="search" type="search" placeholder="Search titles, dates, captions, or summaries…" />
+        <div class="count" id="count"></div>
+      </div>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="grid" id="gallery">
+      <article class="card" data-text="March 2026 Do what we say, say what we do TBA TBD TBA TBD">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202603.png" alt="TBD" loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;TBD&lt;/p&gt;"><p>TBD</p></div>
+    <div class="date" data-original="March 2026">March 2026</div>
+    <h2 data-original="Do what we say, say what we do">Do what we say, say what we do</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;TBA&lt;/p&gt;"><p>TBA</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="February 2026 More Combos, Not Headcount 2025: 4 scientists → 10 combos tested. 2026 target: 100 combos tested That’s 10× more output. But we&#x27;ve only grown our team by 1.34x. Instead of 90% internal R&amp;D, we’re flipping to ~90% CRO execution, where each Oncko scientist designs experiments and coordinates with multiple CRO teams running experiments in parallel. Think: small internal team, large external engine. We also recently added two exceptional senior leaders to help scale: Glenn (data generation → combo nomination) Tim (combo validation → development) By the end of March we’ll have launched &gt;$400k in CRO science across 5 projects, compared to ~$70k in only 1 project in all of 2025. As per our Scale ⭤ Translation thesis from our 2026 Operating Plan, we will test more combos, generate more data → get better predictions → and ultimately better cancer drugs. An Oncko scientist scales productivity across multiple CRO executed projects. 2025: 4 scientists → 10 combos tested. 2026 target: 100 combos tested That’s 10× more output. But we&amp;#x27;ve only grown our team by 1.34x. Instead of 90% internal R&amp;amp;D, we’re flipping to ~90% CRO execution, where each Oncko scientist designs experiments and coordinates with multiple CRO teams running experiments in parallel. Think: small internal team, large external engine. We also recently added two exceptional senior leaders to help scale: Glenn (data generation → combo nomination) Tim (combo validation → development) By the end of March we’ll have launched &amp;gt;$400k in CRO science across 5 projects, compared to ~$70k in only 1 project in all of 2025. As per our Scale ⭤ Translation thesis from our 2026 Operating Plan, we will test more combos, generate more data → get better predictions → and ultimately better cancer drugs. An Oncko scientist scales productivity across multiple CRO executed projects.">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202602.png" alt="An Oncko scientist scales productivity across multiple CRO executed projects." loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;An Oncko scientist scales productivity across multiple CRO executed projects.&lt;/p&gt;"><p>An Oncko scientist scales productivity across multiple CRO executed projects.</p></div>
+    <div class="date" data-original="February 2026">February 2026</div>
+    <h2 data-original="More Combos, Not Headcount">More Combos, Not Headcount</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;2025: 4 scientists → 10 combos tested. 2026 target: 100 combos tested&lt;/p&gt;
+&lt;p&gt;That’s 10× more output. But we&amp;#x27;ve only grown our team by 1.34x.&lt;/p&gt;
+&lt;p&gt;Instead of 90% internal R&amp;amp;D, we’re flipping to ~90% CRO execution, where each Oncko scientist designs experiments and coordinates with multiple CRO teams running experiments in parallel.&lt;/p&gt;
+&lt;p&gt;Think: small internal team, large external engine.&lt;/p&gt;
+&lt;p&gt;We also recently added two exceptional senior leaders to help scale:&lt;/p&gt;
+&lt;p&gt;Glenn (data generation → combo nomination)&lt;br&gt;Tim (combo validation → development)&lt;/p&gt;
+&lt;p&gt;By the end of March we’ll have launched &amp;gt;$400k in CRO science across 5 projects, compared to ~$70k in only 1 project in all of 2025. As per our Scale ⭤ Translation thesis from our 2026 Operating Plan, we will test more combos, generate more data → get better predictions → and ultimately better cancer drugs.&lt;/p&gt;"><p>2025: 4 scientists → 10 combos tested. 2026 target: 100 combos tested</p>
+<p>That’s 10× more output. But we&#x27;ve only grown our team by 1.34x.</p>
+<p>Instead of 90% internal R&amp;D, we’re flipping to ~90% CRO execution, where each Oncko scientist designs experiments and coordinates with multiple CRO teams running experiments in parallel.</p>
+<p>Think: small internal team, large external engine.</p>
+<p>We also recently added two exceptional senior leaders to help scale:</p>
+<p>Glenn (data generation → combo nomination)<br>Tim (combo validation → development)</p>
+<p>By the end of March we’ll have launched &gt;$400k in CRO science across 5 projects, compared to ~$70k in only 1 project in all of 2025. As per our Scale ⭤ Translation thesis from our 2026 Operating Plan, we will test more combos, generate more data → get better predictions → and ultimately better cancer drugs.</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="January 2026 Oncko Evolves As we enter 2026, we’re sharpening our strategy around 2L NSCLC — patients whose tumors have already evolved beyond frontline therapy. What remains is resistant, heterogeneous, and poorly understood. These patients are out of good options. Importantly, this evolved resistance is poorly represented in most conventional preclinical models, from standard cell lines to many xenografts. Oncko intends to address this by learning from cancer’s ability to evolve — and using those insights to build better therapies. 2025 → 2026 (targets) * 1 nomination strategy → 10 orthogonal strategies evaluated in parallel * In vitro killing alone → adding clinical and mechanism data * 10 combos tested in xenografts → 100 * 1 program ready to advance past initial screen → 2 programs with pharma/investor-grade preclinical packages and defensible IP Oncko&#x27;s 2026 approach involves rapid evolutionary experimental cycles. As we enter 2026, we’re sharpening our strategy around 2L NSCLC — patients whose tumors have already evolved beyond frontline therapy. What remains is resistant, heterogeneous, and poorly understood. These patients are out of good options. Importantly, this evolved resistance is poorly represented in most conventional preclinical models, from standard cell lines to many xenografts. Oncko intends to address this by learning from cancer’s ability to evolve — and using those insights to build better therapies. 2025 → 2026 (targets) 1 nomination strategy → 10 orthogonal strategies evaluated in parallel In vitro killing alone → adding clinical and mechanism data 10 combos tested in xenografts → 100 1 program ready to advance past initial screen → 2 programs with pharma/investor-grade preclinical packages and defensible IP Oncko&amp;#x27;s 2026 approach involves rapid evolutionary experimental cycles.">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202601.png" alt="Oncko&#x27;s 2026 approach involves rapid evolutionary experimental cycles." loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;Oncko&amp;#x27;s 2026 approach involves rapid evolutionary experimental cycles.&lt;/p&gt;"><p>Oncko&#x27;s 2026 approach involves rapid evolutionary experimental cycles.</p></div>
+    <div class="date" data-original="January 2026">January 2026</div>
+    <h2 data-original="Oncko Evolves">Oncko Evolves</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;As we enter 2026, we’re sharpening our strategy around 2L NSCLC — patients whose tumors have already evolved beyond frontline therapy. What remains is resistant, heterogeneous, and poorly understood. These patients are out of good options.&lt;/p&gt;
+&lt;p&gt;Importantly, this evolved resistance is poorly represented in most conventional preclinical models, from standard cell lines to many xenografts. Oncko intends to address this by learning from cancer’s ability to evolve — and using those insights to build better therapies.&lt;/p&gt;
+&lt;p&gt;2025 → 2026 (targets)&lt;/p&gt;
+&lt;p&gt;&lt;em&gt; 1 nomination strategy → 10 orthogonal strategies evaluated in parallel&lt;br&gt;&lt;/em&gt; In vitro killing alone → adding clinical and mechanism data&lt;br&gt;&lt;em&gt; 10 combos tested in xenografts → 100&lt;br&gt;&lt;/em&gt; 1 program ready to advance past initial screen → 2 programs with pharma/investor-grade preclinical packages and defensible IP&lt;/p&gt;"><p>As we enter 2026, we’re sharpening our strategy around 2L NSCLC — patients whose tumors have already evolved beyond frontline therapy. What remains is resistant, heterogeneous, and poorly understood. These patients are out of good options.</p>
+<p>Importantly, this evolved resistance is poorly represented in most conventional preclinical models, from standard cell lines to many xenografts. Oncko intends to address this by learning from cancer’s ability to evolve — and using those insights to build better therapies.</p>
+<p>2025 → 2026 (targets)</p>
+<p><em> 1 nomination strategy → 10 orthogonal strategies evaluated in parallel<br></em> In vitro killing alone → adding clinical and mechanism data<br><em> 10 combos tested in xenografts → 100<br></em> 1 program ready to advance past initial screen → 2 programs with pharma/investor-grade preclinical packages and defensible IP</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="December 2025 $ &amp; 1st in vivo data 2025 summary: created what is, to our knowledge, the largest human cell combination drug screens performed to date (~10× the scale of any published screen we identified). used combo data to engineer 2 separate drug combos that beat standard of care TGI &gt;70% across multiple mouse xenograft models built an amazing team + advising team ahad significant investor interest in a larger round based on our early xenograft data that we deferred until after JPM when we can present a complete picture The October combo looked good across all 6 models and is proceeding to IP filings and optimization. 2025 summary: created what is, to our knowledge, the largest human cell combination drug screens performed to date (~10× the scale of any published screen we identified). used combo data to engineer 2 separate drug combos that beat standard of care TGI &amp;gt;70% across multiple mouse xenograft models built an amazing team + advising team ahad significant investor interest in a larger round based on our early xenograft data that we deferred until after JPM when we can present a complete picture The October combo looked good across all 6 models and is proceeding to IP filings and optimization.">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202512.png" alt="The October combo looked good across all 6 models and is proceeding to IP filings and optimization." loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;The October combo looked good across all 6 models and is proceeding to IP filings and optimization.&lt;/p&gt;"><p>The October combo looked good across all 6 models and is proceeding to IP filings and optimization.</p></div>
+    <div class="date" data-original="December 2025">December 2025</div>
+    <h2 data-original="$ &amp; 1st in vivo data">$ &amp; 1st in vivo data</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;2025 summary:&lt;br&gt;created what is, to our knowledge, the largest human cell combination drug screens performed to date (~10× the scale of any published screen we identified).&lt;br&gt;used combo data to engineer 2 separate drug combos that beat standard of care TGI &amp;gt;70% across multiple mouse xenograft models&lt;br&gt;built an amazing team + advising team&lt;br&gt;ahad significant investor interest in a larger round based on our early xenograft data that we deferred until after JPM when we can present a complete picture&lt;/p&gt;"><p>2025 summary:<br>created what is, to our knowledge, the largest human cell combination drug screens performed to date (~10× the scale of any published screen we identified).<br>used combo data to engineer 2 separate drug combos that beat standard of care TGI &gt;70% across multiple mouse xenograft models<br>built an amazing team + advising team<br>ahad significant investor interest in a larger round based on our early xenograft data that we deferred until after JPM when we can present a complete picture</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="October 2025 In vivo starts 5 days later we had our 1st measurements that our approach has the potential to beat standard of care by &gt;50% in xenografts (a major 2025 milestone). If this drug continues to look good in this model as well as the 6 others it is being tested in, that would be a big inflection for Oncko! 1st cell line derived xenograft (CDX) mouse was dosed with an Oncko combo November 4th 5 days later we had our 1st measurements that our approach has the potential to beat standard of care by &amp;gt;50% in xenografts (a major 2025 milestone). If this drug continues to look good in this model as well as the 6 others it is being tested in, that would be a big inflection for Oncko! 1st cell line derived xenograft (CDX) mouse was dosed with an Oncko combo November 4th">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202510.png" alt="1st cell line derived xenograft (CDX) mouse was dosed with an Oncko combo November 4th" loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;1st cell line derived xenograft (CDX) mouse was dosed with an Oncko combo November 4th&lt;/p&gt;"><p>1st cell line derived xenograft (CDX) mouse was dosed with an Oncko combo November 4th</p></div>
+    <div class="date" data-original="October 2025">October 2025</div>
+    <h2 data-original="In vivo starts">In vivo starts</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;5 days later we had our 1st measurements that our approach has the potential to beat standard of care by &amp;gt;50% in xenografts (a major 2025 milestone). If this drug continues to look good in this model as well as the 6 others it is being tested in, that would be a big inflection for Oncko!&lt;/p&gt;"><p>5 days later we had our 1st measurements that our approach has the potential to beat standard of care by &gt;50% in xenografts (a major 2025 milestone). If this drug continues to look good in this model as well as the 6 others it is being tested in, that would be a big inflection for Oncko!</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="September 2025 Thinking fast &amp; not slow clinical Oncko&#x27;s path to clinic looks something like this: A) in vitro screen → B) in vitro hit validation → C) mouse xenograft validation → D) toxicity/IND package → E) human trials Normally biotechs take ~6-8 years to go from A→E. We&#x27;re planning to compress this timeline significantly. To this end, we made big progress towards A→C in the last two months and will soon be able to rapidly iterate across them towards finding optimal combo drugs! Our 1st combo possesses top potency and synergy in vitro Oncko&amp;#x27;s path to clinic looks something like this: A) in vitro screen → B) in vitro hit validation → C) mouse xenograft validation → D) toxicity/IND package → E) human trials Normally biotechs take ~6-8 years to go from A→E. We&amp;#x27;re planning to compress this timeline significantly. To this end, we made big progress towards A→C in the last two months and will soon be able to rapidly iterate across them towards finding optimal combo drugs! Our 1st combo possesses top potency and synergy in vitro">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202509.png" alt="Our 1st combo possesses top potency and synergy in vitro" loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;Our 1st combo possesses top potency and synergy in vitro&lt;/p&gt;"><p>Our 1st combo possesses top potency and synergy in vitro</p></div>
+    <div class="date" data-original="September 2025">September 2025</div>
+    <h2 data-original="Thinking fast &amp; not slow clinical">Thinking fast &amp; not slow clinical</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;Oncko&amp;#x27;s path to clinic looks something like this:&lt;/p&gt;
+&lt;p&gt;A) in vitro screen → B) in vitro hit validation → C) mouse xenograft validation → D) toxicity/IND package → E) human trials&lt;/p&gt;
+&lt;p&gt;Normally biotechs take ~6-8 years to go from A→E. We&amp;#x27;re planning to compress this timeline significantly. To this end, we made big progress towards A→C in the last two months and will soon be able to rapidly iterate across them towards finding optimal combo drugs!&lt;/p&gt;"><p>Oncko&#x27;s path to clinic looks something like this:</p>
+<p>A) in vitro screen → B) in vitro hit validation → C) mouse xenograft validation → D) toxicity/IND package → E) human trials</p>
+<p>Normally biotechs take ~6-8 years to go from A→E. We&#x27;re planning to compress this timeline significantly. To this end, we made big progress towards A→C in the last two months and will soon be able to rapidly iterate across them towards finding optimal combo drugs!</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="February 2025 2025 Milestones and our JPM event 2025 Milestones are set: Abridged version show in vitro combo screens are reproducible and predicts PDX/clinical trial outcomes achieve &gt;50% improvement vs. Standard of Care for a novel drug combo (in vitro and in vivo)..and 1 order of magnitude in re: “log kills” i.e. 99% to 99.9% of clones killed Our AI x bio JPM event drew 100 people spanning pharma, investors, founders, and AI experts 2025 Milestones are set: Abridged version show in vitro combo screens are reproducible and predicts PDX/clinical trial outcomes achieve &amp;gt;50% improvement vs. Standard of Care for a novel drug combo (in vitro and in vivo)..and 1 order of magnitude in re: “log kills” i.e. 99% to 99.9% of clones killed Our AI x bio JPM event drew 100 people spanning pharma, investors, founders, and AI experts">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202502.png" alt="Our AI x bio JPM event drew 100 people spanning pharma, investors, founders, and AI experts" loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;Our AI x bio JPM event drew 100 people spanning pharma, investors, founders, and AI experts&lt;/p&gt;"><p>Our AI x bio JPM event drew 100 people spanning pharma, investors, founders, and AI experts</p></div>
+    <div class="date" data-original="February 2025">February 2025</div>
+    <h2 data-original="2025 Milestones and our JPM event">2025 Milestones and our JPM event</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;2025 Milestones are set: Abridged version&lt;br&gt;show in vitro combo screens are reproducible and predicts PDX/clinical trial outcomes&lt;br&gt;achieve &amp;gt;50% improvement vs. Standard of Care for a novel drug combo (in vitro and in vivo)..and 1 order of magnitude in re: “log kills” i.e. 99% to 99.9% of clones killed&lt;/p&gt;"><p>2025 Milestones are set: Abridged version<br>show in vitro combo screens are reproducible and predicts PDX/clinical trial outcomes<br>achieve &gt;50% improvement vs. Standard of Care for a novel drug combo (in vitro and in vivo)..and 1 order of magnitude in re: “log kills” i.e. 99% to 99.9% of clones killed</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+<article class="card" data-text="October 2024 Pushing paper: Napkin to SAFEs Pre-seed go/no go achieved verbally October 25th. 1st SAFEs signed in November. Back of the napkin moment in SF&#x27;s Chorus Apartments Cocktail bar summer 2024 Pre-seed go/no go achieved verbally October 25th. 1st SAFEs signed in November. Back of the napkin moment in SF&amp;#x27;s Chorus Apartments Cocktail bar summer 2024">
+  <div class="card-body">
+    <div class="image-frame"><img src="img/ncktimes/202410.png" alt="Back of the napkin moment in SF&#x27;s Chorus Apartments Cocktail bar summer 2024" loading="lazy"></div><div class="figure-caption" data-original="&lt;p&gt;Back of the napkin moment in SF&amp;#x27;s Chorus Apartments Cocktail bar summer 2024&lt;/p&gt;"><p>Back of the napkin moment in SF&#x27;s Chorus Apartments Cocktail bar summer 2024</p></div>
+    <div class="date" data-original="October 2024">October 2024</div>
+    <h2 data-original="Pushing paper: Napkin to SAFEs">Pushing paper: Napkin to SAFEs</h2>
+    <div class="richtext summary" data-original="&lt;p&gt;Pre-seed go/no go achieved verbally October 25th. 1st SAFEs signed in November.&lt;/p&gt;"><p>Pre-seed go/no go achieved verbally October 25th. 1st SAFEs signed in November.</p></div>
+    <button class="read-more-btn" type="button" onclick="toggleReadMore(this)" aria-expanded="false" hidden>Read more</button>
+  </div>
+</article>
+    </section>
+    <div class="empty" id="empty">No updates matched your search.</div>
+    <div class="footer-note">© 2026 Oncko. All rights reserved.</div>
+  </main>
+  <script>
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+function clearHighlights(root) {
+  root.querySelectorAll('[data-original]').forEach((el) => {
+    el.innerHTML = el.getAttribute('data-original');
+  });
+}
+function highlightInElement(el, query) {
+  const original = el.getAttribute('data-original');
+  if (!original || !query) {
+    el.innerHTML = original || el.innerHTML;
+    return;
+  }
+  const pattern = new RegExp('(' + escapeRegExp(query) + ')', 'ig');
+  el.innerHTML = original.replace(pattern, '<mark class="search-hit">$1</mark>');
+}
+function updateSummaryClamp(card) {
+  const summary = card.querySelector('.summary');
+  const button = card.querySelector('.read-more-btn');
+  if (!summary || !button) return;
+  summary.classList.remove('expanded');
+  summary.classList.remove('is-collapsible');
+  button.hidden = true;
+  button.textContent = 'Read more';
+  button.setAttribute('aria-expanded', 'false');
+  const fullHeight = summary.scrollHeight;
+  const lineHeight = parseFloat(window.getComputedStyle(summary).lineHeight || '24');
+  const maxHeight = lineHeight * 3 + 2;
+  if (fullHeight > maxHeight) {
+    summary.classList.add('is-collapsible');
+    button.hidden = false;
+  }
+}
+function toggleReadMore(button) {
+  const card = button.closest('.card');
+  const summary = card ? card.querySelector('.summary') : null;
+  if (!summary) return;
+  const expanded = summary.classList.toggle('expanded');
+  button.textContent = expanded ? 'Show less' : 'Read more';
+  button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+}
+const searchInput = document.getElementById('search');
+const cards = Array.from(document.querySelectorAll('.card'));
+const count = document.getElementById('count');
+const empty = document.getElementById('empty');
+function applySearch() {
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  cards.forEach((card) => {
+    const haystack = (card.dataset.text || '').toLowerCase();
+    const match = !q || haystack.includes(q);
+    card.style.display = match ? '' : 'none';
+    clearHighlights(card);
+    if (match) {
+      visible += 1;
+      if (q) {
+        card.querySelectorAll('[data-original]').forEach((el) => highlightInElement(el, searchInput.value.trim()));
+      }
+      updateSummaryClamp(card);
+    }
+  });
+  count.textContent = `${visible} visible`;
+  empty.style.display = visible ? 'none' : 'block';
+}
+window.toggleReadMore = toggleReadMore;
+searchInput.addEventListener('input', applySearch);
+window.addEventListener('load', applySearch);
+</script>
+</body>
+</html>
