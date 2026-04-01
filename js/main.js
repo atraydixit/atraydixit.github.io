@@ -269,3 +269,18 @@ window.addEventListener('scroll', updateActiveNav, { passive: true });
 window.addEventListener('resize', updateActiveNav);
 window.addEventListener('load', updateActiveNav);
 updateActiveNav();
+
+
+(function initTodayTimeline() {
+  const dateEl = document.getElementById('today-date');
+  const marker = document.getElementById('timeline-today');
+
+  if (!dateEl || !marker) return;
+
+  // ---- Render today's date (viewer-local)
+  const now = new Date();
+  dateEl.textContent = now.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
