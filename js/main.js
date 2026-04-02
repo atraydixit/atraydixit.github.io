@@ -1,36 +1,79 @@
-const DRUG_COUNT = 14;
+document.addEventListener("DOMContentLoaded", () => {
+  "use strict";
+
+  // -----------------------------
+  // Shared helpers
+  // -----------------------------
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const easeInOut = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
+
+  // -----------------------------
+  // Visualization
+  // Safe: only runs if required DOM exists
+  // -----------------------------
+  initVisualization();
+
+  function initVisualization() {
+    const DRUG_COUNT = 14;
     const ACTIVE_COUNT = 4;
     const LOOP_MS = 24800;
-    const WIDTH = 760;
-    const HEIGHT = 760;
     const CENTER = { x: 380, y: 165 };
     const SVG_NS = "http://www.w3.org/2000/svg";
 
     const drugLayer = document.getElementById("drugs");
     const lineLayer = document.getElementById("lines");
     const starLayer = document.getElementById("stars");
+
     const simEffFill = document.getElementById("simEffFill");
     const simToxFill = document.getElementById("simToxFill");
     const simEffValue = document.getElementById("simEffValue");
     const simToxValue = document.getElementById("simToxValue");
+
     const orbHalo = document.getElementById("orbHalo");
     const orbOuter = document.getElementById("orbOuter");
     const orbInner = document.getElementById("orbInner");
-    const scoreStage = document.getElementById("scoreStage");
-    const scoreSub = document.getElementById("scoreSub");
     const orbLogo = document.getElementById("orbLogo");
 
-    let currentStage = scoreStage.textContent;
-    let currentSub = scoreSub.textContent;
+    const scoreStage = document.getElementById("scoreStage");
+    const scoreSub = document.getElementById("scoreSub");
+
+    const required = [
+      drugLayer,
+      lineLayer,
+      starLayer,
+      simEffFill,
+      simToxFill,
+      simEffValue,
+      simToxValue,
+      orbHalo,
+      orbOuter,
+      orbInner,
+      orbLogo,
+      scoreStage,
+      scoreSub,
+    ];
+
+    if (required.some((el) => !el)) {
+      console.warn("Visualization skipped: one or more required elements are missing.");
+      return;
+    }
+
+    let currentStage = scoreStage.textContent || "";
+    let currentSub = scoreSub.textContent || "";
     let narrativeSwapTimer = null;
 
     function setNarrative(stage, sub) {
       if (stage === currentStage && sub === currentSub) return;
+
       currentStage = stage;
       currentSub = sub;
+
       scoreStage.classList.add("narrative-swap");
       scoreSub.classList.add("narrative-swap");
+
       if (narrativeSwapTimer) clearTimeout(narrativeSwapTimer);
+
       narrativeSwapTimer = setTimeout(() => {
         scoreStage.textContent = stage;
         scoreSub.textContent = sub;
@@ -39,19 +82,50 @@ const DRUG_COUNT = 14;
       }, 980);
     }
 
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-    function easeInOut(t) { return 0.5 - 0.5 * Math.cos(Math.PI * t); }
-    function seedNoise(i) { return (Math.sin(i * 91.713) + 1) / 2; }
+    function seedNoise(i) {
+      return (Math.sin(i * 91.713) + 1) / 2;
+    }
+
     function comboIndices(cycle) {
       const start = (cycle * 3) % DRUG_COUNT;
       return Array.from({ length: ACTIVE_COUNT }, (_, i) => (start + i * 2) % DRUG_COUNT);
     }
+
     function scheduleMorph(t, phase) {
       const v = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 + phase);
-      return { rx: lerp(0.5, 0.18, v), ry: lerp(0.5, 0.34, 1 - v), rot: lerp(-24, 24, v) };
+      return {
+        rx: lerp(0.5, 0.18, v),
+        ry: lerp(0.5, 0.34, 1 - v),
+        rot: lerp(-24, 24, v),
+      };
     }
-    function hsla(h, s, l, a) { return `hsla(${h}, ${s}%, ${l}%, ${a})`; }
+
+    function hsla(h, s, l, a) {
+      return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+    }
+
+    function buildStars() {
+      const STAR_COUNT = 28;
+
+      for (let i = 0; i < STAR_COUNT; i++) {
+        const star = document.createElementNS(SVG_NS, "circle");
+        const x = 40 + ((i * 67) % 520);
+        const y = 24 + ((i * 43) % 320);
+        const r = 0.8 + (i % 3) * 0.45;
+        const phase = (i * 0.7) % (Math.PI * 2);
+
+        star.setAttribute("cx", x.toFixed(2));
+        star.setAttribute("cy", y.toFixed(2));
+        star.setAttribute("r", r.toFixed(2));
+        star.setAttribute("fill", "rgba(255,255,255,0.82)");
+        star.setAttribute("opacity", "0.4");
+        star.dataset.phase = String(phase);
+
+        starLayer.appendChild(star);
+      }
+    }
+
+    buildStars();
 
     const drugs = Array.from({ length: DRUG_COUNT }, (_, i) => {
       const angle = (i / DRUG_COUNT) * Math.PI * 2 - Math.PI / 3;
@@ -62,7 +136,7 @@ const DRUG_COUNT = 14;
         y: 215 + Math.sin(angle) * (radius * 0.75),
         hue: 185 + ((i * 19) % 55),
         phase: seedNoise(i + 7) * Math.PI * 2,
-        baseDose: 18 + seedNoise(i + 3) * 18
+        baseDose: 18 + seedNoise(i + 3) * 18,
       };
     });
 
@@ -70,13 +144,16 @@ const DRUG_COUNT = 14;
       const g = document.createElementNS(SVG_NS, "g");
       const glow = document.createElementNS(SVG_NS, "ellipse");
       const core = document.createElementNS(SVG_NS, "ellipse");
+
       glow.setAttribute("fill", hsla(drug.hue, 82, 68, 0.16));
       core.setAttribute("fill", hsla(drug.hue, 76, 58, 0.92));
       core.setAttribute("stroke", "rgba(255,255,255,0.16)");
       core.setAttribute("stroke-width", "1.2");
+
       g.appendChild(glow);
       g.appendChild(core);
       drugLayer.appendChild(g);
+
       return { g, glow, core };
     });
 
@@ -89,7 +166,6 @@ const DRUG_COUNT = 14;
       return line;
     });
 
-
     function render(now) {
       const time = now % LOOP_MS;
       const cycle = Math.floor(now / LOOP_MS);
@@ -101,14 +177,16 @@ const DRUG_COUNT = 14;
       const optimizeEnd = 18400;
       const finalEnd = 23200;
 
-      let eff = 0, tox = 0;
+      let eff = 0;
+      let tox = 0;
       scoreStage.classList.remove("emphasis");
 
       if (time < introEnd) {
         setNarrative("Search initialized", "Selecting an initial multi-drug regimen");
       } else if (time < evalEnd) {
         setNarrative("Combination evaluation", "Measuring the first efficacy and toxicity profile");
-        eff = 58; tox = 64;
+        eff = 58;
+        tox = 64;
       } else if (time < optimizeEnd) {
         setNarrative("Optimization in progress", "Tuning dose and schedule");
         const t = easeInOut((time - evalEnd) / (optimizeEnd - evalEnd));
@@ -117,15 +195,16 @@ const DRUG_COUNT = 14;
       } else if (time < finalEnd) {
         setNarrative("Optimized combination", "Achieved higher-efficacy, lower-toxicity regimen");
         scoreStage.classList.add("emphasis");
-        eff = 91; tox = 24;
+        eff = 91;
+        tox = 24;
       } else {
         setNarrative("Search initialized", "Preparing the next region of combination space");
       }
 
       simEffFill.style.width = `${eff}%`;
       simToxFill.style.width = `${tox}%`;
-      simEffValue.textContent = Math.round(eff);
-      simToxValue.textContent = Math.round(tox);
+      simEffValue.textContent = String(Math.round(eff));
+      simToxValue.textContent = String(Math.round(tox));
 
       const stars = starLayer.children;
       for (let i = 0; i < stars.length; i++) {
@@ -143,14 +222,23 @@ const DRUG_COUNT = 14;
       active.forEach((idx, localIdx) => {
         const line = lines[localIdx];
         const drug = drugs[idx];
-        const drift = 0.5 + 0.5 * Math.sin(now * 0.0012 + drug.phase);
         const x = lerp(drug.x, CENTER.x, gatherT * 0.8 + optimizeT * 0.2);
         const y = lerp(drug.y, CENTER.y, gatherT * 0.8 + optimizeT * 0.2);
-        line.setAttribute("x1", x);
-        line.setAttribute("y1", y);
-        line.setAttribute("x2", CENTER.x);
-        line.setAttribute("y2", CENTER.y);
-        line.setAttribute("opacity", time < introEnd ? lerp(0.04, 0.42, gatherT) : time < optimizeEnd ? 0.48 : time < finalEnd ? lerp(0.48, 0.08, mergeT) : 0.08);
+
+        line.setAttribute("x1", String(x));
+        line.setAttribute("y1", String(y));
+        line.setAttribute("x2", String(CENTER.x));
+        line.setAttribute("y2", String(CENTER.y));
+        line.setAttribute(
+          "opacity",
+          time < introEnd
+            ? String(lerp(0.04, 0.42, gatherT))
+            : time < optimizeEnd
+              ? "0.48"
+              : time < finalEnd
+                ? String(lerp(0.48, 0.08, mergeT))
+                : "0.08"
+        );
       });
 
       drugs.forEach((drug, i) => {
@@ -158,10 +246,15 @@ const DRUG_COUNT = 14;
         const isActive = activeSet.has(i);
         const driftX = Math.sin(now * 0.00062 + drug.phase) * 7;
         const driftY = Math.cos(now * 0.00078 + drug.phase) * 5.5;
+
         let x = drug.x + driftX;
         let y = drug.y + driftY;
         let opacity = isActive ? 0.98 : 0.34;
-        let rx = lerp(drug.baseDose * 0.76, drug.baseDose * 1.02, 0.5 + 0.5 * Math.sin(now * 0.0012 + drug.phase));
+        let rx = lerp(
+          drug.baseDose * 0.76,
+          drug.baseDose * 1.02,
+          0.5 + 0.5 * Math.sin(now * 0.0012 + drug.phase)
+        );
         let ry = rx * 0.72;
         let rot = Math.sin(now * 0.00082 + drug.phase) * 10;
 
@@ -188,33 +281,48 @@ const DRUG_COUNT = 14;
           }
         }
 
-        g.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${rot.toFixed(2)})`);
+        g.setAttribute(
+          "transform",
+          `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${rot.toFixed(2)})`
+        );
         g.setAttribute("opacity", opacity.toFixed(3));
-        glow.setAttribute("cx", 0);
-        glow.setAttribute("cy", 0);
+
+        glow.setAttribute("cx", "0");
+        glow.setAttribute("cy", "0");
         glow.setAttribute("rx", (rx * 1.85).toFixed(2));
         glow.setAttribute("ry", (ry * 1.85).toFixed(2));
-        core.setAttribute("cx", 0);
-        core.setAttribute("cy", 0);
+
+        core.setAttribute("cx", "0");
+        core.setAttribute("cy", "0");
         core.setAttribute("rx", Math.max(0.1, rx).toFixed(2));
         core.setAttribute("ry", Math.max(0.1, ry).toFixed(2));
       });
 
-      const orbT = time < optimizeEnd ? 0 : time < finalEnd ? easeInOut((time - optimizeEnd) / (finalEnd - optimizeEnd)) : 0;
+      const orbT =
+        time < optimizeEnd
+          ? 0
+          : time < finalEnd
+            ? easeInOut((time - optimizeEnd) / (finalEnd - optimizeEnd))
+            : 0;
+
       const stable = time >= finalEnd - 2200 && time < finalEnd;
       const orbPulse = stable ? 0 : 0.5 + 0.5 * Math.sin(now * 0.0018);
+
       const haloR = lerp(58, 102, orbT) + orbPulse * 1.2;
       const outerR = lerp(34, 57, orbT) + orbPulse * 0.45;
       const innerR = lerp(18, 28, orbT);
       const orbOpacity = time < optimizeEnd ? 0.08 : time < finalEnd ? lerp(0.12, 1, orbT) : 0.08;
       const logoSize = lerp(86, 122, orbT);
       const logoOpacity = time < optimizeEnd ? 0 : time < finalEnd ? lerp(0.0, 0.96, orbT) : 0;
+
       orbHalo.setAttribute("r", haloR.toFixed(2));
       orbOuter.setAttribute("r", outerR.toFixed(2));
       orbInner.setAttribute("r", innerR.toFixed(2));
+
       orbHalo.setAttribute("opacity", (orbOpacity * 0.82).toFixed(3));
       orbOuter.setAttribute("opacity", orbOpacity.toFixed(3));
       orbInner.setAttribute("opacity", Math.min(0.95, orbOpacity + 0.08).toFixed(3));
+
       orbLogo.setAttribute("width", logoSize.toFixed(2));
       orbLogo.setAttribute("height", logoSize.toFixed(2));
       orbLogo.setAttribute("x", (CENTER.x - logoSize / 2).toFixed(2));
@@ -223,64 +331,96 @@ const DRUG_COUNT = 14;
 
       requestAnimationFrame(render);
     }
+
     requestAnimationFrame(render);
-
-
-// Scroll reveal animations
-const revealEls = document.querySelectorAll('.reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-scale');
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      entry.target.classList.toggle('in-view', entry.isIntersecting);
-    });
-  },
-  {
-    threshold: 0.14,
-    rootMargin: '0px 0px -10% 0px'
   }
-);
-revealEls.forEach((el) => revealObserver.observe(el));
 
-// Side nav scrollspy
-const sections = [...document.querySelectorAll('.section[data-nav]')];
-const navDots = [...document.querySelectorAll('.nav-dot')];
+  // -----------------------------
+  // Reveal animations
+  // Safe fallback: if unsupported, reveal everything
+  // -----------------------------
+  initRevealAnimations();
 
-function updateActiveNav() {
-  if (!sections.length || !navDots.length) return;
+  function initRevealAnimations() {
+    const revealEls = document.querySelectorAll(
+      ".reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-scale"
+    );
 
-  const trigger = window.scrollY + window.innerHeight * 0.42;
-  let currentIdx = 0;
+    if (!revealEls.length) return;
 
-  sections.forEach((section, idx) => {
-    if (trigger >= section.offsetTop) currentIdx = idx;
-  });
+    if (!("IntersectionObserver" in window)) {
+      revealEls.forEach((el) => el.classList.add("in-view"));
+      return;
+    }
 
-  const nearBottom =
-    window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("in-view", entry.isIntersecting);
+        });
+      },
+      {
+        threshold: 0.14,
+        rootMargin: "0px 0px -10% 0px",
+      }
+    );
 
-  if (nearBottom) currentIdx = sections.length - 1;
+    revealEls.forEach((el) => revealObserver.observe(el));
+  }
 
-  navDots.forEach((dot, i) => {
-    dot.classList.toggle('active', i === currentIdx);
-  });
-}
+  // -----------------------------
+  // Side nav scrollspy
+  // -----------------------------
+  initScrollSpy();
 
-window.addEventListener('scroll', updateActiveNav, { passive: true });
-window.addEventListener('resize', updateActiveNav);
-window.addEventListener('load', updateActiveNav);
-updateActiveNav();
+  function initScrollSpy() {
+    const sections = [...document.querySelectorAll(".section[data-nav]")];
+    const navDots = [...document.querySelectorAll(".nav-dot")];
 
+    if (!sections.length || !navDots.length) return;
 
-(function initTodayTimeline() {
-  const dateEl = document.getElementById('today-date');
-  const marker = document.getElementById('timeline-today');
+    function updateActiveNav() {
+      const trigger = window.scrollY + window.innerHeight * 0.42;
+      let currentIdx = 0;
 
-  if (!dateEl || !marker) return;
+      sections.forEach((section, idx) => {
+        if (trigger >= section.offsetTop) currentIdx = idx;
+      });
 
-  // ---- Render today's date (viewer-local)
-  const now = new Date();
-  dateEl.textContent = now.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+
+      if (nearBottom) currentIdx = sections.length - 1;
+
+      navDots.forEach((dot, i) => {
+        dot.classList.toggle("active", i === currentIdx);
+      });
+    }
+
+    window.addEventListener("scroll", updateActiveNav, { passive: true });
+    window.addEventListener("resize", updateActiveNav);
+    window.addEventListener("load", updateActiveNav);
+
+    updateActiveNav();
+  }
+
+  // -----------------------------
+  // Optional today timeline
+  // Safe if missing
+  // -----------------------------
+  initTodayTimeline();
+
+  function initTodayTimeline() {
+    const dateEl = document.getElementById("today-date");
+    const marker = document.getElementById("timeline-today");
+
+    if (!dateEl || !marker) return;
+
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+});
