@@ -254,7 +254,7 @@ h1 a {
   box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(104,233,202,0.18);
 }
 /* Show a ↓ hint on above cards so users know they link downward */
-.timeline-group.above .timeline-group-card::after {
+.timeline-group .timeline-group-card::after {
   content: "↓ view";
   display: block;
   margin-top: 8px;
@@ -266,18 +266,7 @@ h1 a {
   transform: translateY(4px);
   transition: opacity 0.2s, transform 0.2s;
 }
-.timeline-group.below .timeline-group-card::after {
-  content: "↑ view";
-  display: block;
-  margin-top: 8px;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--brand-mint);
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 0.2s, transform 0.2s;
-}
+
 .timeline-group:hover .timeline-group-card::after,
 .timeline-group-card:hover::after {
   opacity: 1;
