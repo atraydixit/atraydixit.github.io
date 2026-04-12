@@ -85,10 +85,18 @@ a:hover { color: #a0fff0; }
   width: min(1280px, calc(100% - 40px));
   margin: 0 auto;
 }
-.hero-inner { padding: 28px 0 0; }
+.hero-inner { padding: 14px 0 0; }
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
 
 /* Top pill */
-.top-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.top-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0; }
 .kicker {
   display: inline-flex;
   align-items: center;
@@ -115,16 +123,33 @@ a:hover { color: #a0fff0; }
   50% { opacity: 0.5; transform: scale(0.7); }
 }
 
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.logo-link img {
+  height: 40px;
+  width: auto;
+  display: block;
+  opacity: 0.96;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.logo-link:hover img {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
 /* Headline */
 h1 {
   font-family: var(--font-display);
   font-size: clamp(2.6rem, 6vw, 5.2rem);
-  line-height: 0.94;
+  line-height: 0.9;
   letter-spacing: -0.05em;
   font-weight: 800;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
-h1 a {
+.nck {
   background: linear-gradient(135deg, var(--brand-lime) 0%, var(--brand-mint) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -764,6 +789,13 @@ h1 a {
 }
 @media (max-width: 600px) {
   .hero-inner, .shell { width: calc(100% - 28px); }
+  .hero-top {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px 14px;
+  }
+  .logo-link img { height: 32px; }
   .grid { grid-template-columns: 1fr; }
   .stats-bar {
     flex-direction: column;
@@ -771,17 +803,22 @@ h1 a {
   }
   .stat-divider { width: 40px; height: 1px; }
   .closing-box { padding: 24px 20px; }
-  h1 { margin-bottom: 16px; }
+  h1 { margin-bottom: 8px; }
 }
 </style>
 </head>
 <body>
   <header class="hero">
     <div class="hero-inner">
-      <div class="top-pills">
-        <div class="kicker"><span class="kicker-dot"></span>Posted April 07, 2026</div>
+      <div class="hero-top">
+        <div class="top-pills">
+          <div class="kicker"><span class="kicker-dot"></span>Posted April 12, 2026</div>
+        </div>
+        <a href="https://www.oncko.com" class="logo-link" aria-label="Oncko home">
+          <img src="img/ONCKO-LOGO.svg" alt="Oncko" />
+        </a>
       </div>
-      <h1>In the <a href="https://en.wikipedia.org/wiki/Binomial_coefficient" target="_blank" rel="noopener noreferrer">nCk</a> of time</h1>
+      <h1>In the <span class="nck"><a href="https://en.wikipedia.org/wiki/Binomial_coefficient">nCk</a></span> of time</h1>
       <div class="thesis-box"><p>Our engine for combination oncology has gone from concept to in vivo in 12 months. We aim to have our 1st combo in patients by Q2 2027.</p></div>
       <div class="stats-bar">
   <div class="stat-item">
