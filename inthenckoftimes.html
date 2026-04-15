@@ -105,7 +105,7 @@ a:hover { color: #a0fff0; }
   border-radius: 999px;
   border: 1px solid rgba(104,233,202,0.24);
   background: rgba(104,233,202,0.09);
-  color: rgba(236,252,247,0.88);
+  color: rgba(236,252,247,1.0);
   font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -199,10 +199,10 @@ h1 {
   line-height: 1;
 }
 .stat-label {
-  font-size: 10px;
-  letter-spacing: 0.15em;
+  font-size: 12px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted-2);
+  color: var(--muted);
 }
 .stat-divider {
   width: 1px;
@@ -261,8 +261,8 @@ h1 {
 }
 
 .timeline-group-card {
-  border: 1px solid rgba(255,255,255,0.10);
-  background: var(--panel-bg);
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.06) 100%);
   border-radius: 14px;
   padding: 12px 14px;
   box-shadow: var(--shadow-sm);
@@ -299,8 +299,8 @@ h1 {
 }
 
 .timeline-month {
-  color: var(--muted-2);
-  font-size: 9px;
+  color: var(--muted);
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -309,10 +309,10 @@ h1 {
 .timeline-links { display: flex; flex-direction: column; gap: 6px; }
 .timeline-links a {
   display: block;
-  color: rgba(240,250,247,0.82);
-  font-size: 11.5px;
-  line-height: 1.35;
-  font-weight: 400;
+  color: #e8f5f1;
+  font-size: 13.5px;
+  line-height: 1.4;
+  font-weight: 500;
   transition: color 0.2s;
 }
 .timeline-links a:hover { color: #ffffff; }
@@ -352,10 +352,10 @@ h1 {
 /* Title-link spans (data-href) inside the group card */
 .tl-title-link {
   display: block;
-  color: rgba(240,250,247,0.82);
-  font-size: 11.5px;
-  line-height: 1.35;
-  font-weight: 400;
+  color: #e8f5f1;
+  font-size: 13.5px;
+  line-height: 1.4;
+  font-weight: 500;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -485,10 +485,10 @@ h1 {
   /* Individual title spans — same tl-title-link pattern as desktop */
   .timeline-mobile-content .tl-title-link {
     display: block;
-    color: rgba(240,250,247,0.82);
-    font-size: 11.5px;
-    line-height: 1.35;
-    font-weight: 400;
+    color: #e8f5f1;
+    font-size: 13.5px;
+    line-height: 1.4;
+    font-weight: 500;
     cursor: pointer;
     transition: color 0.2s;
   }
@@ -525,7 +525,7 @@ h1 {
   font-weight: 700;
 }
 .section-kicker {
-  color: var(--muted-2);
+  color: var(--muted);
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -589,8 +589,8 @@ h1 {
 
 .figure-caption {
   margin-top: 10px;
-  color: var(--muted-2);
-  font-size: 12px;
+  color: var(--muted);
+  font-size: 12.5px;
   line-height: 1.55;
 }
 
@@ -598,7 +598,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--brand-lime);
@@ -627,7 +627,7 @@ h1 {
 
 .richtext {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.8;
 }
 .richtext p { margin: 0 0 10px; }
@@ -685,8 +685,8 @@ h1 {
   padding: 12px 14px;
 }
 .why-label {
-  font-size: 9px;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--brand-mint);
   font-weight: 600;
@@ -748,23 +748,23 @@ h1 {
 
 .footer-note {
   font-size: 13px;
-  color: #777;
+  color: var(--muted-2);
   margin: 4px 0;
 }
 
 .footer-link {
-  color: #0EA5A4;              
+  color: var(--brand-mint);
   text-decoration: none;
-  border-bottom: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(104,233,202,0.2);
 }
 
 .footer-link:visited {
-  color: #0C8F8E;              /* prevents purple visited link */
+  color: var(--brand-mint);
 }
 
 .footer-link:hover {
   color: #a0fff0;
-  border-bottom-color: rgba(0,0,0,0.5);
+  border-bottom-color: rgba(104,233,202,0.5);
 }
 
 .footer-link:active {
@@ -812,7 +812,7 @@ h1 {
     <div class="hero-inner">
       <div class="hero-top">
         <div class="top-pills">
-          <div class="kicker"><span class="kicker-dot"></span>Posted April 12, 2026</div>
+          <div class="kicker"><span class="kicker-dot"></span>Posted April 14, 2026</div>
         </div>
         <a href="https://www.oncko.com" class="logo-link" aria-label="Oncko home">
           <img src="img/ONCKO-LOGO.svg" alt="Oncko" />
