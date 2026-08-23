@@ -1,426 +1,607 @@
-document.addEventListener("DOMContentLoaded", () => {
+/* ==========================================================================
+   Oncko — oncko.com
+   Three things: scroll reveals, nav scrollspy, and the search board.
+   Every init is guarded, so removing a section never breaks the others.
+   ========================================================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
   "use strict";
 
-  // -----------------------------
-  // Shared helpers
-  // -----------------------------
-  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const easeInOut = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // -----------------------------
-  // Visualization
-  // Safe: only runs if required DOM exists
-  // -----------------------------
-  initVisualization();
-
-  function initVisualization() {
-    const DRUG_COUNT = 14;
-    const ACTIVE_COUNT = 4;
-    const LOOP_MS = 24800;
-    const CENTER = { x: 380, y: 165 };
-    const SVG_NS = "http://www.w3.org/2000/svg";
-
-    const drugLayer = document.getElementById("drugs");
-    const lineLayer = document.getElementById("lines");
-    const starLayer = document.getElementById("stars");
-
-    const simEffFill = document.getElementById("simEffFill");
-    const simToxFill = document.getElementById("simToxFill");
-    const simEffValue = document.getElementById("simEffValue");
-    const simToxValue = document.getElementById("simToxValue");
-
-    const orbHalo = document.getElementById("orbHalo");
-    const orbOuter = document.getElementById("orbOuter");
-    const orbInner = document.getElementById("orbInner");
-    const orbLogo = document.getElementById("orbLogo");
-
-    const scoreStage = document.getElementById("scoreStage");
-    const scoreSub = document.getElementById("scoreSub");
-
-    const required = [
-      drugLayer,
-      lineLayer,
-      starLayer,
-      simEffFill,
-      simToxFill,
-      simEffValue,
-      simToxValue,
-      orbHalo,
-      orbOuter,
-      orbInner,
-      orbLogo,
-      scoreStage,
-      scoreSub,
-    ];
-
-    if (required.some((el) => !el)) {
-      console.warn("Visualization skipped: one or more required elements are missing.");
-      return;
-    }
-
-    let currentStage = scoreStage.textContent || "";
-    let currentSub = scoreSub.textContent || "";
-    let narrativeSwapTimer = null;
-
-    function setNarrative(stage, sub) {
-      if (stage === currentStage && sub === currentSub) return;
-
-      currentStage = stage;
-      currentSub = sub;
-
-      scoreStage.classList.add("narrative-swap");
-      scoreSub.classList.add("narrative-swap");
-
-      if (narrativeSwapTimer) clearTimeout(narrativeSwapTimer);
-
-      narrativeSwapTimer = setTimeout(() => {
-        scoreStage.textContent = stage;
-        scoreSub.textContent = sub;
-        scoreStage.classList.remove("narrative-swap");
-        scoreSub.classList.remove("narrative-swap");
-      }, 980);
-    }
-
-    function seedNoise(i) {
-      return (Math.sin(i * 91.713) + 1) / 2;
-    }
-
-    function comboIndices(cycle) {
-      const start = (cycle * 3) % DRUG_COUNT;
-      return Array.from({ length: ACTIVE_COUNT }, (_, i) => (start + i * 2) % DRUG_COUNT);
-    }
-
-    function scheduleMorph(t, phase) {
-      const v = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 + phase);
-      return {
-        rx: lerp(0.5, 0.18, v),
-        ry: lerp(0.5, 0.34, 1 - v),
-        rot: lerp(-24, 24, v),
-      };
-    }
-
-    function hsla(h, s, l, a) {
-      return `hsla(${h}, ${s}%, ${l}%, ${a})`;
-    }
-
-    function buildStars() {
-      const STAR_COUNT = 28;
-
-      for (let i = 0; i < STAR_COUNT; i++) {
-        const star = document.createElementNS(SVG_NS, "circle");
-        const x = 40 + ((i * 67) % 520);
-        const y = 24 + ((i * 43) % 320);
-        const r = 0.8 + (i % 3) * 0.45;
-        const phase = (i * 0.7) % (Math.PI * 2);
-
-        star.setAttribute("cx", x.toFixed(2));
-        star.setAttribute("cy", y.toFixed(2));
-        star.setAttribute("r", r.toFixed(2));
-        star.setAttribute("fill", "rgba(255,255,255,0.82)");
-        star.setAttribute("opacity", "0.4");
-        star.dataset.phase = String(phase);
-
-        starLayer.appendChild(star);
-      }
-    }
-
-    buildStars();
-
-    const drugs = Array.from({ length: DRUG_COUNT }, (_, i) => {
-      const angle = (i / DRUG_COUNT) * Math.PI * 2 - Math.PI / 3;
-      const radius = 150 + seedNoise(i + 1) * 90;
-      return {
-        id: i,
-        x: 230 + Math.cos(angle) * radius,
-        y: 215 + Math.sin(angle) * (radius * 0.75),
-        hue: 185 + ((i * 19) % 55),
-        phase: seedNoise(i + 7) * Math.PI * 2,
-        baseDose: 18 + seedNoise(i + 3) * 18,
-      };
-    });
-
-    const drugEls = drugs.map((drug) => {
-      const g = document.createElementNS(SVG_NS, "g");
-      const glow = document.createElementNS(SVG_NS, "ellipse");
-      const core = document.createElementNS(SVG_NS, "ellipse");
-
-      glow.setAttribute("fill", hsla(drug.hue, 82, 68, 0.16));
-      core.setAttribute("fill", hsla(drug.hue, 76, 58, 0.92));
-      core.setAttribute("stroke", "rgba(255,255,255,0.16)");
-      core.setAttribute("stroke-width", "1.2");
-
-      g.appendChild(glow);
-      g.appendChild(core);
-      drugLayer.appendChild(g);
-
-      return { g, glow, core };
-    });
-
-    const lines = Array.from({ length: ACTIVE_COUNT }, () => {
-      const line = document.createElementNS(SVG_NS, "line");
-      line.setAttribute("stroke", "url(#lineGrad)");
-      line.setAttribute("stroke-width", "2");
-      line.setAttribute("stroke-linecap", "round");
-      lineLayer.appendChild(line);
-      return line;
-    });
-
-    function render(now) {
-      const time = now % LOOP_MS;
-      const cycle = Math.floor(now / LOOP_MS);
-      const active = comboIndices(cycle);
-      const activeSet = new Set(active);
-
-      const introEnd = 5200;
-      const evalEnd = 9800;
-      const optimizeEnd = 18400;
-      const finalEnd = 23200;
-
-      let eff = 0;
-      let tox = 0;
-      scoreStage.classList.remove("emphasis");
-
-      if (time < introEnd) {
-        setNarrative("Search initialized", "Selecting an initial multi-drug regimen");
-      } else if (time < evalEnd) {
-        setNarrative("Combination evaluation", "Measuring the first efficacy and toxicity profile");
-        eff = 58;
-        tox = 64;
-      } else if (time < optimizeEnd) {
-        setNarrative("Optimization in progress", "Tuning dose and schedule");
-        const t = easeInOut((time - evalEnd) / (optimizeEnd - evalEnd));
-        eff = lerp(58, 91, t);
-        tox = lerp(64, 24, t);
-      } else if (time < finalEnd) {
-        setNarrative("Optimized combination", "Achieved higher-efficacy, lower-toxicity regimen");
-        scoreStage.classList.add("emphasis");
-        eff = 91;
-        tox = 24;
-      } else {
-        setNarrative("Search initialized", "Preparing the next region of combination space");
-      }
-
-      simEffFill.style.width = `${eff}%`;
-      simToxFill.style.width = `${tox}%`;
-      simEffValue.textContent = String(Math.round(eff));
-      simToxValue.textContent = String(Math.round(tox));
-
-      const stars = starLayer.children;
-      for (let i = 0; i < stars.length; i++) {
-        const star = stars[i];
-        const phase = parseFloat(star.dataset.phase || "0");
-        const pulse = 0.58 + 0.42 * (0.5 + 0.5 * Math.sin(now * 0.0011 + phase));
-        star.setAttribute("opacity", pulse.toFixed(3));
-      }
-
-      const optimizeT = clamp((time - evalEnd) / (optimizeEnd - evalEnd), 0, 1);
-      const gatherT = clamp(time / introEnd, 0, 1);
-      const mergeT = clamp((time - optimizeEnd) / (finalEnd - optimizeEnd), 0, 1);
-      const settleFinal = time >= optimizeEnd && time < finalEnd;
-
-      active.forEach((idx, localIdx) => {
-        const line = lines[localIdx];
-        const drug = drugs[idx];
-        const x = lerp(drug.x, CENTER.x, gatherT * 0.8 + optimizeT * 0.2);
-        const y = lerp(drug.y, CENTER.y, gatherT * 0.8 + optimizeT * 0.2);
-
-        line.setAttribute("x1", String(x));
-        line.setAttribute("y1", String(y));
-        line.setAttribute("x2", String(CENTER.x));
-        line.setAttribute("y2", String(CENTER.y));
-        line.setAttribute(
-          "opacity",
-          time < introEnd
-            ? String(lerp(0.04, 0.42, gatherT))
-            : time < optimizeEnd
-              ? "0.48"
-              : time < finalEnd
-                ? String(lerp(0.48, 0.08, mergeT))
-                : "0.08"
-        );
-      });
-
-      drugs.forEach((drug, i) => {
-        const { g, glow, core } = drugEls[i];
-        const isActive = activeSet.has(i);
-        const driftX = Math.sin(now * 0.00062 + drug.phase) * 7;
-        const driftY = Math.cos(now * 0.00078 + drug.phase) * 5.5;
-
-        let x = drug.x + driftX;
-        let y = drug.y + driftY;
-        let opacity = isActive ? 0.98 : 0.34;
-        let rx = lerp(
-          drug.baseDose * 0.76,
-          drug.baseDose * 1.02,
-          0.5 + 0.5 * Math.sin(now * 0.0012 + drug.phase)
-        );
-        let ry = rx * 0.72;
-        let rot = Math.sin(now * 0.00082 + drug.phase) * 10;
-
-        if (isActive) {
-          const toCenter = easeInOut(clamp((time - 900) / (introEnd - 900), 0, 1));
-          x = lerp(x, CENTER.x + Math.sin(drug.phase) * 16, toCenter);
-          y = lerp(y, CENTER.y + Math.cos(drug.phase) * 16, toCenter);
-
-          if (time >= evalEnd && time < optimizeEnd) {
-            const pulse = 0.5 + 0.5 * Math.sin(now * 0.0028 + drug.phase);
-            const morph = scheduleMorph(now * 0.00028 + optimizeT * 0.8, drug.phase);
-            rx = lerp(18, 30, pulse) * morph.rx;
-            ry = lerp(13, 23, 1 - pulse) * (0.98 + morph.ry * 0.32);
-            rot = morph.rot * 0.72 + pulse * 10 - 5;
-          }
-
-          if (settleFinal) {
-            opacity = lerp(0.94, 0.0, mergeT);
-            rx = lerp(rx, 0.1, mergeT);
-            ry = lerp(ry, 0.1, mergeT);
-            x = lerp(x, CENTER.x, mergeT);
-            y = lerp(y, CENTER.y, mergeT);
-            rot = lerp(rot, 0, mergeT);
-          }
-        }
-
-        g.setAttribute(
-          "transform",
-          `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${rot.toFixed(2)})`
-        );
-        g.setAttribute("opacity", opacity.toFixed(3));
-
-        glow.setAttribute("cx", "0");
-        glow.setAttribute("cy", "0");
-        glow.setAttribute("rx", (rx * 1.85).toFixed(2));
-        glow.setAttribute("ry", (ry * 1.85).toFixed(2));
-
-        core.setAttribute("cx", "0");
-        core.setAttribute("cy", "0");
-        core.setAttribute("rx", Math.max(0.1, rx).toFixed(2));
-        core.setAttribute("ry", Math.max(0.1, ry).toFixed(2));
-      });
-
-      const orbT =
-        time < optimizeEnd
-          ? 0
-          : time < finalEnd
-            ? easeInOut((time - optimizeEnd) / (finalEnd - optimizeEnd))
-            : 0;
-
-      const stable = time >= finalEnd - 2200 && time < finalEnd;
-      const orbPulse = stable ? 0 : 0.5 + 0.5 * Math.sin(now * 0.0018);
-
-      const haloR = lerp(58, 102, orbT) + orbPulse * 1.2;
-      const outerR = lerp(34, 57, orbT) + orbPulse * 0.45;
-      const innerR = lerp(18, 28, orbT);
-      const orbOpacity = time < optimizeEnd ? 0.08 : time < finalEnd ? lerp(0.12, 1, orbT) : 0.08;
-      const logoSize = lerp(86, 122, orbT);
-      const logoOpacity = time < optimizeEnd ? 0 : time < finalEnd ? lerp(0.0, 0.96, orbT) : 0;
-
-      orbHalo.setAttribute("r", haloR.toFixed(2));
-      orbOuter.setAttribute("r", outerR.toFixed(2));
-      orbInner.setAttribute("r", innerR.toFixed(2));
-
-      orbHalo.setAttribute("opacity", (orbOpacity * 0.82).toFixed(3));
-      orbOuter.setAttribute("opacity", orbOpacity.toFixed(3));
-      orbInner.setAttribute("opacity", Math.min(0.95, orbOpacity + 0.08).toFixed(3));
-
-      orbLogo.setAttribute("width", logoSize.toFixed(2));
-      orbLogo.setAttribute("height", logoSize.toFixed(2));
-      orbLogo.setAttribute("x", (CENTER.x - logoSize / 2).toFixed(2));
-      orbLogo.setAttribute("y", (CENTER.y - logoSize / 2).toFixed(2));
-      orbLogo.setAttribute("opacity", logoOpacity.toFixed(3));
-
-      requestAnimationFrame(render);
-    }
-
-    requestAnimationFrame(render);
-  }
-
-  // -----------------------------
-  // Reveal animations
-  // Safe fallback: if unsupported, reveal everything
-  // -----------------------------
-  initRevealAnimations();
-
-  function initRevealAnimations() {
-    const revealEls = document.querySelectorAll(
-      ".reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-scale"
-    );
-
-    if (!revealEls.length) return;
-
-    if (!("IntersectionObserver" in window)) {
-      revealEls.forEach((el) => el.classList.add("in-view"));
-      return;
-    }
-
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          entry.target.classList.toggle("in-view", entry.isIntersecting);
-        });
-      },
-      {
-        threshold: 0.14,
-        rootMargin: "0px 0px -10% 0px",
-      }
-    );
-
-    revealEls.forEach((el) => revealObserver.observe(el));
-  }
-
-  // -----------------------------
-  // Side nav scrollspy
-  // -----------------------------
+  initReveals();
   initScrollSpy();
+  initBoard();
+
+  /* ------------------------------------------------------------- reveals -- */
+
+  function initReveals() {
+    var els = document.querySelectorAll("[data-reveal]");
+    if (!els.length) return;
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      Array.prototype.forEach.call(els, function (el) { el.classList.add("is-visible"); });
+      return;
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -8% 0px" });
+
+    Array.prototype.forEach.call(els, function (el) { io.observe(el); });
+  }
+
+  /* ----------------------------------------------------------- scrollspy -- */
 
   function initScrollSpy() {
-    const sections = [...document.querySelectorAll(".section[data-nav]")];
-    const navDots = [...document.querySelectorAll(".nav-dot")];
+    var sections = [].slice.call(document.querySelectorAll(".section[id]"));
+    var dots = [].slice.call(document.querySelectorAll(".nav-dot"));
+    if (!sections.length || !dots.length) return;
 
-    if (!sections.length || !navDots.length) return;
+    var raf = null;
 
-    function updateActiveNav() {
-      const trigger = window.scrollY + window.innerHeight * 0.42;
-      let currentIdx = 0;
-
-      sections.forEach((section, idx) => {
-        if (trigger >= section.offsetTop) currentIdx = idx;
+    function update() {
+      raf = null;
+      var line = window.scrollY + window.innerHeight * 0.35;
+      var active = 0;
+      sections.forEach(function (section, i) {
+        if (section.offsetTop <= line) active = i;
       });
-
-      const nearBottom =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
-
-      if (nearBottom) currentIdx = sections.length - 1;
-
-      navDots.forEach((dot, i) => {
-        dot.classList.toggle("active", i === currentIdx);
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle("active", i === active);
+        if (i === active) dot.setAttribute("aria-current", "true");
+        else dot.removeAttribute("aria-current");
       });
     }
 
-    window.addEventListener("scroll", updateActiveNav, { passive: true });
-    window.addEventListener("resize", updateActiveNav);
-    window.addEventListener("load", updateActiveNav);
+    function onScroll() { if (raf === null) raf = requestAnimationFrame(update); }
 
-    updateActiveNav();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
   }
 
-  // -----------------------------
-  // Optional today timeline
-  // Safe if missing
-  // -----------------------------
-  initTodayTimeline();
+  /* --------------------------------------------------------------- board --
 
-  function initTodayTimeline() {
-    const dateEl = document.getElementById("today-date");
-    const marker = document.getElementById("timeline-today");
+     ONE INDEX SPACE, AND WHY THE ZOOM IS HONEST
+     Cells enumerate every (combination, dose/schedule variant) pair, where the
+     combination is 2 OR 3 approved mechanism classes ordered by size and then
+     colex over classes sorted by first-approval year, and the variant index is
+     the OUTER loop. That ordering makes the board strictly nested four times:
+         cells 0..77       the 78 pairs available in 1980
+         cells 0..3320     the 3,321 pairs available in 2026
+         cells 0..91880    those pairs plus all 88,560 triples, variant 0 only
+         cells 0..19248515 the same space at 3 dose levels and 2 schedules per
+                           drug, so 6^k variants: 36 for a pair, 216 for a triple
 
-    if (!dateEl || !marker) return;
+     THE RAGGED FOURTH REGION IS STILL A STRICT PREFIX. Variants are the outer
+     loop and the per-combination variant count depends on k, so shells 1..35
+     hold all 91,881 combinations and shells 36..215 hold only the 88,560
+     triples: 36*91881 + 180*88560 = 19,248,516 exactly. Beat 3 is still the
+     literal top-left corner.
 
-    const now = new Date();
-    dateEl.textContent = now.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+     COVERAGE IN THE OUTER REGION IS NOT ZERO, AND MUST NOT BE. An early version
+     lit only variant 0, which asserted that every combination ever tested was
+     tested at exactly one dose and schedule. That is false: anything that
+     reached the clinic went through dose escalation, and an empty outer region
+     was the tell.
+
+     THE OUTER COUNT IS MEASURED. master_arm_table_v30.parquet, filtered to
+     is_combination and n_drugs >= 2, holds 12,306 registered arms over 5,883
+     distinct drug combinations: 2.086 arms per combination, and 65% of them
+     appear in exactly one arm. So the 1,393 tried combinations carry 1.086 extra
+     variants each = 1,513 outer cells. That total does NOT change when the
+     space grows -- the coverage is measured, only the space is a convention.
+
+     WHICH IS WHY THE OUTER CELLS ARE GENERATED, NOT SCANNED FOR. At 19.2M cells
+     a predicate scan costs ~900ms. OUTER draws its 1,513 indices straight from
+     the hash instead, and tried() becomes a set membership test above COMBOS.
+     Two earlier approaches are recorded because both were wrong: a conditional
+     band needs the scan, and placing variant v of combination c at v*91881+c
+     rendered as visible horizontal and vertical streaks (the same ~1,550
+     signal-carrying combinations offset by a constant stride land on structured
+     L-shells). Per-cell identity is illustrative here exactly as in the inner
+     bands; the totals are the claim.
+     Each region is literally the top-left corner of the next, so the whole
+     piece is one continuous camera dolly and never asserts a containment that
+     does not hold. Pairs are NOT a subset of triples — zooming out is only
+     legitimate because the space below is the union of both, with size as the
+     leading sort key. Variant index MUST stay the OUTER loop for the same
+     reason: index = variant*91881 + combo keeps beat 3 an exact prefix, while
+     index = combo*10 + variant would not. If you change the enumeration,
+     re-check that property before restoring the dolly.
+
+     BANDS ARE CONDITIONAL, NOT CUMULATIVE, AND EVERY RATE NOW MATCHES ITS OWN
+     DENOMINATOR. Read straight off the 14 Aug build (out_rollup_final.csv,
+     panel_1980.json), all on the 82-class solid-tumour grid except the 1980
+     panel, which is literature-sourced on the 8 cure-era chemotherapy classes:
+         1980   25/28 pairs                        = 89.3%  (conservative tier)
+         2026   694/3,321 pairs                    = 20.9%
+         2026   699/88,560 triples                 = 0.79%
+     bands[k] is the tried-fraction for cells in [bands[k-1], bands[k]) only, so
+     band 2 is 0.2032 = (694-25)/(3321-28), the conditional rate for the 3,293
+     pairs outside the 1980 panel. Blending reproduces 20.90% exactly.
+
+     THIS REPLACED A GRID MISMATCH THAT THREE REVIEWS CAUGHT. The old bands were
+     89% on 78 pairs (the 89% is sourced on 28), 19.2% and 0.97% (both NSCLC on
+     a 46-class grid) while the counts on screen were the 82-class registry.
+     Beat 1 is now n=28 so the board shows exactly what the copy says. The copy
+     says "8 chemotherapy classes" while the section lede says 13 approved
+     classes of cancer drug in 1980: both are correct and the wording carries
+     the distinction, because the 8 are the cure-era cytotoxics the literature
+     panel covers and 13 is the full solid-tumour registry (which adds
+     dacarbazine, cisplatin, hydroxyurea, tamoxifen, testolactone). The caption
+     states the 8-class basis explicitly. Do not "fix" one to match the other.
+     If you change any rate, change its denominator in the same edit.
+
+     Individual cell positions are illustrative (hash-assigned to hit the band
+     fraction); the totals are measured. The caption on the page says so, and
+     must keep saying so.
+
+     REGIMEN NAMES LIVE IN EXACTLY ONE PLACE: the REGIMENS array. Chips, curative
+     cells and highlight sets are all generated from it, sorted by year, so the
+     chip row reads left to right as a timeline.
+
+     PROVISIONAL: the 13-class 1980 registry and the regimen -> mechanism-class
+     mapping are reconstructed. Reconcile before any diligence use.
+     ---------------------------------------------------------------------- */
+
+  function initBoard() {
+    var root = document.querySelector(".onb");
+    var stage = document.getElementById("onb-stage");
+    var cv = document.getElementById("onb-canvas");
+    if (!root || !stage || !cv) return;
+
+    var ctx = cv.getContext("2d");
+    var elLine = document.getElementById("onb-line");
+    var progBox = document.getElementById("onb-prog");
+
+    var REGIMENS = [
+      { name: "MOPP", year: 1964, cells: [6, 21, 25, 3362] },
+      { name: "Pediatric ALL", year: 1965, cells: [2, 7, 8, 22, 23, 25, 56, 57, 59, 62, 3327, 3358, 3363, 3364, 3488, 3493, 3494, 3508, 3509, 3511] },
+      { name: "ABVD", year: 1975, cells: [14, 19, 20, 32, 33, 34, 3355, 3391, 3396, 3397] },
+      { name: "CHOP", year: 1976, cells: [6, 10, 14, 21, 25, 26, 3337, 3362, 3366, 3370] },
+      { name: "PVB", year: 1977, cells: [19, 49, 51, 3460] },
+      { name: "BEP", year: 1987, cells: [51, 84, 88, 3658] },
+      { name: "Platinum doublet", year: 1995, cells: [101] },
+      { name: "R-CHOP", year: 1997, cells: [6, 10, 14, 21, 25, 26, 120, 124, 125, 127, 3337, 3362, 3366, 3370, 3887, 3891, 3895, 3902, 3906, 3907] },
+      { name: "FOLFOX", year: 2002, cells: [48] },
+      { name: "FOLFOXIRI", year: 2007, cells: [48, 108, 115, 3824] },
+      { name: "Pembro + chemo", year: 2018, cells: [46, 436, 445, 7427] },
+      { name: "D-VRd", year: 2021, cells: [238, 283, 298, 535, 550, 552, 5583, 9015, 9060, 9075] }
+    ];
+
+    var CONFIG = {
+      move: 780,
+      bands: [[28, 0.8929], [3321, 0.2032], [91881, 0.00789]],
+      marks: [[28, "1980"], [3321, "pairs"], [91881, "combinations"]],
+      states: [
+        {
+          n: 28, zoom: 0.80, upto: 1980,
+          line: "In <b>1980</b>, 8 chemotherapy classes made <b>28</b> possible pairs. <em>89% had been tried</em>, and 13 are curative."
+        },
+        {
+          n: 3321, zoom: 0.90, upto: 2100,
+          line: "By <b>2026</b>, 82 drug classes make <b>3,321</b> possible 2-drug combos. <em>21% have been tried.</em>"
+        },
+        {
+          n: 91881, zoom: 0.94, upto: 2100,
+          line: "Add 3-drug combos and the space is <b>91,881</b>. <em>Under 1% of those have ever been tested.</em>"
+        },
+        {
+          /* 3,321 pairs x 36 + 88,560 triples x 216. Variant-major, so beat 3
+             is the literal top-left corner. 1,393 + 1,513 = 2,906 lit cells,
+             i.e. 1 in 6,624. Beat 4 no longer states a coverage figure. */
+          n: 19248516, zoom: 0.96, upto: 2100,
+          line: "With dose and schedule, the space is <b>19 million</b>. <em>This number doubles every six years.</em>"
+        },
+        {
+          /* Same n and zoom as beat 4, so the camera holds still and the only
+             change is the Oncko layer fading in. */
+          n: 19248516, zoom: 0.96, upto: 2100, fill: true,
+          line: "<mark>Oncko is built to search it.</mark>"
+        }
+      ]
+    };
+
+    var GOLD = {}, GOLDBY = {};
+
+    /* THE SECOND LAYER IS "IN STANDARD OF CARE", NOT "CURATIVE". All five regimens live on
+       beat 1 (MOPP, pediatric ALL, ABVD, CHOP, PVB) are genuinely curative, so beat 1's copy
+       may say "cures". Beats 2-3 add platinum doublet, FOLFOXIRI, pembro+chemo and D-VRd,
+       which are life-extending, not curative -- do not relabel the legend back to "curative".
+
+       The layer is filtered by beat year: a 1980 board must not show cells that only
+       a later regimen contributes. Cells 46 and 48 (platinum+antifolate,
+       platinum+fluoropyrimidine) are the reason this matters — both are pairs of
+       mechanisms that existed in 1980 but were not combined until 2018 and 2002,
+       so they light up on the second beat, not the first. */
+    function goldFor(upto) {
+      if (GOLDBY[upto]) return GOLDBY[upto];
+      var m = {};
+      REGIMENS.forEach(function (r) {
+        if (r.year <= upto) r.cells.forEach(function (i) {
+          m[i] = true;
+          for (var v = 1; v < gvar(i); v++) m[outerSlot(i, v)] = true;
+        });
+      });
+      return (GOLDBY[upto] = m);
+    }
+
+    function h(i) {
+      var x = ((i + 1) * 2654435761) % 4294967296;
+      x ^= x >>> 15; x = (x * 2246822507) % 4294967296;
+      x ^= x >>> 13; x = (x * 3266489909) % 4294967296;
+      return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
+    }
+
+    /* decorrelated from h(): the variant count must not be predicted by the
+       tried draw, or dose depth would correlate with which cells are lit. */
+    function h2(i) { return h(i * 2 + 1013904223); }
+
+    var COMBOS = 91881, FULL = 19248516, SPAN = FULL - COMBOS;
+
+    /* how many dose/schedule variants of a standard-of-care combination are
+       themselves validated standard of care */
+    function gvar(c) { return 1 + Math.floor(h2(c) * 3); }
+
+    /* Somewhere in the dose/schedule region, scattered rather than stacked at a
+       constant stride, which streaks. Used for the standard-of-care layer,
+       which is built forward from combinations and so cannot be generated. */
+    function outerSlot(c, v) {
+      return COMBOS + (c * 40001 + v * 7919) % SPAN;
+    }
+
+    /* 1,513 = 1,393 tried combinations x 1.086 extra registered arms each,
+       measured. Generated, not scanned: see the note above. */
+    var OUTER = (function () {
+      var want = 1513, set = {}, list = [], k = 0, i;
+      while (list.length < want && k < want * 40) {
+        i = COMBOS + Math.floor(h(k * 7 + 3) * SPAN);
+        k++;
+        if (!set[i]) { set[i] = 1; list.push(i); }
+      }
+      list.sort(function (a, b) { return a - b; });
+      return { set: set, list: list };
+    })();
+
+    /* THE ONCKO LAYER, in lime. 4,500 cells in the dose/schedule region, drawn
+       at a size floor so they read at 0.11px-per-cell. Deliberately scattered
+       rather than clustered: a disc big enough to read as a blob at this zoom
+       would be ~24,000 cells, and 46 of those would be 5.7% of the space, which
+       is a quantitative claim we cannot source. Oncko's preclinical depth-3/4
+       coverage is the blocked figure in the 14 Aug build memo. Until it exists,
+       this beat claims direction, not area, and the copy says so.
+
+       AREA HERE IS ILLUSTRATIVE. Do not let anyone read a number off it.
+
+       `want` IS ANCHORED, NOT PICKED FOR LOOKS. 2,900 is the count of real
+       historical coverage on this board (1,393 in the combination corner plus
+       1,513 in the dose/schedule region = 2,906). So the lime layer is drawn at
+       the magnitude of the entire registered record, which is a stateable
+       referent if anyone asks what the area means. Raising it further starts
+       asserting coverage nothing supports: at 4,500 on a 2.6px floor the lime
+       swamped the mint and the board read as "Oncko has already covered a third
+       of the space." An external review (23 Aug) independently lists
+       "comprehensive search of 19 million regimens" under DO NOT CLAIM YET. */
+    var FILL = (function () {
+      var m = {}, want = 2900, k = 0, i;
+      while (k < want * 40 && Object.keys(m).length < want) {
+        i = COMBOS + Math.floor(h(k * 13 + 977) * SPAN);
+        k++;
+        if (!OUTER.set[i]) m[i] = 1;      /* never overwrite a real tested cell */
+      }
+      return m;
+    })();
+
+    function tried(i) {
+      if (i >= COMBOS) return OUTER.set[i] === 1;
+      var b = CONFIG.bands;
+      for (var k = 0; k < b.length; k++) if (i < b[k][0]) return h(i) < b[k][1];
+      return false;
+    }
+
+    /* L-shell layout: the first m cells always fill the ceil(sqrt(m)) corner
+       square. This is what makes each region nest inside the next. */
+    function pos(i) {
+      var s = Math.floor(Math.sqrt(i)), r = i - s * s;
+      return r <= s ? [r, s] : [s, 2 * s - r];
+    }
+
+    REGIMENS.forEach(function (r) {
+      r.cells.forEach(function (i) {
+        GOLD[i] = true;
+        for (var v = 1; v < gvar(i); v++) GOLD[outerSlot(i, v)] = true;
+      });
     });
+
+    /* Must be ascending: the fast path relies on `if (i >= n) break`. The
+       combination region is scanned (91,881 checks, a few ms); the dose/schedule
+       region is assembled from the two generated sources and merged. */
+    var INTEREST = (function () {
+      var a = [], out = [], i;
+      for (i = 0; i < COMBOS; i++) if (GOLD[i] || tried(i)) a.push(i);
+      for (i = 0; i < OUTER.list.length; i++) out.push(OUTER.list[i]);
+      Object.keys(GOLD).forEach(function (k) { k = +k; if (k >= COMBOS) out.push(k); });
+      Object.keys(FILL).forEach(function (k) { out.push(+k); });
+      out.sort(function (p, q) { return p - q; });
+      for (i = 0; i < out.length; i++) if (i === 0 || out[i] !== out[i - 1]) a.push(out[i]);
+      return a;
+    })();
+
+    var F = 0, dpr = 1, cam = [], CSSV = {}, fillA = 0;
+
+    function tokens() {
+      var cs = getComputedStyle(root);
+      CSSV.ground = cs.getPropertyValue("--ground").trim() || "#0A1312";
+      CSSV.field = cs.getPropertyValue("--surface-2").trim() || "#16231D";
+      CSSV.mint = cs.getPropertyValue("--mint").trim() || "#6FDCAE";
+      CSSV.lime = cs.getPropertyValue("--lime").trim() || "#CEE444";
+      CSSV.text = cs.getPropertyValue("--text").trim() || "#FFFFFF";
+      CSSV.face = cs.getPropertyValue("--sans").trim() || "sans-serif";
+    }
+
+    function layout() {
+      F = stage.clientWidth || 400;
+      if (!F) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.width = Math.round(F * dpr);
+      cv.height = Math.round(F * dpr);
+      cam = CONFIG.states.map(function (s) {
+        var cols = Math.ceil(Math.sqrt(s.n));
+        return { cols: cols, pitch: (F * s.zoom) / cols };
+      });
+    }
+
+    function paint(n, pitch, org, nMin, grow, gA, gB, e) {
+      var cols = Math.ceil(Math.sqrt(n));
+      var x0 = org, y0 = org;
+      var gap = Math.max(pitch * 0.22, 0.4);
+      var side = Math.max(pitch - gap, 0.6);
+      var radius = side > 5 ? Math.min(2, side * 0.18) : 0;
+
+      function box(x, y, sz, fill, alpha) {
+        ctx.fillStyle = fill;
+        ctx.globalAlpha = alpha;
+        if (radius && ctx.roundRect) {
+          ctx.beginPath(); ctx.roundRect(x, y, sz, sz, radius); ctx.fill();
+        } else {
+          ctx.fillRect(x, y, sz, sz);
+        }
+      }
+
+      function cell(i, a) {
+        var p = pos(i), x = x0 + p[0] * pitch, y = y0 + p[1] * pitch;
+        if (x > F || y > F || x + side < 0 || y + side < 0) return;
+        var t = tried(i), was = gA[i], now = gB[i];
+
+        if (t) {
+          /* hash-varied so a 89%-full board reads as texture, not a solid slab.
+             Floored at 1.5px: side is 0.6px on the dose/schedule beat, and
+             without the floor the tried cells vanish and it reads as broken. */
+          box(x, y, side < 1.5 ? 1.5 : side, CSSV.mint, a * (0.40 + h(i) * 0.26));
+        } else {
+          box(x, y, side, CSSV.field, a * 0.8);
+        }
+
+        /* Oncko layer: lime, under the standard-of-care highlight so the two
+           never fight for the same pixel */
+        if (fillA > 0.01 && FILL[i]) {
+          var fs = side < 2.1 ? 2.1 : side;
+          ctx.shadowColor = CSSV.lime;
+          ctx.shadowBlur = Math.max(2, Math.min(fs * 0.45, 8));
+          box(x, y, fs, CSSV.lime, a * fillA * 0.85);
+          ctx.shadowBlur = 0;
+        }
+
+        /* curative layer, cross-faded when a beat adds or drops a regimen */
+        var ga = (was && now) ? 1 : now ? e : was ? 1 - e : 0;
+        if (ga > 0.01) {
+          var sz = side < 2.5 ? 2.8 : side;   /* stays findable when sub-pixel */
+          ctx.shadowColor = CSSV.mint;
+          ctx.shadowBlur = Math.max(3, Math.min(sz * 0.55, 13));
+          box(x, y, sz, CSSV.mint, a * ga);
+          ctx.shadowBlur = 0;
+          /* white core: brightness, not a second hue, marks the top tier */
+          if (sz > 4.5) box(x + sz * 0.3, y + sz * 0.3, sz * 0.4, CSSV.text, a * ga * 0.92);
+        }
+      }
+
+      if (side < 2.4) {
+        /* too small to be worth 90k draw calls: lay the dark field down as one
+           rect and paint only the cells that carry signal */
+        ctx.globalAlpha = 0.72 * (nMin >= n ? 1 : grow > 0.5 ? 1 : grow);
+        ctx.fillStyle = CSSV.field;
+        ctx.fillRect(x0, y0, cols * pitch, cols * pitch);
+        ctx.globalAlpha = 1;
+        for (var k = 0; k < INTEREST.length; k++) {
+          var i = INTEREST[k];
+          if (i >= n) break;
+          cell(i, i < nMin ? 1 : grow);
+        }
+      } else {
+        for (var j = 0; j < n; j++) cell(j, j < nMin ? 1 : grow);
+      }
+      ctx.globalAlpha = 1;
+
+      /* nested regions, outlined once they are no longer the whole picture */
+      ctx.lineWidth = 1;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.font = "500 9.5px " + CSSV.face;
+      CONFIG.marks.forEach(function (m) {
+        if (m[0] >= n) return;
+        var w = Math.ceil(Math.sqrt(m[0])) * pitch;
+        var a = (m[0] >= nMin ? grow : 1);
+        ctx.strokeStyle = CSSV.mint;
+        ctx.globalAlpha = 0.3 * a;
+        ctx.strokeRect(x0 - 1.5, y0 - 1.5, w + 3, w + 3);
+        /* a label wider than the box it names is noise, and on the dose beat the
+           78- and 3,321-cell labels collide with each other. Outline always,
+           name only once the region is big enough to read as a region. The gate
+           is 20, not 44: at beat 4 the whole combination board is a 26px corner
+           and that is exactly the label that has to survive. */
+        if (w < 20) return;
+        ctx.globalAlpha = 0.85 * a;
+        ctx.fillStyle = CSSV.mint;
+        /* the outer field carries scatter now, so the label needs to sit on
+           something. Two passes with a ground-coloured shadow = a cheap halo. */
+        ctx.shadowColor = CSSV.ground;
+        ctx.shadowBlur = 5;
+        ctx.fillText(m[1], x0 + w + 6, Math.max(y0 + 1, 7));
+        ctx.fillText(m[1], x0 + w + 6, Math.max(y0 + 1, 7));
+        ctx.shadowBlur = 0;
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+    /* every beat is a prefix of the same board, so every move is one dolly */
+    function render(a, b, t) {
+      if (!cam.length) return;
+      var A = CONFIG.states[a], B = CONFIG.states[b], e = ease(t);
+      fillA = (A.fill ? 1 - e : 0) + (B.fill ? e : 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, F, F);
+      var pitch = Math.exp(Math.log(cam[a].pitch) * (1 - e) + Math.log(cam[b].pitch) * e);
+      /* each state's grid is centred at rest; lerp between those two origins so
+         both ends of the dolly land correctly and nothing flies off-canvas */
+      var orgA = (F - cam[a].cols * cam[a].pitch) / 2;
+      var orgB = (F - cam[b].cols * cam[b].pitch) / 2;
+      var org = orgA * (1 - e) + orgB * e;
+      paint(Math.max(A.n, B.n), pitch, org, Math.min(A.n, B.n),
+            B.n >= A.n ? e : 1 - e, goldFor(A.upto), goldFor(B.upto), e);
+    }
+    /* ------------------------------------------------- scroll-locked beats --
+
+       THE BOARD IS PINNED. `.board-track` is 340svh tall and `.board-pin` is a
+       sticky 100svh box inside it, so the card holds still while the page
+       scrolls past. That gives the four beats about 2.4 viewport heights of
+       runway (roughly 600px each) and means the reader has to move through the
+       whole argument to get past the section.
+
+       Two earlier versions failed and are worth knowing about:
+         1. A timed loop that handed control back 1400ms after the reader
+            stopped. Indistinguishable from pure autoplay -- park the board and
+            it walked itself through all four beats and wrapped.
+         2. Scroll drive off the board's own travel across the viewport, with no
+            pin. Correct in principle but the board is ~520px tall, so a hard
+            flick skipped beats and there was no way to add runway.
+       THERE IS NO TIMER ANY MORE. Position is the only thing that sets the
+       beat. The control condition to test after any change is PARK AND DO
+       NOTHING: the beat must not move.
+       -------------------------------------------------------------------- */
+
+    if (reduceMotion) CONFIG.move = 0;
+
+    var state = 0;
+    var anim = null, sraf = null;
+    var track = document.querySelector(".board-track");
+
+    CONFIG.states.forEach(function (_, i) {
+      var b = document.createElement("button");
+      b.className = "onb-tick";
+      b.type = "button";
+      b.innerHTML = "<i></i>";
+      b.setAttribute("aria-label", "Step " + (i + 1) + " of " + CONFIG.states.length);
+      b.addEventListener("click", function (e) { e.stopPropagation(); go(i); });
+      progBox.appendChild(b);
+    });
+
+    /* pure position indicators now: nothing animates them, so no transitions */
+    function ticks(i) {
+      Array.prototype.forEach.call(progBox.children, function (b, n) {
+        b.classList.toggle("done", n <= i);
+        b.setAttribute("aria-current", n === i ? "step" : "false");
+      });
+    }
+
+    function copy(i) {
+      elLine.innerHTML = CONFIG.states[i].line;
+      stage.setAttribute("aria-label", elLine.textContent + " Tap to advance.");
+    }
+
+    function go(next) {
+      next = (next + CONFIG.states.length) % CONFIG.states.length;
+      var from = state;
+      state = next;
+      root.dataset.state = state;
+      ticks(state);
+      if (from === state) { copy(state); render(state, state, 1); return; }
+      var fades = root.querySelectorAll(".onb-fade");
+      Array.prototype.forEach.call(fades, function (n) { n.style.opacity = 0; });
+      if (anim) cancelAnimationFrame(anim);
+      var t0 = performance.now(), D = CONFIG.move, swapped = false;
+      (function step(now) {
+        /* D is 0 under reduced motion. (now - t0) / 0 is NaN on the first frame,
+           and NaN < 1 is false, so guard it and cut straight to the end state. */
+        var t = D > 0 ? Math.min((now - t0) / D, 1) : 1;
+        if (!swapped && t >= 0.42) {
+          swapped = true;
+          copy(state);
+          Array.prototype.forEach.call(fades, function (n) { n.style.opacity = 1; });
+        }
+        render(from, state, t);
+        if (t < 1) anim = requestAnimationFrame(step);
+      })(t0);
+    }
+
+    /* Beat straight from how far through the track we are. Runway is known
+       exactly, unlike the old centre-of-viewport estimate. */
+    function scrollBeat() {
+      sraf = null;
+      if (!track) return;
+      var runway = track.offsetHeight - window.innerHeight;
+      if (runway <= 0) return;
+      var p = -track.getBoundingClientRect().top / runway;
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      var N = CONFIG.states.length, f = p * N;
+      var want = f >= N ? N - 1 : Math.floor(f);
+      /* small dead zone: absorbs scroll jitter and the iOS address bar
+         resizing innerHeight mid-scroll, without making the scrub feel laggy */
+      if (want === state || Math.abs(f - (state + 0.5)) <= 0.55) return;
+      go(want);
+    }
+
+    window.addEventListener("scroll", function () {
+      if (sraf === null) sraf = requestAnimationFrame(scrollBeat);
+    }, { passive: true });
+
+    stage.addEventListener("click", function () { go(state + 1); });
+
+    root.tabIndex = -1;   /* arrow keys stay inside the component */
+    root.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      e.preventDefault();
+      go(state + (e.key === "ArrowRight" ? 1 : -1));
+    });
+
+    /* reserve the tallest copy block so nothing reflows on a beat change */
+    function reserve() {
+      var save = elLine.innerHTML, tall = 0;
+      elLine.style.minHeight = "0px";
+      CONFIG.states.forEach(function (st) {
+        elLine.innerHTML = st.line;
+        tall = Math.max(tall, elLine.offsetHeight);
+      });
+      elLine.innerHTML = save;
+      elLine.style.minHeight = tall + "px";
+    }
+
+    function boot() { tokens(); layout(); reserve(); render(state, state, 1); }
+
+    if (window.ResizeObserver) new ResizeObserver(boot).observe(stage);
+    else window.addEventListener("resize", boot);
+
+    root.dataset.state = state;
+    boot();
+    copy(state);
+    ticks(state);
+    scrollBeat();
   }
 });
