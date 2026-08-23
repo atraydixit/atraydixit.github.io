@@ -10,20 +10,18 @@
   <meta name="author" content="Oncko" />
   <meta name="description" content="AI makes therapeutic hypotheses abundant. Oncko makes clinical proof scalable. ComboTrials is a platform trial designed to find the best drug combinations." />
 
-  <title>Oncko | Scaling combination testing</title>
+  <title>Oncko | Scaling trials for drug combinations</title>
   <link rel="canonical" href="https://www.oncko.com/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.oncko.com/" />
   <meta property="og:site_name" content="Oncko" />
-  <meta property="og:title" content="Oncko | Scaling combination testing" />
+  <meta property="og:title" content="Oncko | Scaling trials for drug combinations" />
   <meta property="og:description" content="AI makes therapeutic hypotheses abundant. Oncko makes clinical proof scalable. ComboTrials is a platform trial designed to find the best drug combinations." />
   <meta property="og:image" content="https://www.oncko.com/img/ONCKO-ICON.png" />
 
-  <!-- summary, not summary_large_image: ONCKO-ICON.png is square and crops badly
-       in a wide card. Switch back once a 1200x630 social card exists. -->
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Oncko | Scaling combination testing" />
+  <meta name="twitter:title" content="Oncko | Scaling trials for drug combinations" />
   <meta name="twitter:description" content="AI makes therapeutic hypotheses abundant. Oncko makes clinical proof scalable. ComboTrials is a platform trial designed to find the best drug combinations." />
   <meta name="twitter:image" content="https://www.oncko.com/img/ONCKO-ICON.png" />
 
@@ -90,26 +88,25 @@
       <div class="container hero">
         <div class="hero-grid">
           <div>
-            <p class="eyebrow" data-reveal>Scaling combination testing</p>
-            <h1 data-reveal style="--d:60ms">A new frontier in combinations.</h1>
-            <p class="hero-support" data-reveal style="--d:150ms">
+            <h1 data-reveal>Scaling trials for drug combinations.</h1>
+            <p class="hero-support" data-reveal style="--d:110ms">
               Cancer and infectious diseases evolve resistance to single drugs.
               Drug combinations have made many of these conditions survivable.
-              Breakthroughs in biology and AI keep producing new therapies, but each one
-              expands the combination space exponentially.
+              Breakthroughs in biology and AI keep producing new therapies. Each one adds to
+              an exponentially growing number of combinations worth testing.
             </p>
-            <p class="hero-support" data-reveal style="--d:190ms">
+            <p class="hero-support" data-reveal style="--d:150ms">
               Informed by large human and preclinical datasets, Oncko is building
               <strong>ComboTrials</strong> to search that space and find the combinations that
               matter.
             </p>
-            <div class="hero-actions" data-reveal style="--d:225ms">
+            <div class="hero-actions" data-reveal style="--d:185ms">
               <a class="btn btn-primary" href="#trials">Learn about ComboTrials</a>
             </div>
           </div>
 
           <div class="hero-mark" aria-hidden="true">
-            <div class="hero-orb" data-reveal style="--d:200ms">
+            <div class="hero-orb" data-reveal style="--d:160ms">
               <div class="hero-logo-wrap">
                 <img src="img/ONCKO-ICON.png" alt="" class="hero-logo-mark">
               </div>
@@ -128,13 +125,12 @@
           <p class="lede">
             In 1980 there were 13 approved classes of cancer drug. Today there are 82,
             making over 90,000 possible pairs and triples &mdash; and that space doubles
-            about every six years. Most trials still test them one at a time.
+            about every six years.
           </p>
         </div>
 
-        <!-- the track supplies the scroll runway; the pin holds the card still
-             while the reader moves through all four beats. data-reveal stays off
-             both of them, since a transform on a sticky ancestor breaks it. -->
+        <!-- data-reveal must stay off the track and the pin: a transform on a
+             sticky ancestor stops sticky working. -->
         <div class="board-track">
           <div class="board-pin">
             <div class="board-wrap card pad" data-reveal style="--d:120ms">
@@ -153,7 +149,7 @@
         </div>
 
         <p class="caption" data-reveal>
-          Registered trial arms (ClinicalTrials.gov) on an 82-class solid-tumour grid;
+          Registered trial arms (ClinicalTrials.gov) on an 82-class solid-tumor grid;
           the 1980 panel is literature-sourced on 8 chemotherapy classes. Oncko layer
           illustrative.
         </p>
@@ -272,32 +268,25 @@
       </div>
     </section>
 
-    <!-- ================================================== programs ======= -->
+    <!-- ==================================================== trials ====== -->
     <section class="section" id="trials">
       <div class="container">
         <div class="section-head" data-reveal>
           <p class="eyebrow">Trials &amp; Partnering</p>
-          <h2>Our clinical trials.</h2>
+          <h2>ComboTrials programs.</h2>
           <p class="lede">
-            Platform trial designed to scale combination testing. Built for teams exploring
+            Platform clinical trials designed to scale combination testing. Built for teams exploring
             new combinations in lung, colorectal or pancreatic cancer.
           </p>
         </div>
 
-        <!-- The partnering block sits above all three indication cards, not inside
-             the Lung one. The invitation in the lede spans lung, colorectal and
-             pancreatic, so the mechanism and the CTA that answer it have to span
-             them too; splitting the two halves across the page was the same
-             mistake the standalone Partnering section made. -->
         <div class="join" data-reveal style="--d:80ms">
           <p>
             One protocol, one shared randomized control, one operational team, and a set of
-            preclinically validated backbones to combine with. A partner arm joins the platform
-            instead of standing up a new trial, so a combination reaches human proof faster and
-            at a fraction of what a standalone trial would cost.
+            prioritized backbones to combine with. A partner arm joins the platform instead of
+            standing up a new trial, which is what shortens the path to human proof.
           </p>
-          <a class="btn btn-primary" href="mailto:partnerships@oncko.com"
-             title="partnerships@oncko.com">Partner with ComboTrials</a>
+          <a class="btn btn-primary" href="mailto:partnerships@oncko.com">Email partnerships@oncko.com</a>
         </div>
 
         <div class="cp">
@@ -342,10 +331,6 @@
               <summary>Trial design</summary>
 
               <span class="label">Trial arms</span>
-              <!-- The control sits in the row rather than in a section of its own,
-                   so the whole architecture reads in one glance: the docetaxel arm
-                   everything is randomised against, seven selected regimens, and two
-                   slots still open. -->
               <div class="arm-grid" role="img"
                    aria-label="Ten arms: one shared docetaxel control, seven with a regimen selected, two slots still open.">
                 <div class="arm control"></div>
@@ -397,7 +382,7 @@
           <p class="eyebrow">Contact</p>
           <h2>Let&rsquo;s talk.</h2>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="mailto:info@oncko.com" title="info@oncko.com">Learn more</a>
+            <a class="btn btn-primary" href="mailto:info@oncko.com">Email info@oncko.com</a>
           </div>
         </div>
       </div>

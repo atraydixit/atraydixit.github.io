@@ -65,89 +65,53 @@ document.addEventListener("DOMContentLoaded", function () {
     update();
   }
 
-  /* --------------------------------------------------------------- board --
+  /* ------------------------------------------------------------------ board --
 
      ONE INDEX SPACE, AND WHY THE ZOOM IS HONEST
      Cells enumerate every (combination, dose/schedule variant) pair, where the
      combination is 2 OR 3 approved mechanism classes ordered by size and then
      colex over classes sorted by first-approval year, and the variant index is
-     the OUTER loop. That ordering makes the board strictly nested four times:
-         cells 0..77       the 78 pairs available in 1980
-         cells 0..3320     the 3,321 pairs available in 2026
-         cells 0..91880    those pairs plus all 88,560 triples, variant 0 only
-         cells 0..19248515 the same space at 3 dose levels and 2 schedules per
-                           drug, so 6^k variants: 36 for a pair, 216 for a triple
+     the OUTER loop. That ordering makes the board strictly nested:
+         cells 0..27        the 28 pairs of the 1980 panel
+         cells 0..3320      the 3,321 pairs available in 2026
+         cells 0..91880     those pairs plus all 88,560 triples, variant 0 only
+         cells 0..19248515  the same space at 3 dose levels and 2 schedules per
+                            drug, so 6^k variants: 36 per pair, 216 per triple
+     Each region is the literal top-left corner of the next, so the whole piece
+     is one continuous camera dolly and never asserts a containment that does
+     not hold. Pairs are NOT a subset of triples; zooming out is legitimate only
+     because the space below is the union of both, with size as the leading sort
+     key. Variant index MUST stay the outer loop for the same reason:
+     variant*91881 + combo keeps the third region an exact prefix, while
+     combo*6^k + variant would not.
 
-     THE RAGGED FOURTH REGION IS STILL A STRICT PREFIX. Variants are the outer
-     loop and the per-combination variant count depends on k, so shells 1..35
-     hold all 91,881 combinations and shells 36..215 hold only the 88,560
-     triples: 36*91881 + 180*88560 = 19,248,516 exactly. Beat 3 is still the
-     literal top-left corner.
+     The fourth region is ragged and still a strict prefix: shells 1..35 hold all
+     91,881 combinations and shells 36..215 hold only the 88,560 triples, so
+     36*91881 + 180*88560 = 19,248,516 exactly.
 
-     COVERAGE IN THE OUTER REGION IS NOT ZERO, AND MUST NOT BE. An early version
-     lit only variant 0, which asserted that every combination ever tested was
-     tested at exactly one dose and schedule. That is false: anything that
-     reached the clinic went through dose escalation, and an empty outer region
-     was the tell.
-
-     THE OUTER COUNT IS MEASURED. master_arm_table_v30.parquet, filtered to
-     is_combination and n_drugs >= 2, holds 12,306 registered arms over 5,883
-     distinct drug combinations: 2.086 arms per combination, and 65% of them
-     appear in exactly one arm. So the 1,393 tried combinations carry 1.086 extra
-     variants each = 1,513 outer cells. That total does NOT change when the
-     space grows -- the coverage is measured, only the space is a convention.
-
-     WHICH IS WHY THE OUTER CELLS ARE GENERATED, NOT SCANNED FOR. At 19.2M cells
-     a predicate scan costs ~900ms. OUTER draws its 1,513 indices straight from
-     the hash instead, and tried() becomes a set membership test above COMBOS.
-     Two earlier approaches are recorded because both were wrong: a conditional
-     band needs the scan, and placing variant v of combination c at v*91881+c
-     rendered as visible horizontal and vertical streaks (the same ~1,550
-     signal-carrying combinations offset by a constant stride land on structured
-     L-shells). Per-cell identity is illustrative here exactly as in the inner
-     bands; the totals are the claim.
-     Each region is literally the top-left corner of the next, so the whole
-     piece is one continuous camera dolly and never asserts a containment that
-     does not hold. Pairs are NOT a subset of triples — zooming out is only
-     legitimate because the space below is the union of both, with size as the
-     leading sort key. Variant index MUST stay the OUTER loop for the same
-     reason: index = variant*91881 + combo keeps beat 3 an exact prefix, while
-     index = combo*10 + variant would not. If you change the enumeration,
-     re-check that property before restoring the dolly.
-
-     BANDS ARE CONDITIONAL, NOT CUMULATIVE, AND EVERY RATE NOW MATCHES ITS OWN
-     DENOMINATOR. Read straight off the 14 Aug build (out_rollup_final.csv,
-     panel_1980.json), all on the 82-class solid-tumour grid except the 1980
-     panel, which is literature-sourced on the 8 cure-era chemotherapy classes:
-         1980   25/28 pairs                        = 89.3%  (conservative tier)
-         2026   694/3,321 pairs                    = 20.9%
-         2026   699/88,560 triples                 = 0.79%
+     BANDS ARE CONDITIONAL, NOT CUMULATIVE, AND EVERY RATE MATCHES ITS OWN
+     DENOMINATOR:
+         1980   25/28 pairs        = 89.3%   (literature-sourced panel)
+         2026   694/3,321 pairs    = 20.9%
+         2026   699/88,560 triples = 0.79%
      bands[k] is the tried-fraction for cells in [bands[k-1], bands[k]) only, so
      band 2 is 0.2032 = (694-25)/(3321-28), the conditional rate for the 3,293
-     pairs outside the 1980 panel. Blending reproduces 20.90% exactly.
+     pairs outside the 1980 panel. Blending reproduces 20.90% exactly. If you
+     change any rate, change its denominator in the same edit.
 
-     THIS REPLACED A GRID MISMATCH THAT THREE REVIEWS CAUGHT. The old bands were
-     89% on 78 pairs (the 89% is sourced on 28), 19.2% and 0.97% (both NSCLC on
-     a 46-class grid) while the counts on screen were the 82-class registry.
-     Beat 1 is now n=28 so the board shows exactly what the copy says. The copy
-     says "8 chemotherapy classes" while the section lede says 13 approved
-     classes of cancer drug in 1980: both are correct and the wording carries
-     the distinction, because the 8 are the cure-era cytotoxics the literature
-     panel covers and 13 is the full solid-tumour registry (which adds
-     dacarbazine, cisplatin, hydroxyurea, tamoxifen, testolactone). The caption
-     states the 8-class basis explicitly. Do not "fix" one to match the other.
-     If you change any rate, change its denominator in the same edit.
+     COVERAGE IN THE OUTER REGION IS NOT ZERO AND MUST NOT BE. Anything that
+     reached the clinic went through dose escalation, so lighting only variant 0
+     would assert that every combination ever tested was tested at exactly one
+     dose and schedule, which is false. A combination that reached the clinic
+     averages 2.086 registered arms, so the 1,393 tried combinations carry 1.086
+     extra variants each: 1,513 outer cells. That total does not change when the
+     space grows, because the coverage is measured and only the space is a
+     stated convention.
 
-     Individual cell positions are illustrative (hash-assigned to hit the band
-     fraction); the totals are measured. The caption on the page says so, and
-     must keep saying so.
-
-     REGIMEN NAMES LIVE IN EXACTLY ONE PLACE: the REGIMENS array. Chips, curative
-     cells and highlight sets are all generated from it, sorted by year, so the
-     chip row reads left to right as a timeline.
-
-     PROVISIONAL: the 13-class 1980 registry and the regimen -> mechanism-class
-     mapping are reconstructed. Reconcile before any diligence use.
+     Those outer cells are GENERATED, not scanned for: at 19.2M cells a
+     predicate scan costs ~900ms. OUTER draws its indices from the hash and
+     tried() is a set membership test above COMBOS. Per-cell identity is
+     illustrative here exactly as in the inner bands; the totals are the claim.
      ---------------------------------------------------------------------- */
 
   function initBoard() {
@@ -210,16 +174,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var GOLD = {}, GOLDBY = {};
 
-    /* THE SECOND LAYER IS "IN STANDARD OF CARE", NOT "CURATIVE". All five regimens live on
-       beat 1 (MOPP, pediatric ALL, ABVD, CHOP, PVB) are genuinely curative, so beat 1's copy
-       may say "cures". Beats 2-3 add platinum doublet, FOLFOXIRI, pembro+chemo and D-VRd,
-       which are life-extending, not curative -- do not relabel the legend back to "curative".
+    /* THE SECOND LAYER IS "IN STANDARD OF CARE", NOT "CURATIVE". The regimens
+       live on beat 1 are all genuinely curative, so beat 1 may say "curative".
+       Later beats add platinum doublet, FOLFOXIRI, pembro+chemo and D-VRd,
+       which are life-extending: do not carry "curative" onto them.
 
-       The layer is filtered by beat year: a 1980 board must not show cells that only
-       a later regimen contributes. Cells 46 and 48 (platinum+antifolate,
-       platinum+fluoropyrimidine) are the reason this matters — both are pairs of
-       mechanisms that existed in 1980 but were not combined until 2018 and 2002,
-       so they light up on the second beat, not the first. */
+       The layer is filtered by beat year, so a 1980 board does not show cells
+       that only a later regimen contributes. Cells 46 and 48 are why this
+       matters: both are pairs of mechanisms that existed in 1980 but were not
+       combined until 2002 and 2018. */
     function goldFor(upto) {
       if (GOLDBY[upto]) return GOLDBY[upto];
       var m = {};
@@ -269,25 +232,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return { set: set, list: list };
     })();
 
-    /* THE ONCKO LAYER, in lime. 4,500 cells in the dose/schedule region, drawn
-       at a size floor so they read at 0.11px-per-cell. Deliberately scattered
-       rather than clustered: a disc big enough to read as a blob at this zoom
-       would be ~24,000 cells, and 46 of those would be 5.7% of the space, which
-       is a quantitative claim we cannot source. Oncko's preclinical depth-3/4
-       coverage is the blocked figure in the 14 Aug build memo. Until it exists,
-       this beat claims direction, not area, and the copy says so.
+    /* THE ONCKO LAYER, in lime. Cells in the dose/schedule region drawn at a
+       size floor so they read at 0.11px per cell, and scattered rather than
+       clustered: a disc large enough to read as a blob at this zoom would be
+       ~24,000 cells, which is a quantitative claim nothing supports.
 
-       AREA HERE IS ILLUSTRATIVE. Do not let anyone read a number off it.
-
-       `want` IS ANCHORED, NOT PICKED FOR LOOKS. 2,900 is the count of real
+       AREA HERE IS ILLUSTRATIVE. `want` is anchored to the count of real
        historical coverage on this board (1,393 in the combination corner plus
-       1,513 in the dose/schedule region = 2,906). So the lime layer is drawn at
-       the magnitude of the entire registered record, which is a stateable
-       referent if anyone asks what the area means. Raising it further starts
-       asserting coverage nothing supports: at 4,500 on a 2.6px floor the lime
-       swamped the mint and the board read as "Oncko has already covered a third
-       of the space." An external review (23 Aug) independently lists
-       "comprehensive search of 19 million regimens" under DO NOT CLAIM YET. */
+       1,513 in the dose/schedule region = 2,906), so the layer has a stateable
+       referent. Do not raise it: the board then reads as completed coverage. */
     var FILL = (function () {
       var m = {}, want = 2900, k = 0, i;
       while (k < want * 40 && Object.keys(m).length < want) {
@@ -477,25 +430,17 @@ document.addEventListener("DOMContentLoaded", function () {
       paint(Math.max(A.n, B.n), pitch, org, Math.min(A.n, B.n),
             B.n >= A.n ? e : 1 - e, goldFor(A.upto), goldFor(B.upto), e);
     }
-    /* ------------------------------------------------- scroll-locked beats --
+    /* --------------------------------------------- scroll-locked beats --
 
-       THE BOARD IS PINNED. `.board-track` is 340svh tall and `.board-pin` is a
-       sticky 100svh box inside it, so the card holds still while the page
-       scrolls past. That gives the four beats about 2.4 viewport heights of
-       runway (roughly 600px each) and means the reader has to move through the
-       whole argument to get past the section.
+       The board is pinned: .board-track is 400svh and .board-pin is a sticky
+       100svh box inside it, so the card holds still while the page scrolls
+       past. That gives the beats real runway and means the reader moves through
+       the whole sequence.
 
-       Two earlier versions failed and are worth knowing about:
-         1. A timed loop that handed control back 1400ms after the reader
-            stopped. Indistinguishable from pure autoplay -- park the board and
-            it walked itself through all four beats and wrapped.
-         2. Scroll drive off the board's own travel across the viewport, with no
-            pin. Correct in principle but the board is ~520px tall, so a hard
-            flick skipped beats and there was no way to add runway.
-       THERE IS NO TIMER ANY MORE. Position is the only thing that sets the
-       beat. The control condition to test after any change is PARK AND DO
-       NOTHING: the beat must not move.
-       -------------------------------------------------------------------- */
+       THERE IS NO TIMER. Position is the only thing that sets the beat, and the
+       control condition to test after any change is PARK AND DO NOTHING: the
+       beat must not move.
+       ---------------------------------------------------------------- */
 
     if (reduceMotion) CONFIG.move = 0;
 
