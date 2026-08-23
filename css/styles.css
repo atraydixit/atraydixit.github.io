@@ -51,7 +51,11 @@ body {
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* NO overflow-x here. It computes to `hidden auto`, which makes body a scroll
+     container: the snap points are body's descendants, so they join body's snap
+     container rather than the document's and scroll-snap silently does nothing.
+     It was masking a mobile overflow that no longer exists (harness reports 0 at
+     390px). If overflow ever returns, fix the offending element, not the body. */
 }
 
 body::before {
@@ -494,26 +498,54 @@ footer {
 
 /* ----------------------------------------------------------------- board -- */
 
-/* THE BOARD IS PINNED so the four beats get real scroll runway and the reader
-   has to move through the whole argument. 340svh of track against a 100svh pin
-   leaves ~2.4 viewport heights of runway, roughly 600px per beat. svh (not vh)
-   so a collapsing mobile address bar does not resize the pin mid-scroll; the vh
-   line before it is the fallback for browsers without svh.
-   Do not put a transform (data-reveal) on the track or the pin: a transformed
-   ancestor creates a containing block and sticky stops working. */
+/* Exactly one viewport, and no runway. Every earlier version gave the track
+   several viewports of runway and derived the beat from how far through it the
+   reader had scrolled; runway is precisely what let one flick carry the scroll
+   out of the section with beats unplayed. The gate in main.js holds the page
+   here instead, so there is nothing to scroll through. svh (not vh) so a
+   collapsing mobile address bar does not resize the board mid-sequence; the vh
+   line before each svh line is the fallback for browsers without svh.
+
+   NO scroll-snap, ever. `mandatory` traps the reader: the scroller must always
+   come to rest on a snap point, so leaving in either direction gets pulled back.
+   The gate needs no cooperation from the scroller. */
 .board-track {
   position: relative;
-  height: 400vh;
-  height: 400svh;
+  height: 100vh;
+  height: 100svh;
 }
 
 .board-pin {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
+  height: 100%;
   display: grid;
   align-content: center;
+}
+
+/* While the gate is shut, block vertical panning so a touch that starts on the
+   board never begins a native scroll at all — on iOS a fling cannot be
+   cancelled once it has started. `pan-x pinch-zoom` keeps pinch-to-zoom, which
+   `none` would take away. */
+html.gated,
+html.gated body { touch-action: pan-x pinch-zoom; }
+
+/* The gate stops the page scrolling, so it has to say why. Goes on the first
+   step and does not come back. */
+.onb-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.85;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.onb-hint.gone {
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .onb-hint { transition: none; }
 }
 
 .board-wrap { container-type: inline-size; width: 100%; }
@@ -547,7 +579,6 @@ footer {
 .onb-line em   { font-style: normal; color: var(--mint); font-weight: 600; }
 /* lime is reserved for the Oncko layer, matching the cells it paints */
 .onb-line mark { background: none; color: var(--lime); font-weight: 600; }
-.onb-fade { transition: opacity 320ms ease; }
 
 .onb-stage {
   position: relative;
@@ -591,14 +622,6 @@ footer {
   background: var(--mint);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 320ms var(--ease);
-}
-
-/* filled up to and including the current beat: a progress bar, not a timer */
-.onb-tick.done i { transform: scaleX(1); }
-
-@media (prefers-reduced-motion: reduce) {
-  .onb-tick i { transition: none; }
 }
 
 @container (min-width: 740px) {

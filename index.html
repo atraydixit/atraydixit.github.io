@@ -90,7 +90,8 @@
           <div>
             <h1 data-reveal>Scaling trials for drug combinations.</h1>
             <p class="hero-support" data-reveal style="--d:110ms">
-              Cancer and infectious diseases evolve resistance to single drugs.
+              Many diseases, including cancer, are too complex for or evolve resistance
+              to single drugs.
               Drug combinations have made many of these conditions survivable.
               Breakthroughs in biology and AI keep producing new therapies. Each one adds to
               an exponentially growing number of combinations worth testing.
@@ -129,15 +130,18 @@
           </p>
         </div>
 
-        <!-- data-reveal must stay off the track and the pin: a transform on a
-             sticky ancestor stops sticky working. -->
+        <!-- One viewport tall. The board does not scroll past: while the
+             sequence is unfinished, main.js cancels the gesture and holds the
+             page here. Do not add runway - runway is what let a flick carry the
+             reader out with beats unplayed. -->
         <div class="board-track">
           <div class="board-pin">
             <div class="board-wrap card pad" data-reveal style="--d:120ms">
               <div class="onb" data-state="0">
                 <div class="onb-side">
-                  <p class="onb-line onb-fade" id="onb-line"></p>
+                  <p class="onb-line" id="onb-line"></p>
                   <div class="onb-prog" id="onb-prog"></div>
+                  <p class="onb-hint" id="onb-hint" aria-hidden="true"></p>
                 </div>
 
                 <button class="onb-stage" id="onb-stage" aria-live="polite">

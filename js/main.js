@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
     var CONFIG = {
-      move: 780,
       bands: [[28, 0.8929], [3321, 0.2032], [91881, 0.00789]],
       marks: [[28, "1980"], [3321, "pairs"], [91881, "combinations"]],
       states: [
@@ -286,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return a;
     })();
 
-    var F = 0, dpr = 1, cam = [], CSSV = {}, fillA = 0;
+    var F = 0, dpr = 1, cam = [], CSSV = {}, fillA = 0, sharp = true;
 
     function tokens() {
       var cs = getComputedStyle(root);
@@ -345,8 +344,10 @@ document.addEventListener("DOMContentLoaded", function () {
            never fight for the same pixel */
         if (fillA > 0.01 && FILL[i]) {
           var fs = side < 2.1 ? 2.1 : side;
-          ctx.shadowColor = CSSV.lime;
-          ctx.shadowBlur = Math.max(2, Math.min(fs * 0.45, 8));
+          if (sharp > 0.02) {
+            ctx.shadowColor = CSSV.lime;
+            ctx.shadowBlur = sharp * Math.max(2, Math.min(fs * 0.45, 8));
+          }
           box(x, y, fs, CSSV.lime, a * fillA * 0.85);
           ctx.shadowBlur = 0;
         }
@@ -355,8 +356,10 @@ document.addEventListener("DOMContentLoaded", function () {
         var ga = (was && now) ? 1 : now ? e : was ? 1 - e : 0;
         if (ga > 0.01) {
           var sz = side < 2.5 ? 2.8 : side;   /* stays findable when sub-pixel */
-          ctx.shadowColor = CSSV.mint;
-          ctx.shadowBlur = Math.max(3, Math.min(sz * 0.55, 13));
+          if (sharp > 0.02) {
+            ctx.shadowColor = CSSV.mint;
+            ctx.shadowBlur = sharp * Math.max(3, Math.min(sz * 0.55, 13));
+          }
           box(x, y, sz, CSSV.mint, a * ga);
           ctx.shadowBlur = 0;
           /* white core: brightness, not a second hue, marks the top tier */
@@ -430,100 +433,378 @@ document.addEventListener("DOMContentLoaded", function () {
       paint(Math.max(A.n, B.n), pitch, org, Math.min(A.n, B.n),
             B.n >= A.n ? e : 1 - e, goldFor(A.upto), goldFor(B.upto), e);
     }
-    /* --------------------------------------------- scroll-locked beats --
+    /* ------------------------------------------------- the scroll gate --
 
-       The board is pinned: .board-track is 400svh and .board-pin is a sticky
-       100svh box inside it, so the card holds still while the page scrolls
-       past. That gives the beats real runway and means the reader moves through
-       the whole sequence.
+       THE SECTION TAKES THE GESTURE. IT DOES NOT FOLLOW THE SCROLL.
 
-       THERE IS NO TIMER. Position is the only thing that sets the beat, and the
-       control condition to test after any change is PARK AND DO NOTHING: the
-       beat must not move.
-       ---------------------------------------------------------------- */
+       Four earlier mechanics all derived the beat from scroll position, and all
+       four failed the same three requirements: the reader could leave before the
+       last beat played, could get back to the hero before the first beat played
+       going up, and one flick could advance more than one beat.
 
-    if (reduceMotion) CONFIG.move = 0;
+       Scroll position cannot satisfy those, because scroll position IS the exit.
+       Any gesture large enough to carry the scroll past the track leaves the
+       section with beats unplayed, and a real trackpad fling is 2,000-5,000px of
+       accumulated delta - far more than any single synthetic wheel event, which
+       is why a harness that fires one big event certifies a fix the hardware
+       does not have.
 
-    var state = 0;
-    var anim = null, sraf = null;
+       So: while the board fills the viewport and the sequence is unfinished in
+       the direction of travel, wheel and touch are cancelled and converted into
+       discrete beats, and a rAF loop holds the page at the board's own offset.
+       Native scroll resumes the instant the sequence finishes that way.
+
+       Two things this must keep, because a gate without them is a broken page:
+       - a way out that does not require finishing: Esc, Tab, the nav, and
+         reduced motion, plus a hard failsafe if the gate ever stays shut
+       - a visible reason the page stopped scrolling: the hint under the ticks
+       -------------------------------------------------------------------- */
+
+    var N = CONFIG.states.length;
     var track = document.querySelector(".board-track");
+    var docEl = document.documentElement;
+    var hint = document.getElementById("onb-hint");
+    var target = 0;          /* the beat being asked for */
+    var cur = 0;             /* where the camera actually is, 0..N-1 */
+    var state = -1;          /* nearest whole beat, for copy and aria */
+    var raf = null, lastKey = "";
+
+    /* a segment may not be crossed in fewer than 28 frames (~470ms at 60fps).
+       Gestures only ever move the target one beat, but a tick click can move
+       four, and this is what stops that from teleporting. */
+    var MAXSTEP = 1 / 28;
+
+    /* A momentum tail and a deliberate new push are not told apart by a
+       stopwatch - that was the bug behind both "it jumps to 2 on entry" and
+       "sometimes it doesn't move when I scroll". A timed swallow window is
+       either too short (the tail outlives it and steals a second beat) or too
+       long (a real second gesture lands inside it and is eaten). Read the SHAPE
+       instead: a tail only ever decays, and a new push rises. */
+    var STEP_HOLD   = 300;  /* hard dead time after a step; the camera needs a moment */
+    var DOCK        = 650;  /* the gesture that ARRIVES at the board docks it, and must
+                               not also advance it - that arrival was the "jump".
+                               Long enough to outlast a main-thread stall that would
+                               otherwise split the arriving stream into two gestures. */
+    var GESTURE_END = 400;  /* silence this long ends a gesture outright */
+    var RISE        = 1.35; /* an event this much bigger than the last = a finger again */
+    var DRAG_WAIT   = 1400; /* a stream still going this long after its beat... */
+    var DRAG_FRAC   = 0.30; /* ...and still this strong, is a drag and not a tail */
+    var THRESH_W    = 44;   /* px of wheel delta that buys one beat (a mouse notch is ~120) */
+    var THRESH_T    = 30;   /* px of finger travel that buys one beat */
+    var FAILSAFE    = 25000;
+
+    var near = false;     /* board is somewhere on screen (cheap short-circuit) */
+    var engaged = false;  /* the gate is holding the page */
+    var bypass = false;   /* Esc or Tab: no gate for this visit */
+    var acc = 0, holdFloor = 0, gateStart = 0, hraf = null, touchY = 0;
+    /* one stream spends one beat; `spent` is what enforces it */
+    var spent = false, spentT = 0, spentPeak = 0, peak = 0, lastMag = 0, lastT = 0;
+
+    function perf() {
+      return window.performance && performance.now ? performance.now() : +new Date();
+    }
 
     CONFIG.states.forEach(function (_, i) {
       var b = document.createElement("button");
       b.className = "onb-tick";
       b.type = "button";
       b.innerHTML = "<i></i>";
-      b.setAttribute("aria-label", "Step " + (i + 1) + " of " + CONFIG.states.length);
-      b.addEventListener("click", function (e) { e.stopPropagation(); go(i); });
+      b.setAttribute("aria-label", "Step " + (i + 1) + " of " + N);
+      b.addEventListener("click", function (e) { e.stopPropagation(); goTo(i); });
       progBox.appendChild(b);
     });
 
-    /* pure position indicators now: nothing animates them, so no transitions */
-    function ticks(i) {
+    if (hint) hint.textContent = reduceMotion ? "Tap to advance" : "Scroll to advance";
+
+    /* The hint STAYS. It used to fade after the first step, on the theory that a
+       reader who has advanced once has learned the control. Atray: "should never
+       disappear" - and he is right, because the gate keeps holding the page for
+       four more beats and a reader who pauses mid-sequence needs to be told why
+       the page has stopped, not just told once. */
+    function hideHint() {}
+
+    /* ---- the camera ---------------------------------------------------- */
+
+    /* rests for the first and last 12% of a segment so a camera parked between
+       beats still reads as a finished frame, with the move spread over the rest */
+    function plateau(u) {
+      if (u <= 0.12) return 0;
+      if (u >= 0.88) return 1;
+      var x = (u - 0.12) / 0.76;
+      return x * x * (3 - 2 * x);
+    }
+
+    function draw() {
+      var a = Math.floor(cur);
+      if (a > N - 2) a = N - 2;
+      if (a < 0) a = 0;
+      var u = cur - a;
+      var e = reduceMotion ? (u < 0.5 ? 0 : 1) : plateau(u);
+
+      var nearest = e < 0.5 ? a : a + 1;
+      if (nearest !== state) {
+        state = nearest;
+        root.dataset.state = state;
+        elLine.innerHTML = CONFIG.states[state].line;
+        stage.setAttribute("aria-label", elLine.textContent + " Tap to advance.");
+      }
+      elLine.style.opacity = reduceMotion ? 1 : Math.min(1, Math.abs(e - 0.5) / 0.26);
+
+      /* Glow is the costly part of a frame, so it fades out through a move rather
+         than being drawn always. A boolean here popped visibly at each end. */
+      sharp = 1 - Math.min(1, Math.abs(e - 0.5) / 0.42);
+
+      var key = a + ":" + e.toFixed(3) + ":" + sharp.toFixed(2);
+      if (key !== lastKey) { lastKey = key; render(a, a + 1, e); }
+
       Array.prototype.forEach.call(progBox.children, function (b, n) {
-        b.classList.toggle("done", n <= i);
-        b.setAttribute("aria-current", n === i ? "step" : "false");
+        var fill = n <= a ? 1 : n === a + 1 ? e : 0;
+        b.firstChild.style.transform = "scaleX(" + fill + ")";
+        b.classList.toggle("done", fill > 0.99);
+        b.setAttribute("aria-current", n === state ? "step" : "false");
       });
     }
 
-    function copy(i) {
-      elLine.innerHTML = CONFIG.states[i].line;
-      stage.setAttribute("aria-label", elLine.textContent + " Tap to advance.");
+    function loop() {
+      var d = target - cur;
+      if (Math.abs(d) < 0.0008) { cur = target; raf = null; draw(); return; }
+      var step = d * 0.085;                                 /* ease out */
+      if (Math.abs(d) > 1.05) {
+        if (step > MAXSTEP) step = MAXSTEP;
+        if (step < -MAXSTEP) step = -MAXSTEP;
+      }
+      cur += step;
+      draw();
+      raf = requestAnimationFrame(loop);
     }
 
-    function go(next) {
-      next = (next + CONFIG.states.length) % CONFIG.states.length;
-      var from = state;
-      state = next;
-      root.dataset.state = state;
-      ticks(state);
-      if (from === state) { copy(state); render(state, state, 1); return; }
-      var fades = root.querySelectorAll(".onb-fade");
-      Array.prototype.forEach.call(fades, function (n) { n.style.opacity = 0; });
-      if (anim) cancelAnimationFrame(anim);
-      var t0 = performance.now(), D = CONFIG.move, swapped = false;
-      (function step(now) {
-        /* D is 0 under reduced motion. (now - t0) / 0 is NaN on the first frame,
-           and NaN < 1 is false, so guard it and cut straight to the end state. */
-        var t = D > 0 ? Math.min((now - t0) / D, 1) : 1;
-        if (!swapped && t >= 0.42) {
-          swapped = true;
-          copy(state);
-          Array.prototype.forEach.call(fades, function (n) { n.style.opacity = 1; });
+    function goTo(i) {
+      i = i < 0 ? 0 : i > N - 1 ? N - 1 : i;
+      if (i === target) return;
+      target = i;
+      hideHint();
+      if (reduceMotion) { cur = target; draw(); return; }
+      if (raf === null) raf = requestAnimationFrame(loop);
+    }
+
+    /* ---- the gate ------------------------------------------------------ */
+
+    function fills() {
+      if (!track) return false;
+      var r = track.getBoundingClientRect(), vh = window.innerHeight;
+      return r.top < vh * 0.34 && r.bottom > vh * 0.66;
+    }
+
+    /* where the page rests while the gate is shut. The board is one viewport
+       tall in `svh`, which on a phone is shorter than innerHeight once the
+       address bar hides, so centre it in whatever slack there is. */
+    function anchorTop() {
+      var slack = track.offsetHeight - window.innerHeight;
+      return Math.round(track.getBoundingClientRect().top + window.pageYOffset
+                        + (slack > 0 ? slack / 2 : 0));
+    }
+
+    /* settled, not merely targeted: releasing the moment the last beat is
+       REQUESTED lets the reader scroll away mid-transition, which is exactly
+       the "exit without the last frame completing" complaint. */
+    function finished(dir) {
+      if (Math.abs(cur - target) > 0.02) return false;
+      return dir > 0 ? target >= N - 1 : target <= 0;
+    }
+
+    function hold() {
+      if (!engaged) { hraf = null; return; }
+      if (perf() - gateStart > FAILSAFE) { bypass = true; release(); return; }
+      var y = window.pageYOffset, anchor = anchorTop(), d = anchor - y;
+      /* a spring, not a wall: momentum the wheel handler could not cancel
+         (iOS never gives you that chance) gets pulled back over a few frames */
+      if (Math.abs(d) > 0.5) window.scrollTo(0, Math.round(Math.abs(d) > 3 ? y + d * 0.22 : anchor));
+      hraf = requestAnimationFrame(hold);
+    }
+
+    function engage() {
+      engaged = true;
+      acc = 0;
+      gateStart = perf();
+      /* dock, do not advance: the gesture that brought the reader here is spent
+         on locking the board in place, and their NEXT one moves it */
+      holdFloor = gateStart + DOCK;
+      spent = true; spentT = gateStart; spentPeak = peak;
+      /* html has scroll-behavior:smooth, which would animate every correction */
+      docEl.style.scrollBehavior = "auto";
+      docEl.classList.add("gated");
+      if (hraf === null) hraf = requestAnimationFrame(hold);
+    }
+
+    function release() {
+      if (!engaged) return;
+      engaged = false;
+      acc = 0;
+      docEl.style.scrollBehavior = "";
+      docEl.classList.remove("gated");
+    }
+
+    function step(dir) {
+      var want = target + dir;
+      if (want < 0 || want > N - 1) return;
+      target = want;
+      hideHint();
+      if (reduceMotion) { cur = target; draw(); return; }
+      if (raf === null) raf = requestAnimationFrame(loop);
+    }
+
+    function gesture(ev, delta, thresh) {
+      if (!near || bypass || reduceMotion || !delta) return;
+      var dir = delta > 0 ? 1 : -1;
+      var now = perf(), mag = Math.abs(delta), gap = now - lastT;
+      lastT = now;
+
+      /* ONE STREAM SPENDS ONE BEAT. Once a stream has bought its beat it stays
+         deaf until something proves a human is acting again, and only three
+         things count. Nothing here compares decay rates: an earlier version
+         measured the tail's decay against a bleeding reference, and a typical
+         macOS fling (time constant ~400ms, so ~0.97 per 12ms event) decays at
+         very nearly that same rate and so never read as coasting. That was
+         "jumps 2 in one swipe sometimes", and no amount of tuning fixes a
+         discriminator whose two classes overlap.
+
+           1. silence  - GESTURE_END of nothing at all. Momentum never contains
+                         a gap that long; a lifted hand always does.
+           2. rising   - one event RISE times bigger than the one before it. A
+                         tail only ever falls, so this is a finger pushing again,
+                         which is what catches a second flick thrown before the
+                         first one's momentum has died.
+           3. drag     - still running DRAG_WAIT later and still DRAG_FRAC as
+                         strong as the push that bought the last beat. A tail is
+                         at a few percent by then; a held two-finger drag is at
+                         100%, so a long steady drag keeps advancing.
+
+         `rising` must be computed off lastMag WITHOUT resetting it on a gap: an
+         earlier version cleared it, which made the first event after any stall
+         look like a new push and handed the rest of the tail a free beat. */
+      var rising = mag > lastMag * RISE;
+      lastMag = mag;
+      /* peak is PER STREAM: leaving a previous gesture's peak in place sets the
+         drag threshold by a swipe that already ended, which silently kills the
+         drag escape for every gentler stream after it */
+      if (gap > GESTURE_END) { acc = 0; spent = false; peak = 0; }
+      if (mag > peak) peak = mag;
+
+      if (!engaged) {
+        if (!fills() || finished(dir)) return;
+        engage();                     /* docks: the arriving stream is spent */
+      }
+
+      /* THE ORDER HERE IS THE WHOLE POINT: swallow first, release second. The
+         momentum that carried the reader onto the last beat must never also be
+         able to carry them off it, so the gate can only open on a new gesture. */
+      /* spentPeak keeps RISING while a stream is spent. A swipe's beat is bought
+         two or three events in, while the finger is still accelerating, so the
+         magnitude at that moment is a fraction of where the swipe actually peaks
+         - and sizing the drag threshold off it hands a slow-decaying tail a
+         second beat. It has to be measured against the whole stream. */
+      if (mag > spentPeak) spentPeak = mag;
+
+      if (now < holdFloor) {
+        acc = 0;
+        if (ev.cancelable) ev.preventDefault();
+        return;
+      }
+      if (spent) {
+        var drag = now - spentT > DRAG_WAIT && mag > spentPeak * DRAG_FRAC;
+        if (!rising && !drag) {
+          acc = 0;
+          if (ev.cancelable) ev.preventDefault();
+          return;
         }
-        render(from, state, t);
-        if (t < 1) anim = requestAnimationFrame(step);
-      })(t0);
+        spent = false;
+      }
+      if (finished(dir)) {
+        release();
+        return;                       /* this gesture scrolls the page, as it should */
+      }
+
+      if (ev.cancelable) ev.preventDefault();
+      acc += delta;
+      if (Math.abs(acc) < thresh) return;
+      step(acc > 0 ? 1 : -1);
+      acc = 0;
+      spent = true; spentT = now; spentPeak = peak; peak = mag;
+      holdFloor = now + STEP_HOLD;
     }
 
-    /* Beat straight from how far through the track we are. Runway is known
-       exactly, unlike the old centre-of-viewport estimate. */
-    function scrollBeat() {
-      sraf = null;
-      if (!track) return;
-      var runway = track.offsetHeight - window.innerHeight;
-      if (runway <= 0) return;
-      var p = -track.getBoundingClientRect().top / runway;
-      p = p < 0 ? 0 : p > 1 ? 1 : p;
-      var N = CONFIG.states.length, f = p * N;
-      var want = f >= N ? N - 1 : Math.floor(f);
-      /* small dead zone: absorbs scroll jitter and the iOS address bar
-         resizing innerHeight mid-scroll, without making the scrub feel laggy */
-      if (want === state || Math.abs(f - (state + 0.5)) <= 0.55) return;
-      go(want);
-    }
+    window.addEventListener("wheel", function (e) {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      var dy = e.deltaY;
+      if (e.deltaMode === 1) dy *= 16;
+      else if (e.deltaMode === 2) dy *= window.innerHeight;
+      gesture(e, dy, THRESH_W);
+    }, { passive: false });
 
-    window.addEventListener("scroll", function () {
-      if (sraf === null) sraf = requestAnimationFrame(scrollBeat);
+    window.addEventListener("touchstart", function (e) {
+      if (e.touches.length === 1) {
+        touchY = e.touches[0].clientY;
+        acc = 0; peak = 0; spent = false;   /* a new finger is always a new gesture */
+      }
     }, { passive: true });
 
-    stage.addEventListener("click", function () { go(state + 1); });
+    window.addEventListener("touchmove", function (e) {
+      if (e.touches.length !== 1) return;
+      var y = e.touches[0].clientY, d = touchY - y;
+      touchY = y;
+      gesture(e, d, THRESH_T);
+    }, { passive: false });
+
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        if (near) { bypass = true; release(); }
+        return;
+      }
+      if (e.key === "Tab") { bypass = true; release(); return; }
+      if (!engaged) return;
+      var dir = 0;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") dir = 1;
+      else if (e.key === "ArrowUp" || e.key === "PageUp") dir = -1;
+      else if (e.key === "Home" || e.key === "End") { bypass = true; release(); return; }
+      if (!dir) return;
+      if (finished(dir)) { release(); return; }
+      e.preventDefault();
+      step(dir);
+    });
+
+    /* Any in-page anchor has to beat the gate. The nav dots are plain href="#id"
+       links, so without this the hold loop yanks the page straight back and the
+       whole nav is a dead control while the board is on screen. */
+    document.addEventListener("click", function (e) {
+      var t = e.target;
+      if (!t || !t.closest || !t.closest('a[href^="#"]')) return;
+      bypass = true;
+      release();
+    }, true);
+    window.addEventListener("hashchange", function () { bypass = true; release(); });
+
+    /* `near` keeps the non-passive wheel listener from doing rect work on every
+       event elsewhere on the page, and re-arms the Esc bypass once the board is
+       out of sight so one escape does not disable the gate for the whole visit. */
+    if (track && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (en) {
+          near = en.isIntersecting;
+          if (!near) { bypass = false; release(); }
+        });
+      }, { rootMargin: "20% 0px 20% 0px" }).observe(track);
+    } else {
+      near = true;
+    }
+
+
+    stage.addEventListener("click", function () { goTo(state + 1); });
 
     root.tabIndex = -1;   /* arrow keys stay inside the component */
     root.addEventListener("keydown", function (e) {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       e.preventDefault();
-      go(state + (e.key === "ArrowRight" ? 1 : -1));
+      goTo(state + (e.key === "ArrowRight" ? 1 : -1));
     });
 
     /* reserve the tallest copy block so nothing reflows on a beat change */
@@ -538,15 +819,18 @@ document.addEventListener("DOMContentLoaded", function () {
       elLine.style.minHeight = tall + "px";
     }
 
-    function boot() { tokens(); layout(); reserve(); render(state, state, 1); }
+    /* boot repaints at the current beat. It must NOT recompute the beat from
+       scroll position: the beat is gesture state now, and a resize (a phone
+       address bar collapsing counts) would otherwise throw the reader back. */
+    function boot() {
+      tokens(); layout(); reserve(); lastKey = "";
+      cur = target;
+      draw();
+    }
 
     if (window.ResizeObserver) new ResizeObserver(boot).observe(stage);
     else window.addEventListener("resize", boot);
 
-    root.dataset.state = state;
     boot();
-    copy(state);
-    ticks(state);
-    scrollBeat();
   }
 });
