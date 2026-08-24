@@ -485,7 +485,12 @@ footer {
   50%      { transform: scale(1.06); opacity: 1; }
 }
 
-/* institutions strip under the team headline */
+/* The institution strip moved out of the section head when the timeline moved
+   in: the head is now claim (eyebrow, h2, lede), the timeline is the evidence,
+   and the strip is the caption on the faces below it. So it sits tight to the
+   Leadership rule and loose from the last timeline node. */
+.tl + .orgs { margin-top: clamp(44px, 5vw, 64px); margin-bottom: 20px; }
+
 .orgs {
   margin-top: 22px;
   font-size: clamp(13px, 1.15vw, 14.5px);
@@ -555,14 +560,92 @@ html.gated body { touch-action: pan-x pinch-zoom; }
   display: grid;
   gap: clamp(18px, 2.8vw, 26px);
   grid-template-columns: 1fr;
-  grid-template-areas: "copy" "stage" "prog";
+  grid-template-areas: "frac" "copy" "stage" "prog" "hint";
   -webkit-tap-highlight-color: transparent;
 }
 
 .onb-side  { display: contents; }
+.onb-frac  { grid-area: frac; }
+.onb-hint  { grid-area: hint; }
 .onb-line  { grid-area: copy; }
 .onb-stage { grid-area: stage; }
 .onb-prog  { grid-area: prog; }
+
+/* THE FRACTION. searched over space, two fixed slots, every beat. --fw reserves
+   the column at the width of the widest number the instrument will ever hold
+   ("19,248,516"), so the rule and the labels never shift as the digits roll.
+   Change the largest number and you must re-check --fw. */
+.onb-frac {
+  /* The number font-size lives HERE, and the number spans and the rule all
+     inherit it, because --fw is in `ch` and a custom property in `ch` resolves
+     against each USING element's own font-size. With the size set per child the
+     numbers, the rule and the reserved column all computed different widths:
+     the number overflowed its own box and the rule came out half as wide. */
+  font-size: clamp(24px, 5.4vw, 34px);
+  /* weight lives here too, for the same reason as the size: `ch` is the advance
+     of "0" IN THE ELEMENT'S OWN FONT, and Poppins Bold's zero is ~6% wider than
+     Regular's, so a bold number and a regular-weight rule computed 11ch
+     differently and the rule came out 20px short. */
+  font-weight: 700;
+  --fw: 11ch;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.25s linear;
+}
+/* MOBILE DEFAULT: INLINE. Stacked, the fraction spends 85px of height on two
+   numbers and a rule, which is what pushed the card past a short viewport and
+   scrolled the whole instrument off the top. Inline it is ~42px and says the
+   same thing. `display: contents` flattens the two rows into one flex context
+   so `order` can interleave them; the stacked form is restored at the same
+   breakpoint where the board goes two-column, so layout and type switch together. */
+.onb-frac {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.4em;
+}
+.onb-fr { display: contents; }
+.onb-frule { display: none; }
+.onb-fnum, .onb-fden { width: auto; text-align: left; }
+.onb-fnum { order: 1; }
+.onb-fden { order: 3; }
+.onb-fden::before {
+  content: "/";
+  margin-right: 0.34em;
+  color: var(--faint);
+  font-weight: 400;
+}
+.onb-fr:first-child .onb-flab { order: 4; }
+.onb-fr:last-child .onb-flab { order: 5; flex-basis: 100%; }
+.onb-fnum,
+.onb-fden {
+  display: inline-block;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+}
+/* --fw and the right alignment belong to the STACKED form only, and they are set
+   in the two-column block below. Declared here they would win on the cascade
+   over the inline form's `width: auto` and each number would reserve 11ch,
+   which overflows a phone column and wraps the fraction into three lines. */
+.onb-fnum { color: var(--mint); }
+.onb-fden { color: var(--text); }
+.onb-frule {
+  width: var(--fw);
+  height: 2px;
+  margin: 7px 0;
+  background: var(--rule-strong);
+}
+.onb-flab {
+  /* absolute, so the labels do not scale with the numbers */
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: opacity 0.2s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .onb-frac, .onb-flab { transition: none; }
+}
 
 .onb-line {
   font-size: clamp(26px, 6.6vw, 38px);
@@ -631,11 +714,277 @@ html.gated body { touch-action: pan-x pinch-zoom; }
     gap: clamp(30px, 5cqw, 58px);
     align-items: center;
   }
-  .onb-side { grid-area: side; display: flex; flex-direction: column; gap: 30px; }
+  .onb-side { grid-area: side; display: flex; flex-direction: column; gap: 26px; }
   .onb-line { grid-area: auto; }
   .onb-prog { grid-area: auto; }
+  .onb-frac { grid-area: auto; }
+  .onb-hint { grid-area: auto; }
   .onb-stage { max-width: none; justify-self: stretch; }
-  .onb-line { font-size: clamp(30px, 4.2cqw, 48px); }
+  .onb-line { font-size: clamp(24px, 3.0cqw, 34px); }
+  .onb-frac { font-size: clamp(30px, 4.4cqw, 52px); display: block; }
+  .onb-fr { display: flex; align-items: baseline; gap: clamp(10px, 2cqw, 20px); }
+  .onb-frule { display: block; }
+  .onb-fnum, .onb-fden {
+    width: var(--fw);
+    /* flex: none, or the row shrinks the number below --fw when the label is
+       long - and by a DIFFERENT amount per row, since the two labels differ in
+       length, so the two numbers stop sharing a right edge and the rule stops
+       matching. */
+    flex: none;
+    /* right-aligned so the ones place holds still and a short number stays next
+       to its label instead of being stranded at the far edge of the column */
+    text-align: right;
+  }
+  .onb-fden::before { content: none; }
+  .onb-fr .onb-flab { order: 0; flex: 1 1 auto; min-width: 0; }
+  .onb-flab { font-size: 12px; }
+}
+
+/* SHORT PHONES. Beat 1's statement runs six lines in a phone-width column, and
+   reserve() locks the copy block to the tallest beat, so on a 667px-tall screen
+   the card outgrew the viewport by 54px and the ticks fell off the bottom. Only
+   screens under 700px tall pay for it; 844 and 932 keep full-size type. */
+@media (max-height: 700px) {
+  .onb-line { font-size: 20.5px; }
+  .onb-frac { font-size: 20.5px; }
+  .onb { gap: 14px; }
+  /* the square canvas is the biggest single block; cap it by viewport height
+     rather than container width, or a landscape phone gets a 300px canvas in a
+     390px window and everything above it leaves the screen */
+  .onb-stage { max-width: min(100%, 40vh); }
+
+  /* short AND wide: side by side halves the card's height, and a landscape
+     phone at 844x390 misses the 740px container query by a dozen pixels */
+  @container (min-width: 620px) {
+    .onb {
+      grid-template-columns: minmax(220px, 1fr) minmax(200px, 340px);
+      grid-template-areas: "side stage";
+      align-items: center;
+    }
+    .onb-side { grid-area: side; display: flex; flex-direction: column; gap: 12px; }
+    .onb-frac, .onb-line, .onb-prog, .onb-hint { grid-area: auto; }
+    .onb-stage { justify-self: center; }
+  }
+}
+
+/* --------------------------------------------------------------- timeline --
+
+   TWO THREADS, ONE TIME AXIS, ONE ENDPOINT.
+
+   Everything structural lives in a narrow left gutter: two 1px rails at fixed
+   fractions of --gut, a node on whichever rail owns the row, and a confluence
+   that bends both rails into the endpoint. The content column is a single
+   left-aligned column at every width, so mobile and desktop are the same
+   picture with a different gutter and nothing reflows. That is the whole reason
+   for doing it in a gutter rather than as two columns: converging COLUMNS have
+   nowhere to go on a phone, a converging gutter does not care how wide the page
+   is. The 18% / 72% / 45% fractions are shared by the CSS and by the join
+   SVG's viewBox - change one and you must change the other. */
+
+.tl {
+  --gut: 44px;
+  --ra: 18%;
+  --rb: 72%;
+  --rm: 45%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tl-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 0 0 clamp(18px, 2.2vw, 24px) calc(var(--gut) + 14px);
+}
+
+/* both rails, drawn per row as two stripes, so continuity is automatic and no
+   element has to know where the list ends */
+.tl-item::before,
+.tl-key::before,
+.tl-join::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 0;
+  width: var(--gut);
+  /* rail A solid, rail B dashed. Two mint dots at different x positions is not
+     enough to read at a glance; a different stroke is. */
+  background:
+    linear-gradient(var(--rule), var(--rule)) var(--ra) 0 / 1px 100% no-repeat,
+    repeating-linear-gradient(var(--rule) 0 4px, transparent 4px 9px) var(--rb) 0 / 1px 100% no-repeat;
+}
+/* the endpoint is the end of the line */
+.tl-item.t-end::before { display: none; }
+
+/* the node, on its own thread */
+.tl-item::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--mint);
+  /* ring only. The single glow on this page belongs to the endpoint, so that
+     the one thing the reader should end on is the one thing that lights. */
+  box-shadow: 0 0 0 4px var(--ground);
+}
+.tl-item.t-a::after { left: calc(var(--gut) * 0.18); }
+.tl-item.t-b::after { left: calc(var(--gut) * 0.72); }
+/* MORPHEUS ran for eight years. A point node on a time axis claims it happened
+   in one, which is what kept making 2017 look like it came after 2019. */
+.tl-item.is-span::after {
+  height: 34px;
+  border-radius: 4px;
+  margin-top: -4px;
+  /* dimmer than a point node: it is a band, and the one mark on this timeline
+     allowed to draw the eye is the endpoint */
+  background: var(--mint-mid);
+}
+.tl-item.t-end::after {
+  left: calc(var(--gut) * 0.45);
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  background: var(--lime);
+  box-shadow: 0 0 0 4px var(--ground), 0 0 16px rgba(206, 228, 68, 0.55);
+}
+
+/* the confluence */
+.tl-join {
+  position: relative;
+  height: 44px;
+  padding-left: calc(var(--gut) + 14px);
+}
+.tl-join::before { background: none; }
+.tl-join svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--gut);
+  height: 100%;
+  overflow: visible;
+}
+/* lime, because the confluence is the one place on the page that says both
+   threads arrive at Oncko's trial. It is the only other lime on the timeline
+   besides the endpoint node it feeds. */
+.tl-join path {
+  fill: none;
+  stroke: var(--lime);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+
+/* the legend teaches which rail is which, once, at the top */
+.tl-key {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 0 0 22px;
+}
+.tl-key::before { top: 0; }
+/* each label starts just right of ITS OWN dot rather than out in the content
+   column, so the stagger itself shows which rail is which */
+.tl-k {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  position: relative;
+}
+.tl-k.t-a { padding-left: calc(var(--gut) * 0.18 + 13px); }
+.tl-k.t-b { padding-left: calc(var(--gut) * 0.72 + 13px); }
+.tl-k::before {
+  content: "";
+  position: absolute;
+  top: 0.44em;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 0 4px var(--ground);
+}
+.tl-k.t-a::before { left: calc(var(--gut) * 0.18); }
+.tl-k.t-b::before { left: calc(var(--gut) * 0.72); }
+
+/* year, title and attribution on one baseline */
+.tl-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.7em;
+  margin-bottom: 4px;
+}
+
+/* the year is a coordinate, not the point: quiet weight, quiet colour, so the
+   capability is what the eye takes first */
+.tl-year {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.tl-item.t-end .tl-year { color: var(--lime); font-weight: 500; }
+
+.tl-title {
+  font-size: clamp(16.5px, 3.7vw, 19px);
+  font-weight: 500;
+  letter-spacing: -0.014em;
+  line-height: 1.25;
+  margin: 0;
+  color: var(--text);
+}
+.tl-title a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.tl-title a:hover,
+.tl-title a:focus-visible { color: var(--mint); border-bottom-color: var(--mint); }
+
+.tl-what {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--body);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.tl-cite {
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.tl-cite em { font-style: italic; color: var(--muted); }
+.tl-cite b { font-weight: 500; color: var(--body); }
+.tl-cite a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+.tl-cite a:hover,
+.tl-cite a:focus-visible { color: var(--mint); border-bottom-color: var(--mint); }
+
+@media (min-width: 820px) {
+  .tl { --gut: 100px; }
+  .tl-item, .tl-join { padding-left: calc(var(--gut) + 22px); }
+  .tl-title { font-size: 20px; }
+  .tl-cite { font-size: 12.5px; }
+  .tl-what { font-size: 14.5px; }
+  .tl-join { height: 62px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-title a, .tl-cite a { transition: none; }
 }
 
 /* ------------------------------------------------------- clinical programs */

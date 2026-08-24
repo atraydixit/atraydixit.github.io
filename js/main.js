@@ -51,6 +51,14 @@ document.addEventListener("DOMContentLoaded", function () {
       sections.forEach(function (section, i) {
         if (section.offsetTop <= line) active = i;
       });
+      /* The last section is shorter than a viewport, so at maximum scroll the
+         0.35 line still stops short of its top and its dot could never light at
+         all. Measured 74px short at 1440x900 and 128px at 390x844. Snap to the
+         last section once the document bottom is reached. */
+      if (window.scrollY + window.innerHeight >=
+          document.documentElement.scrollHeight - 2) {
+        active = sections.length - 1;
+      }
       dots.forEach(function (dot, i) {
         dot.classList.toggle("active", i === active);
         if (i === active) dot.setAttribute("aria-current", "true");
@@ -140,31 +148,55 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
     var CONFIG = {
+      /* BEAT 1 CARRIES NO CLASS COUNT, DELIBERATELY. The section lede says 13
+         approved classes in 1980; the 1980 panel is 8 chemotherapy classes; the
+         caption sources the 8. Stating a class count in the beat as well put 13
+         and 8 on the same screen for the same year with nothing reconciling
+         them. The beat's job is the curative layer, the fraction's job is the
+         coverage, the lede's job is the growth, the caption's job is provenance.
+         One number, one role. Do not put a class count back in the beat.
+         ---------------------------------------------------------------------
+         These bands are what make the copy's counts literal rather than
+         approximate: they integrate to 25.0 at n=28, 694.1 at n=3,321 and
+         1,392.9 at n=91,881, which are exactly the build's covered counts
+         (25/28, 694/3,321, and 694+699 of 91,881). The board draws the number
+         the sentence states. Change one and you must change the other. */
       bands: [[28, 0.8929], [3321, 0.2032], [91881, 0.00789]],
+      /* The marks stay at all three depths even though only two are beats now:
+         they annotate the nested structure that is visible inside the wide view,
+         so a reader can still see where pairs end and triples begin. */
       marks: [[28, "1980"], [3321, "pairs"], [91881, "combinations"]],
+
+      /* THREE BEATS, NOT FIVE. The intermediate reveals (3,321 and 91,881) were
+         cut because the section lede already carries both ("over 90,000 possible
+         pairs and triples") and the doubling clause, so nothing above the board
+         is lost. It also halves the gate: the arriving gesture docks and two
+         gestures finish the sequence.
+
+         `frac` is [numerator, denominator, basis label]. The numbers are not
+         decoration: 25/28 and 2,906/19,248,516 are exactly what the bands draw
+         at those n. The basis DOES change between the two beats (combinations,
+         then combinations x dose x schedule) and the label says so on the page
+         rather than hiding it. On a fully consistent basis 1980 is 52/1,008,
+         which still gives a 343x collapse in searched fraction; that is the
+         answer to have ready, not the one on screen. */
       states: [
         {
           n: 28, zoom: 0.80, upto: 1980,
-          line: "In <b>1980</b>, 8 chemotherapy classes made <b>28</b> possible pairs. <em>89% had been tried</em>, and 13 are curative."
+          frac: [25, 28, "1980 \u00b7 2-drug combinations"],
+          line: "In <b>1980</b>, <b>13</b> of these combinations became part of curative regimens in at least one cancer."
         },
         {
-          n: 3321, zoom: 0.90, upto: 2100,
-          line: "By <b>2026</b>, 82 drug classes make <b>3,321</b> possible 2-drug combos. <em>21% have been tried.</em>"
-        },
-        {
-          n: 91881, zoom: 0.94, upto: 2100,
-          line: "Add 3-drug combos and the space is <b>91,881</b>. <em>Under 1% of those have ever been tested.</em>"
-        },
-        {
-          /* 3,321 pairs x 36 + 88,560 triples x 216. Variant-major, so beat 3
-             is the literal top-left corner. 1,393 + 1,513 = 2,906 lit cells,
-             i.e. 1 in 6,624. Beat 4 no longer states a coverage figure. */
+          /* 3,321 pairs x 36 + 88,560 triples x 216 = 19,248,516. Variant-major,
+             so beat 1 is the literal top-left corner. 1,393 + 1,513 = 2,906 lit. */
           n: 19248516, zoom: 0.96, upto: 2100,
-          line: "With dose and schedule, the space is <b>19 million</b>. <em>This number doubles every six years.</em>"
+          frac: [2906, 19248516, "2026 \u00b7 with dose and schedule"],
+          line: "By <b>2026</b>, 82 classes, at three doses and two schedules each."
         },
         {
-          /* Same n and zoom as beat 4, so the camera holds still and the only
-             change is the Oncko layer fading in. */
+          /* Same n and zoom as beat 2, so the camera holds still and the only
+             change is the Oncko layer fading in. No fraction: the instrument
+             fades out here, because this beat is a direction, not a measurement. */
           n: 19248516, zoom: 0.96, upto: 2100, fill: true,
           line: "<mark>Oncko is built to search it.</mark>"
         }
@@ -380,7 +412,21 @@ document.addEventListener("DOMContentLoaded", function () {
           cell(i, i < nMin ? 1 : grow);
         }
       } else {
-        for (var j = 0; j < n; j++) cell(j, j < nMin ? 1 : grow);
+        /* CULL TO THE VISIBLE PREFIX. Only a prefix of the board can ever be on
+           canvas: the L-shell layout puts the first k^2 indices in the top-left
+           k x k square, and org is (F - cols*pitch)/2 with zoom <= 0.96, so the
+           origin is always positive and the board grows right and down from it.
+           Everything past the visible square is off-screen by construction.
+
+           Without this bound, a segment whose far end is the 19,248,516-cell
+           board loops 19.2 MILLION times per frame while the pitch is still big
+           enough to keep side >= 2.4. Measured at 150-300ms per frame, which is
+           not just a stutter: it starves setTimeout past GESTURE_END, so one
+           wheel gesture gets split in two and spends two beats. */
+        var vis = Math.ceil(F / pitch) + 2;
+        var lim = Math.min(n, vis * vis);
+
+        for (var j = 0; j < lim; j++) cell(j, j < nMin ? 1 : grow);
       }
       ctx.globalAlpha = 1;
 
@@ -464,6 +510,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var track = document.querySelector(".board-track");
     var docEl = document.documentElement;
     var hint = document.getElementById("onb-hint");
+    var elFrac = document.getElementById("onb-frac");
+    var elNum = document.getElementById("onb-num");
+    var elDen = document.getElementById("onb-den");
+    var elBasis = document.getElementById("onb-basis");
+    var lastBasis = "", lastNumS = "", lastDenS = "";
     var target = 0;          /* the beat being asked for */
     var cur = 0;             /* where the camera actually is, 0..N-1 */
     var state = -1;          /* nearest whole beat, for copy and aria */
@@ -534,6 +585,56 @@ document.addEventListener("DOMContentLoaded", function () {
       return x * x * (3 - 2 * x);
     }
 
+    function comma(n) {
+      return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    /* Geometric, not linear: the same interpolation the camera pitch uses, so
+       the digits and the dolly move together. A linear roll would spend almost
+       all its travel in the last few frames and read as a jump. */
+    function geo(x0, x1, e) {
+      return Math.exp(Math.log(x0) * (1 - e) + Math.log(x1) * e);
+    }
+
+    /* Three significant figures while rolling, exact at the ends. Two reasons,
+       and the second is the load-bearing one: a seven-digit counter flickering
+       at 60Hz is illegible anyway, and quantizing collapses most frames onto a
+       string that is already on screen, so the DOM write can be skipped. Each
+       textContent write on these large glyphs measured ~7ms with no GPU (31.2ms
+       a frame with both writes live against 16.7ms with them stubbed), and it
+       is not layout: a fixed-width, `contain`ed box made no difference. */
+    function quant(v, e) {
+      if (e <= 0.002 || e >= 0.998) return Math.round(v);
+      var m = Math.pow(10, Math.max(0, Math.floor(Math.log(v) / Math.LN10) - 2));
+      return Math.round(v / m) * m;
+    }
+
+    function put(el, s, which) {
+      if (which === 0) { if (s === lastNumS) return; lastNumS = s; }
+      else { if (s === lastDenS) return; lastDenS = s; }
+      el.textContent = s;
+    }
+
+    function fraction(a, e, fade) {
+      if (!elFrac) return;
+      var fa = CONFIG.states[a].frac, fb = CONFIG.states[a + 1].frac;
+      if (fa && fb) {
+        put(elNum, comma(quant(geo(fa[0], fb[0], e), e)), 0);
+        put(elDen, comma(quant(geo(fa[1], fb[1], e), e)), 1);
+        elFrac.style.opacity = 1;
+        var lab = e < 0.5 ? fa[2] : fb[2];
+        if (lab !== lastBasis) { lastBasis = lab; elBasis.textContent = lab; }
+        elBasis.style.opacity = fade;
+      } else if (fa) {
+        /* the trailing beat carries no fraction: hold the numbers and fade out */
+        put(elNum, comma(fa[0]), 0);
+        put(elDen, comma(fa[1]), 1);
+        elFrac.style.opacity = reduceMotion ? (e < 0.5 ? 1 : 0) : 1 - e;
+      } else {
+        elFrac.style.opacity = 0;
+      }
+    }
+
     function draw() {
       var a = Math.floor(cur);
       if (a > N - 2) a = N - 2;
@@ -548,7 +649,9 @@ document.addEventListener("DOMContentLoaded", function () {
         elLine.innerHTML = CONFIG.states[state].line;
         stage.setAttribute("aria-label", elLine.textContent + " Tap to advance.");
       }
-      elLine.style.opacity = reduceMotion ? 1 : Math.min(1, Math.abs(e - 0.5) / 0.26);
+      var fade = reduceMotion ? 1 : Math.min(1, Math.abs(e - 0.5) / 0.26);
+      elLine.style.opacity = fade;
+      fraction(a, e, fade);
 
       /* Glow is the costly part of a frame, so it fades out through a move rather
          than being drawn always. A boolean here popped visibly at each end. */
