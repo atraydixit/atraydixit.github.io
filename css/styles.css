@@ -485,7 +485,7 @@ footer {
     transparent 0 24%, var(--c) 45%, transparent 78%);
   filter: blur(10px);
   opacity: 0;
-  animation-duration: 39s;
+  animation-duration: 49.5s;
   /* EASING IS PER SEGMENT, IN THE KEYFRAMES, NOT HERE. ease-in-out everywhere was
      the mistake: it is slow at BOTH ends of every fade, so each pulse crawled
      into and out of zero and the measured near-black between two subsets was
@@ -506,11 +506,19 @@ footer {
    with less pause between - I want them to look like they almost flow into one
    another continuously."
 
-   So the bloom and the decay now fill nearly the whole step and the dark between
-   them is a few frames rather than a beat. Inside a 2.6s step: 1.22s bloom, 0.10s
-   hold, 1.22s decay, 0.06s dark. That is a 44% longer fade and a 70% shorter
-   pause than the version before it, which is both directions at once and is what
-   turns a sequence of pulses into one continuous swell that changes who is in it.
+   So the bloom and the decay fill nearly the whole step and the dark between them
+   is a few frames rather than a beat. Inside a 3.30s step: 2.00s bloom, 0.10s
+   hold, 1.15s decay, 0.05s dark.
+
+   THE PULSE IS ASYMMETRIC ON PURPOSE. Atray: "can you make the bloom even
+   slower". Only the bloom grew - 1.22s to 2.00s - so light swells in slowly and
+   releases faster, which is what the word bloom describes and is a better shape
+   than a symmetric throb. The dead lead-in was measured across four candidate
+   curves before settling: a gentler bezier on the bloom (0.2,0,0.55,1 and
+   friends) buys a softer onset but costs 110-215ms of invisible lead-in, which is
+   the pause coming straight back. ease-out spends only 25ms under 2% of peak and
+   puts all its slowness in the approach to full brightness, which is where slow
+   is actually perceived. So the bloom got longer and the pause got SHORTER.
 
    It still touches ZERO, which was the previous ask and is not negotiable - a
    subset must finish before the next begins or the mark is switching between
@@ -531,110 +539,110 @@ footer {
 @keyframes nodeLight0 {
   0%, 100% { opacity: 0; }
   6.667%   { opacity: 0; animation-timing-function: ease-out; }
-  9.795%, 10.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  13.179%   { opacity: 0; }
+  10.707%, 10.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  13.232%   { opacity: 0; }
   20.000%   { opacity: 0; animation-timing-function: ease-out; }
-  23.128%, 23.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  26.513%   { opacity: 0; }
+  24.040%, 24.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  26.566%   { opacity: 0; }
   40.000%   { opacity: 0; animation-timing-function: ease-out; }
-  43.128%, 43.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  46.513%   { opacity: 0; }
+  44.040%, 44.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  46.566%   { opacity: 0; }
   53.333%   { opacity: 0; animation-timing-function: ease-out; }
-  56.462%, 56.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  59.846%   { opacity: 0; }
+  57.374%, 57.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  59.899%   { opacity: 0; }
   60.000%   { opacity: 0; animation-timing-function: ease-out; }
-  63.128%, 63.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  66.513%   { opacity: 0; }
+  64.040%, 64.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  66.566%   { opacity: 0; }
   80.000%   { opacity: 0; animation-timing-function: ease-out; }
-  83.128%, 83.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  86.513%   { opacity: 0; }
+  84.040%, 84.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  86.566%   { opacity: 0; }
   86.667%   { opacity: 0; animation-timing-function: ease-out; }
-  89.795%, 90.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  93.179%   { opacity: 0; }
+  90.707%, 90.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  93.232%   { opacity: 0; }
   93.333%   { opacity: 0; animation-timing-function: ease-out; }
-  96.462%, 96.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  99.846%   { opacity: 0; }
+  97.374%, 97.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  99.899%   { opacity: 0; }
 }
 @keyframes nodeLight1 {
   0%, 100% { opacity: 0; }
   0.000%   { opacity: 0; animation-timing-function: ease-out; }
-  3.128%, 3.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  6.513%   { opacity: 0; }
+  4.040%, 4.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  6.566%   { opacity: 0; }
   6.667%   { opacity: 0; animation-timing-function: ease-out; }
-  9.795%, 10.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  13.179%   { opacity: 0; }
+  10.707%, 10.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  13.232%   { opacity: 0; }
   20.000%   { opacity: 0; animation-timing-function: ease-out; }
-  23.128%, 23.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  26.513%   { opacity: 0; }
+  24.040%, 24.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  26.566%   { opacity: 0; }
   26.667%   { opacity: 0; animation-timing-function: ease-out; }
-  29.795%, 30.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  33.179%   { opacity: 0; }
+  30.707%, 30.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  33.232%   { opacity: 0; }
   33.333%   { opacity: 0; animation-timing-function: ease-out; }
-  36.462%, 36.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  39.846%   { opacity: 0; }
+  37.374%, 37.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  39.899%   { opacity: 0; }
   53.333%   { opacity: 0; animation-timing-function: ease-out; }
-  56.462%, 56.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  59.846%   { opacity: 0; }
+  57.374%, 57.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  59.899%   { opacity: 0; }
   73.333%   { opacity: 0; animation-timing-function: ease-out; }
-  76.462%, 76.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  79.846%   { opacity: 0; }
+  77.374%, 77.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  79.899%   { opacity: 0; }
   86.667%   { opacity: 0; animation-timing-function: ease-out; }
-  89.795%, 90.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  93.179%   { opacity: 0; }
+  90.707%, 90.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  93.232%   { opacity: 0; }
 }
 @keyframes nodeLight2 {
   0%, 100% { opacity: 0; }
   0.000%   { opacity: 0; animation-timing-function: ease-out; }
-  3.128%, 3.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  6.513%   { opacity: 0; }
+  4.040%, 4.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  6.566%   { opacity: 0; }
   20.000%   { opacity: 0; animation-timing-function: ease-out; }
-  23.128%, 23.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  26.513%   { opacity: 0; }
+  24.040%, 24.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  26.566%   { opacity: 0; }
   26.667%   { opacity: 0; animation-timing-function: ease-out; }
-  29.795%, 30.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  33.179%   { opacity: 0; }
+  30.707%, 30.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  33.232%   { opacity: 0; }
   40.000%   { opacity: 0; animation-timing-function: ease-out; }
-  43.128%, 43.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  46.513%   { opacity: 0; }
+  44.040%, 44.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  46.566%   { opacity: 0; }
   46.667%   { opacity: 0; animation-timing-function: ease-out; }
-  49.795%, 50.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  53.179%   { opacity: 0; }
+  50.707%, 50.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  53.232%   { opacity: 0; }
   66.667%   { opacity: 0; animation-timing-function: ease-out; }
-  69.795%, 70.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  73.179%   { opacity: 0; }
+  70.707%, 70.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  73.232%   { opacity: 0; }
   80.000%   { opacity: 0; animation-timing-function: ease-out; }
-  83.128%, 83.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  86.513%   { opacity: 0; }
+  84.040%, 84.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  86.566%   { opacity: 0; }
   86.667%   { opacity: 0; animation-timing-function: ease-out; }
-  89.795%, 90.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  93.179%   { opacity: 0; }
+  90.707%, 90.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  93.232%   { opacity: 0; }
 }
 @keyframes nodeLight3 {
   0%, 100% { opacity: 0; }
   13.333%   { opacity: 0; animation-timing-function: ease-out; }
-  16.462%, 16.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  19.846%   { opacity: 0; }
+  17.374%, 17.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  19.899%   { opacity: 0; }
   20.000%   { opacity: 0; animation-timing-function: ease-out; }
-  23.128%, 23.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  26.513%   { opacity: 0; }
+  24.040%, 24.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  26.566%   { opacity: 0; }
   26.667%   { opacity: 0; animation-timing-function: ease-out; }
-  29.795%, 30.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  33.179%   { opacity: 0; }
+  30.707%, 30.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  33.232%   { opacity: 0; }
   33.333%   { opacity: 0; animation-timing-function: ease-out; }
-  36.462%, 36.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  39.846%   { opacity: 0; }
+  37.374%, 37.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  39.899%   { opacity: 0; }
   46.667%   { opacity: 0; animation-timing-function: ease-out; }
-  49.795%, 50.051% { opacity: 0.58; animation-timing-function: ease-in; }
-  53.179%   { opacity: 0; }
+  50.707%, 50.909% { opacity: 0.58; animation-timing-function: ease-in; }
+  53.232%   { opacity: 0; }
   53.333%   { opacity: 0; animation-timing-function: ease-out; }
-  56.462%, 56.718% { opacity: 0.58; animation-timing-function: ease-in; }
-  59.846%   { opacity: 0; }
+  57.374%, 57.576% { opacity: 0.58; animation-timing-function: ease-in; }
+  59.899%   { opacity: 0; }
   60.000%   { opacity: 0; animation-timing-function: ease-out; }
-  63.128%, 63.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  66.513%   { opacity: 0; }
+  64.040%, 64.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  66.566%   { opacity: 0; }
   80.000%   { opacity: 0; animation-timing-function: ease-out; }
-  83.128%, 83.385% { opacity: 0.58; animation-timing-function: ease-in; }
-  86.513%   { opacity: 0; }
+  84.040%, 84.242% { opacity: 0.58; animation-timing-function: ease-in; }
+  86.566%   { opacity: 0; }
 }
 
 /* Reduced motion: no orbit and no counting. The nodes hold one subset - all four,
