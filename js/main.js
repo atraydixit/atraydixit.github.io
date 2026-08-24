@@ -544,6 +544,26 @@ document.addEventListener("DOMContentLoaded", function () {
     var THRESH_T    = 30;   /* px of finger travel that buys one beat */
     var FAILSAFE    = 25000;
 
+    /* HORIZONTAL ON TOUCH, VERTICAL ON DESKTOP.
+       The vertical gate has to win a race against the browser's own scroll, and
+       on iOS Safari that race is not reliably winnable: `touch-action` on the
+       root scroller is honoured inconsistently, and a momentum scroll already
+       under way cannot be cancelled at all. Every synthetic touch profile
+       advanced exactly one beat in headless Chromium while the real device
+       misbehaved, which is the signature of a bug living in the layer a harness
+       cannot reach. So a touch-primary device gets a carousel instead - swipe
+       sideways, tap the board, or tap a tick - and the page scrolls past it
+       normally. Nothing in the touch path calls preventDefault on a vertical
+       gesture, adds `html.gated`, runs the spring, or needs a failsafe, so
+       there is no mechanism by which a phone reader can be trapped or stalled.
+       The cost, accepted deliberately: on touch a reader can leave the board on
+       beat 1. Desktop keeps the gate and keeps the trap.
+       Detection is by POINTER, not width - a narrow desktop window is still a
+       mouse, and an iPad is still iOS. */
+    var TOUCH = window.matchMedia
+      ? window.matchMedia("(hover: none) and (pointer: coarse)").matches
+      : "ontouchstart" in window;
+
     var near = false;     /* board is somewhere on screen (cheap short-circuit) */
     var engaged = false;  /* the gate is holding the page */
     var bypass = false;   /* Esc or Tab: no gate for this visit */
@@ -565,7 +585,8 @@ document.addEventListener("DOMContentLoaded", function () {
       progBox.appendChild(b);
     });
 
-    if (hint) hint.textContent = reduceMotion ? "Tap to advance" : "Scroll to advance";
+    if (hint) hint.textContent = reduceMotion ? "Tap to advance"
+      : TOUCH ? "Swipe to advance" : "Scroll to advance";
 
     /* The hint STAYS. It used to fade after the first step, on the theory that a
        reader who has advanced once has learned the control. Atray: "should never
@@ -757,6 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function gesture(ev, delta, thresh) {
+      if (TOUCH) return;   /* the carousel owns this device; see TOUCH above */
       if (!near || bypass || reduceMotion || !delta) return;
       var dir = delta > 0 ? 1 : -1;
       var now = perf(), mag = Math.abs(delta), gap = now - lastT;
@@ -901,7 +923,54 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    stage.addEventListener("click", function () { goTo(state + 1); });
+    /* `target`, not `state`: `state` is the nearest DRAWN beat, so tapping or
+       swiping mid-transition against it is a dead input. Against `target` every
+       gesture lands, and MAXSTEP keeps a burst of them animating rather than
+       teleporting. */
+    var swiped = false;
+
+    stage.addEventListener("click", function () {
+      if (swiped) { swiped = false; return; }   /* that was a swipe, not a tap */
+      goTo(target + 1);
+    });
+
+    if (TOUCH) {
+      var SWIPE_MIN = 45;   /* px of horizontal travel that counts as a swipe */
+      var AXIS_LOCK = 10;   /* px of travel before the axis is decided */
+      var card = (root.closest && root.closest(".board-wrap")) || root;
+      var sx = 0, sy = 0, axis = 0;   /* 0 undecided, 1 horizontal, 2 vertical */
+
+      card.addEventListener("touchstart", function (e) {
+        if (e.touches.length !== 1) { axis = 2; return; }
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        axis = 0;
+      }, { passive: true });
+
+      card.addEventListener("touchmove", function (e) {
+        if (e.touches.length !== 1 || axis === 2) return;
+        var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+        if (!axis) {
+          if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+          /* decided ONCE per touch and never revisited, so a swipe that drifts
+             downward does not turn into a scroll halfway through, and a scroll
+             that wobbles sideways never steals a beat */
+          axis = Math.abs(dx) > Math.abs(dy) ? 1 : 2;
+        }
+        /* only the horizontal branch ever cancels. A vertical gesture on a
+           phone is the reader leaving, and that is now allowed. */
+        if (axis === 1 && e.cancelable) e.preventDefault();
+      }, { passive: false });
+
+      card.addEventListener("touchend", function (e) {
+        if (axis !== 1) { axis = 0; return; }
+        axis = 0;
+        var t = e.changedTouches && e.changedTouches[0];
+        if (!t || Math.abs(t.clientX - sx) < SWIPE_MIN) return;
+        swiped = true;
+        goTo(target + (t.clientX - sx < 0 ? 1 : -1));   /* left = forward */
+      }, { passive: true });
+    }
 
     root.tabIndex = -1;   /* arrow keys stay inside the component */
     root.addEventListener("keydown", function (e) {

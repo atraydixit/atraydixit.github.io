@@ -518,10 +518,17 @@ footer {
   align-content: center;
 }
 
+/* On a touch device the board is a carousel: the browser owns the vertical axis
+   (so the reader can always scroll past) and the card owns the horizontal one.
+   `pinch-zoom` is kept deliberately - a bare `pan-y` would make the one dense
+   graphic on the site un-zoomable. */
+.board-wrap { touch-action: pan-y pinch-zoom; }
+
 /* While the gate is shut, block vertical panning so a touch that starts on the
    board never begins a native scroll at all — on iOS a fling cannot be
    cancelled once it has started. `pan-x pinch-zoom` keeps pinch-to-zoom, which
-   `none` would take away. */
+   `none` would take away. DESKTOP ONLY NOW: `html.gated` is never added on a
+   touch-primary device, so this rule cannot fire there. */
 html.gated,
 html.gated body { touch-action: pan-x pinch-zoom; }
 
@@ -675,29 +682,59 @@ html.gated body { touch-action: pan-x pinch-zoom; }
 
 /* the only scroll-position indicator left, so it earns a little more presence
    than it had when it sat beside a play button */
-.onb-prog { display: flex; gap: 8px; }
+.onb-prog { display: flex; gap: 6px; align-items: center; }
 
+/* THE BUTTON IS THE TAP TARGET, THE ::before IS THE BAR. These were the same
+   3px-tall box, which is a 3px tap target - Apple asks for 44px and Atray asked
+   for something he could actually hit. So the button now reserves 44px of
+   height and the bar is drawn centred inside it, which costs 41px of column
+   height and buys the only control on the board a thumb can reach. Keep the
+   gap small so the strip reads as one instrument and the dead space between
+   targets stays narrow. */
 .onb-tick {
-  width: clamp(26px, 6vw, 38px);
-  height: 3px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.16);
+  width: clamp(34px, 8vw, 46px);
+  height: 44px;
+  background: none;
   border: 0;
   padding: 0;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.onb-tick::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 140ms ease;
 }
 
 /* scaleX, not inset: animating the inset shorthand is unreliable across
-   engines and was one reason the loop looked stalled. */
+   engines and was one reason the loop looked stalled. The fill carries its own
+   radius rather than being clipped by `overflow: hidden` on the button, which
+   would also have clipped the enlarged tap target. */
 .onb-tick i {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 3px;
   background: var(--mint);
   transform: scaleX(0);
   transform-origin: left center;
 }
+
+.onb-tick:hover::before,
+.onb-tick:active::before { background: rgba(255, 255, 255, 0.34); }
+.onb-tick:focus-visible { outline: 2px solid var(--mint); outline-offset: 5px; border-radius: 4px; }
 
 @container (min-width: 740px) {
   .onb {
@@ -740,6 +777,9 @@ html.gated body { touch-action: pan-x pinch-zoom; }
   .onb-line { font-size: 20.5px; }
   .onb-frac { font-size: 20.5px; }
   .onb { gap: 14px; }
+  /* A 44px tap target is worth 41px of column height on a tall phone and not on
+     a landscape one, where the whole board has to fit in under 700px. */
+  .onb-tick { height: 34px; }
   /* the square canvas is the biggest single block; cap it by viewport height
      rather than container width, or a landscape phone gets a 300px canvas in a
      390px window and everything above it leaves the screen */
