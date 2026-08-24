@@ -35,6 +35,23 @@ document.addEventListener("DOMContentLoaded", function () {
     Array.prototype.forEach.call(els, function (el) { io.observe(el); });
   }
 
+  /* ------------------------------------------------------ timeline toggle --
+
+     One control for all seven descriptions, not seven accordions: a per-row
+     accordion hides a checkable DOI behind a tap. Compressed is the CSS DEFAULT
+     and the class is what opens it, so with JS off a reader still gets year,
+     linked title and attribution on every row - the button is the only thing
+     that stops working, not the evidence. */
+  (function () {
+    var btn = document.getElementById("tl-toggle");
+    var list = document.getElementById("tl-list");
+    if (!btn || !list) return;
+    btn.addEventListener("click", function () {
+      var open = list.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  })();
+
   /* ----------------------------------------------------------- scrollspy -- */
 
   function initScrollSpy() {
@@ -508,7 +525,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var N = CONFIG.states.length;
     var track = document.querySelector(".board-track");
-    var docEl = document.documentElement;
+    var pin   = document.querySelector(".board-pin");
     var hint = document.getElementById("onb-hint");
     var elFrac = document.getElementById("onb-frac");
     var elNum = document.getElementById("onb-num");
@@ -525,55 +542,41 @@ document.addEventListener("DOMContentLoaded", function () {
        four, and this is what stops that from teleporting. */
     var MAXSTEP = 1 / 28;
 
-    /* A momentum tail and a deliberate new push are not told apart by a
-       stopwatch - that was the bug behind both "it jumps to 2 on entry" and
-       "sometimes it doesn't move when I scroll". A timed swallow window is
-       either too short (the tail outlives it and steals a second beat) or too
-       long (a real second gesture lands inside it and is eaten). Read the SHAPE
-       instead: a tail only ever decays, and a new push rises. */
-    var STEP_HOLD   = 300;  /* hard dead time after a step; the camera needs a moment */
-    var DOCK        = 650;  /* the gesture that ARRIVES at the board docks it, and must
-                               not also advance it - that arrival was the "jump".
-                               Long enough to outlast a main-thread stall that would
-                               otherwise split the arriving stream into two gestures. */
-    var GESTURE_END = 400;  /* silence this long ends a gesture outright */
-    var RISE        = 1.35; /* an event this much bigger than the last = a finger again */
-    var DRAG_WAIT   = 1400; /* a stream still going this long after its beat... */
-    var DRAG_FRAC   = 0.30; /* ...and still this strong, is a drag and not a tail */
-    var THRESH_W    = 44;   /* px of wheel delta that buys one beat (a mouse notch is ~120) */
-    var THRESH_T    = 30;   /* px of finger travel that buys one beat */
-    var FAILSAFE    = 25000;
 
-    /* HORIZONTAL ON TOUCH, VERTICAL ON DESKTOP.
-       The vertical gate has to win a race against the browser's own scroll, and
-       on iOS Safari that race is not reliably winnable: `touch-action` on the
-       root scroller is honoured inconsistently, and a momentum scroll already
-       under way cannot be cancelled at all. Every synthetic touch profile
-       advanced exactly one beat in headless Chromium while the real device
-       misbehaved, which is the signature of a bug living in the layer a harness
-       cannot reach. So a touch-primary device gets a carousel instead - swipe
-       sideways, tap the board, or tap a tick - and the page scrolls past it
-       normally. Nothing in the touch path calls preventDefault on a vertical
-       gesture, adds `html.gated`, runs the spring, or needs a failsafe, so
-       there is no mechanism by which a phone reader can be trapped or stalled.
-       The cost, accepted deliberately: on touch a reader can leave the board on
-       beat 1. Desktop keeps the gate and keeps the trap.
-       Detection is by POINTER, not width - a narrow desktop window is still a
-       mouse, and an iPad is still iOS. */
+    /* TWO NATIVE MECHANICS, NO CAPTURE ANYWHERE.
+       This replaces a gate that consumed the reader's wheel and touch events and
+       held the page in place. It failed on real hardware for two independent
+       testers while every synthetic profile passed, which is the signature of a
+       bug in the layer a harness cannot reach: on iOS `touch-action` on the root
+       scroller is honoured inconsistently and a momentum scroll already under
+       way cannot be cancelled at all, and on desktop the arriving gesture was
+       spent docking the board, so the reader's first push did nothing.
+
+       Nothing here calls preventDefault on a vertical gesture any more. There is
+       no spring, no failsafe, no escape hatch and no gesture classifier, because
+       there is nothing left to escape from.
+
+         DESKTOP  the beat is a pure function of scroll position. The track is
+                  2.2 viewports tall and the board is `position: sticky` inside
+                  it, so scrolling through the track plays the sequence and
+                  scrolling past it leaves. This is strictly BETTER than the gate
+                  at the one thing the gate was for: a scrub renders every beat
+                  on the way past, because the reader traverses every position.
+                  A gate could be defeated by one long fling. A scrub cannot.
+         TOUCH    a carousel - swipe sideways, tap the board, tap a tick - on a
+                  one-viewport track, because 2.2 viewports of scrolling for a
+                  single card is punishing on a phone.
+
+       Detection is by POINTER, not width: a narrow desktop window is still a
+       mouse and an iPad is still iOS. The CSS that makes the track tall and the
+       board sticky keys off the SAME query, so the two cannot disagree. */
     var TOUCH = window.matchMedia
       ? window.matchMedia("(hover: none) and (pointer: coarse)").matches
       : "ontouchstart" in window;
+    var SCRUB = !TOUCH && !reduceMotion;
 
-    var near = false;     /* board is somewhere on screen (cheap short-circuit) */
-    var engaged = false;  /* the gate is holding the page */
-    var bypass = false;   /* Esc or Tab: no gate for this visit */
-    var acc = 0, holdFloor = 0, gateStart = 0, hraf = null, touchY = 0;
-    /* one stream spends one beat; `spent` is what enforces it */
-    var spent = false, spentT = 0, spentPeak = 0, peak = 0, lastMag = 0, lastT = 0;
-
-    function perf() {
-      return window.performance && performance.now ? performance.now() : +new Date();
-    }
+    var near = false;      /* board is on or near screen; skips work when not */
+    var scrubRaf = null;
 
     CONFIG.states.forEach(function (_, i) {
       var b = document.createElement("button");
@@ -581,12 +584,15 @@ document.addEventListener("DOMContentLoaded", function () {
       b.type = "button";
       b.innerHTML = "<i></i>";
       b.setAttribute("aria-label", "Step " + (i + 1) + " of " + N);
-      b.addEventListener("click", function (e) { e.stopPropagation(); goTo(i); });
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (SCRUB) scrollToBeat(i); else goTo(i);
+      });
       progBox.appendChild(b);
     });
 
     if (hint) hint.textContent = reduceMotion ? "Tap to advance"
-      : TOUCH ? "Swipe to advance" : "Scroll to advance";
+      : TOUCH ? "Swipe to advance" : "Scroll to play";
 
     /* The hint STAYS. It used to fade after the first step, on the theory that a
        reader who has advanced once has learned the control. Atray: "should never
@@ -711,61 +717,43 @@ document.addEventListener("DOMContentLoaded", function () {
       if (raf === null) raf = requestAnimationFrame(loop);
     }
 
-    /* ---- the gate ------------------------------------------------------ */
+    /* ---- the scrub ----------------------------------------------------- */
 
-    function fills() {
-      if (!track) return false;
-      var r = track.getBoundingClientRect(), vh = window.innerHeight;
-      return r.top < vh * 0.34 && r.bottom > vh * 0.66;
+    /* Progress through the sticky window: 0 when the board arrives, 1 when it is
+       about to leave. Measured from the PIN rather than from innerHeight, because
+       a phone address bar changes innerHeight mid-scroll and `svh` does not. */
+    function progress() {
+      if (!track || !pin) return 0;
+      var span = track.offsetHeight - pin.offsetHeight;
+      if (span <= 0) return 0;
+      var p = -track.getBoundingClientRect().top / span;
+      return p < 0 ? 0 : p > 1 ? 1 : p;
     }
 
-    /* where the page rests while the gate is shut. The board is one viewport
-       tall in `svh`, which on a phone is shorter than innerHeight once the
-       address bar hides, so centre it in whatever slack there is. */
-    function anchorTop() {
-      var slack = track.offsetHeight - window.innerHeight;
-      return Math.round(track.getBoundingClientRect().top + window.pageYOffset
-                        + (slack > 0 ? slack / 2 : 0));
+    /* The scrub sets `cur` DIRECTLY and never starts the animation loop, so
+       there is no spring to settle and nothing to fight: the camera is exactly
+       where the reader has scrolled to. `target` is kept in sync only so a later
+       tick click or swipe has a sane starting point. */
+    function scrub() {
+      scrubRaf = null;
+      var v = progress() * (N - 1);
+      if (Math.abs(v - cur) < 0.0005) return;
+      cur = v;
+      target = Math.round(v);
+      draw();
     }
 
-    /* settled, not merely targeted: releasing the moment the last beat is
-       REQUESTED lets the reader scroll away mid-transition, which is exactly
-       the "exit without the last frame completing" complaint. */
-    function finished(dir) {
-      if (Math.abs(cur - target) > 0.02) return false;
-      return dir > 0 ? target >= N - 1 : target <= 0;
+    function onScroll() {
+      if (near && scrubRaf === null) scrubRaf = requestAnimationFrame(scrub);
     }
 
-    function hold() {
-      if (!engaged) { hraf = null; return; }
-      if (perf() - gateStart > FAILSAFE) { bypass = true; release(); return; }
-      var y = window.pageYOffset, anchor = anchorTop(), d = anchor - y;
-      /* a spring, not a wall: momentum the wheel handler could not cancel
-         (iOS never gives you that chance) gets pulled back over a few frames */
-      if (Math.abs(d) > 0.5) window.scrollTo(0, Math.round(Math.abs(d) > 3 ? y + d * 0.22 : anchor));
-      hraf = requestAnimationFrame(hold);
-    }
-
-    function engage() {
-      engaged = true;
-      acc = 0;
-      gateStart = perf();
-      /* dock, do not advance: the gesture that brought the reader here is spent
-         on locking the board in place, and their NEXT one moves it */
-      holdFloor = gateStart + DOCK;
-      spent = true; spentT = gateStart; spentPeak = peak;
-      /* html has scroll-behavior:smooth, which would animate every correction */
-      docEl.style.scrollBehavior = "auto";
-      docEl.classList.add("gated");
-      if (hraf === null) hraf = requestAnimationFrame(hold);
-    }
-
-    function release() {
-      if (!engaged) return;
-      engaged = false;
-      acc = 0;
-      docEl.style.scrollBehavior = "";
-      docEl.classList.remove("gated");
+    /* Where the page must be for beat i. The explicit controls move the PAGE and
+       let the scrub follow, so the scrollbar and the board can never disagree. */
+    function scrollToBeat(i) {
+      if (!track || !pin) return;
+      var span = track.offsetHeight - pin.offsetHeight;
+      var top = track.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({ top: Math.round(top + span * (i / (N - 1))), behavior: "smooth" });
     }
 
     function step(dir) {
@@ -777,147 +765,22 @@ document.addEventListener("DOMContentLoaded", function () {
       if (raf === null) raf = requestAnimationFrame(loop);
     }
 
-    function gesture(ev, delta, thresh) {
-      if (TOUCH) return;   /* the carousel owns this device; see TOUCH above */
-      if (!near || bypass || reduceMotion || !delta) return;
-      var dir = delta > 0 ? 1 : -1;
-      var now = perf(), mag = Math.abs(delta), gap = now - lastT;
-      lastT = now;
-
-      /* ONE STREAM SPENDS ONE BEAT. Once a stream has bought its beat it stays
-         deaf until something proves a human is acting again, and only three
-         things count. Nothing here compares decay rates: an earlier version
-         measured the tail's decay against a bleeding reference, and a typical
-         macOS fling (time constant ~400ms, so ~0.97 per 12ms event) decays at
-         very nearly that same rate and so never read as coasting. That was
-         "jumps 2 in one swipe sometimes", and no amount of tuning fixes a
-         discriminator whose two classes overlap.
-
-           1. silence  - GESTURE_END of nothing at all. Momentum never contains
-                         a gap that long; a lifted hand always does.
-           2. rising   - one event RISE times bigger than the one before it. A
-                         tail only ever falls, so this is a finger pushing again,
-                         which is what catches a second flick thrown before the
-                         first one's momentum has died.
-           3. drag     - still running DRAG_WAIT later and still DRAG_FRAC as
-                         strong as the push that bought the last beat. A tail is
-                         at a few percent by then; a held two-finger drag is at
-                         100%, so a long steady drag keeps advancing.
-
-         `rising` must be computed off lastMag WITHOUT resetting it on a gap: an
-         earlier version cleared it, which made the first event after any stall
-         look like a new push and handed the rest of the tail a free beat. */
-      var rising = mag > lastMag * RISE;
-      lastMag = mag;
-      /* peak is PER STREAM: leaving a previous gesture's peak in place sets the
-         drag threshold by a swipe that already ended, which silently kills the
-         drag escape for every gentler stream after it */
-      if (gap > GESTURE_END) { acc = 0; spent = false; peak = 0; }
-      if (mag > peak) peak = mag;
-
-      if (!engaged) {
-        if (!fills() || finished(dir)) return;
-        engage();                     /* docks: the arriving stream is spent */
-      }
-
-      /* THE ORDER HERE IS THE WHOLE POINT: swallow first, release second. The
-         momentum that carried the reader onto the last beat must never also be
-         able to carry them off it, so the gate can only open on a new gesture. */
-      /* spentPeak keeps RISING while a stream is spent. A swipe's beat is bought
-         two or three events in, while the finger is still accelerating, so the
-         magnitude at that moment is a fraction of where the swipe actually peaks
-         - and sizing the drag threshold off it hands a slow-decaying tail a
-         second beat. It has to be measured against the whole stream. */
-      if (mag > spentPeak) spentPeak = mag;
-
-      if (now < holdFloor) {
-        acc = 0;
-        if (ev.cancelable) ev.preventDefault();
-        return;
-      }
-      if (spent) {
-        var drag = now - spentT > DRAG_WAIT && mag > spentPeak * DRAG_FRAC;
-        if (!rising && !drag) {
-          acc = 0;
-          if (ev.cancelable) ev.preventDefault();
-          return;
-        }
-        spent = false;
-      }
-      if (finished(dir)) {
-        release();
-        return;                       /* this gesture scrolls the page, as it should */
-      }
-
-      if (ev.cancelable) ev.preventDefault();
-      acc += delta;
-      if (Math.abs(acc) < thresh) return;
-      step(acc > 0 ? 1 : -1);
-      acc = 0;
-      spent = true; spentT = now; spentPeak = peak; peak = mag;
-      holdFloor = now + STEP_HOLD;
+    if (SCRUB) {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
     }
 
-    window.addEventListener("wheel", function (e) {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      var dy = e.deltaY;
-      if (e.deltaMode === 1) dy *= 16;
-      else if (e.deltaMode === 2) dy *= window.innerHeight;
-      gesture(e, dy, THRESH_W);
-    }, { passive: false });
-
-    window.addEventListener("touchstart", function (e) {
-      if (e.touches.length === 1) {
-        touchY = e.touches[0].clientY;
-        acc = 0; peak = 0; spent = false;   /* a new finger is always a new gesture */
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchmove", function (e) {
-      if (e.touches.length !== 1) return;
-      var y = e.touches[0].clientY, d = touchY - y;
-      touchY = y;
-      gesture(e, d, THRESH_T);
-    }, { passive: false });
-
-    window.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        if (near) { bypass = true; release(); }
-        return;
-      }
-      if (e.key === "Tab") { bypass = true; release(); return; }
-      if (!engaged) return;
-      var dir = 0;
-      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") dir = 1;
-      else if (e.key === "ArrowUp" || e.key === "PageUp") dir = -1;
-      else if (e.key === "Home" || e.key === "End") { bypass = true; release(); return; }
-      if (!dir) return;
-      if (finished(dir)) { release(); return; }
-      e.preventDefault();
-      step(dir);
-    });
-
-    /* Any in-page anchor has to beat the gate. The nav dots are plain href="#id"
-       links, so without this the hold loop yanks the page straight back and the
-       whole nav is a dead control while the board is on screen. */
-    document.addEventListener("click", function (e) {
-      var t = e.target;
-      if (!t || !t.closest || !t.closest('a[href^="#"]')) return;
-      bypass = true;
-      release();
-    }, true);
-    window.addEventListener("hashchange", function () { bypass = true; release(); });
-
-    /* `near` keeps the non-passive wheel listener from doing rect work on every
-       event elsewhere on the page, and re-arms the Esc bypass once the board is
-       out of sight so one escape does not disable the gate for the whole visit. */
+    /* `near` keeps the scroll handler from doing rect work while the reader is
+       elsewhere on the page. The margin is generous on purpose: the scrub must
+       already be following by the time the board is visible, or the first frame
+       the reader sees is beat 1 when it should be mid-transition. */
     if (track && "IntersectionObserver" in window) {
       new IntersectionObserver(function (es) {
         es.forEach(function (en) {
           near = en.isIntersecting;
-          if (!near) { bypass = false; release(); }
+          if (near) onScroll();
         });
-      }, { rootMargin: "20% 0px 20% 0px" }).observe(track);
+      }, { rootMargin: "40% 0px 40% 0px" }).observe(track);
     } else {
       near = true;
     }
@@ -931,7 +794,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     stage.addEventListener("click", function () {
       if (swiped) { swiped = false; return; }   /* that was a swipe, not a tap */
-      goTo(target + 1);
+      var i = Math.round(cur) + 1;
+      if (i > N - 1) return;
+      if (SCRUB) scrollToBeat(i); else goTo(i);
     });
 
     if (TOUCH) {
@@ -972,11 +837,19 @@ document.addEventListener("DOMContentLoaded", function () {
       }, { passive: true });
     }
 
-    root.tabIndex = -1;   /* arrow keys stay inside the component */
+    /* Focusable, so the arrow keys can be reached at all - it was tabIndex -1,
+       which made the board keyboard-navigable only by accident of the ticks. */
+    root.tabIndex = 0;
     root.addEventListener("keydown", function (e) {
-      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1
+            : e.key === "ArrowLeft"  || e.key === "ArrowUp"   ? -1 : 0;
+      if (!d) return;
+      var i = Math.round(cur) + d;
+      /* at the ends, do NOT preventDefault: the arrow key falls through and
+         scrolls the page, which is what a reader at the last beat wants */
+      if (i < 0 || i > N - 1) return;
       e.preventDefault();
-      goTo(state + (e.key === "ArrowRight" ? 1 : -1));
+      if (SCRUB) scrollToBeat(i); else goTo(i);
     });
 
     /* reserve the tallest copy block so nothing reflows on a beat change */
@@ -994,9 +867,14 @@ document.addEventListener("DOMContentLoaded", function () {
     /* boot repaints at the current beat. It must NOT recompute the beat from
        scroll position: the beat is gesture state now, and a resize (a phone
        address bar collapsing counts) would otherwise throw the reader back. */
+    /* boot repaints at the current beat. Under the scrub the beat is a function
+       of scroll position, so it re-reads that rather than snapping to a whole
+       beat - a phone address bar collapsing counts as a resize, and snapping
+       there would jump the camera under the reader's finger. */
     function boot() {
       tokens(); layout(); reserve(); lastKey = "";
-      cur = target;
+      if (SCRUB) { cur = progress() * (N - 1); target = Math.round(cur); }
+      else cur = target;
       draw();
     }
 

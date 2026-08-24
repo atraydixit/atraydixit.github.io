@@ -124,9 +124,9 @@
           <p class="eyebrow">The space</p>
           <h2>Historically intractable.</h2>
           <p class="lede">
-            In 1980 there were 13 approved classes of cancer drug. Today there are 82,
+            In 1980 there were 8 drug classes for cancer. Today there are 82,
             making over 90,000 possible pairs and triples &mdash; and that space doubles
-            about every six years.
+            about every five years.
           </p>
         </div>
 
@@ -170,7 +170,7 @@
 
         <p class="caption" data-reveal>
           Registered trial arms (ClinicalTrials.gov) on an 82-class solid-tumor grid;
-          the 1980 panel is literature-sourced on 8 chemotherapy classes. Oncko layer
+          the 1980 panel is literature-sourced on 8 drug classes. Oncko layer
           illustrative.
         </p>
 
@@ -205,7 +205,21 @@
              in a narrow left gutter, so the design is width-independent: mobile and
              desktop are the same picture with a narrower gutter, and the content
              column never reflows. -->
-        <ol class="tl" data-reveal style="--d:80ms">
+        <!-- COMPRESSED BY DEFAULT, ONE CONTROL FOR ALL OF IT. Atray: "having the
+             timeline more vertically compressed by default could be good so people
+             can scroll through in an instant." Per-row accordions were rejected -
+             they hide a checkable DOI behind a tap, seven times over. One toggle
+             opens every description at once, and what is hidden is only the
+             description sentence: the year, the linked title and the attribution
+             stay on screen, so the evidence is never the thing behind the click. -->
+        <div class="tl-bar">
+          <button class="tl-toggle" type="button" id="tl-toggle" aria-expanded="false" aria-controls="tl-list">
+            <span class="tl-tg-a">Show details</span>
+            <span class="tl-tg-b">Hide details</span>
+          </button>
+        </div>
+
+        <ol class="tl" id="tl-list" data-reveal style="--d:80ms">
 
           <li class="tl-key" aria-hidden="true">
             <span class="tl-k t-a">Measure and model</span>
@@ -213,17 +227,19 @@
           </li>
 
           <li class="tl-item t-a">
-            <div class="tl-line">
-              <span class="tl-year">2016</span>
+            <span class="tl-tag" aria-hidden="true">Measure</span>
+            <span class="tl-year">2016</span>
+            <div class="tl-body">
               <h3 class="tl-title"><a href="https://doi.org/10.1016/j.cell.2016.11.038" target="_blank" rel="noopener noreferrer">Perturb-seq</a></h3>
               <span class="tl-cite"><b>Dixit</b>, first author &middot; <em>Cell</em></span>
+              <p class="tl-what">Scaled CRISPR perturbations including combinations with single-cell RNA readouts.</p>
             </div>
-            <p class="tl-what">Scaled CRISPR perturbations including combinations with single-cell RNA readouts.</p>
           </li>
 
           <li class="tl-item t-b is-span">
-            <div class="tl-line">
-              <span class="tl-year">2017</span>
+            <span class="tl-tag" aria-hidden="true">Trials</span>
+            <span class="tl-year">2017</span>
+            <div class="tl-body">
               <!-- The link is the platform-design abstract, not a results paper, because
                    it is the only MORPHEUS publication Grossman is actually on: author 17
                    of 18, verified against Crossref. He is on neither the JITC MORPHEUS-Lung
@@ -231,44 +247,48 @@
                    an attribution should point at something carrying the name. -->
               <h3 class="tl-title"><a href="https://doi.org/10.1200/JCO.2018.36.4_suppl.TPS530" target="_blank" rel="noopener noreferrer">MORPHEUS</a></h3>
               <span class="tl-cite"><b>Grossman</b>, designed and led it at Genentech &middot; <em>JCO</em> abstract</span>
+              <p class="tl-what">Randomized multi-arm platforms across six tumor types, 2017 to 2025.</p>
             </div>
-            <p class="tl-what">Randomized multi-arm platforms across six tumor types, 2017 to 2025.</p>
           </li>
 
           <li class="tl-item t-a">
-            <div class="tl-line">
-              <span class="tl-year">2019</span>
+            <span class="tl-tag" aria-hidden="true">Measure</span>
+            <span class="tl-year">2019</span>
+            <div class="tl-body">
               <h3 class="tl-title"><a href="https://doi.org/10.1101/861443" target="_blank" rel="noopener noreferrer">Shuffle-Seq</a></h3>
               <span class="tl-cite"><b>Dixit</b>, first author &middot; <em>bioRxiv</em> preprint</span>
+              <p class="tl-what">Scaled combinatorial genetic-interaction screens.</p>
             </div>
-            <p class="tl-what">Scaled combinatorial genetic-interaction screens.</p>
           </li>
 
           <li class="tl-item t-a">
-            <div class="tl-line">
-              <span class="tl-year">2021</span>
+            <span class="tl-tag" aria-hidden="true">Measure</span>
+            <span class="tl-year">2021</span>
+            <div class="tl-body">
               <h3 class="tl-title"><a href="https://doi.org/10.3390/ijerph18052600" target="_blank" rel="noopener noreferrer">Safety at population scale</a></h3>
               <span class="tl-cite"><b>Dixit</b>, senior author</span>
+              <p class="tl-what">Modeled combination toxicity across 500,000 UK Biobank participants.</p>
             </div>
-            <p class="tl-what">Modeled combination toxicity across 500,000 UK Biobank participants.</p>
           </li>
 
           <li class="tl-item t-a">
-            <div class="tl-line">
-              <span class="tl-year">2026</span>
+            <span class="tl-tag" aria-hidden="true">Measure</span>
+            <span class="tl-year">2026</span>
+            <div class="tl-body">
               <h3 class="tl-title">Oncko preclinical program</h3>
               <span class="tl-cite"><b>Sproul</b>, preclinical lead</span>
+              <p class="tl-what">Scaled in vivo combination testing; initial regimens prioritized.</p>
             </div>
-            <p class="tl-what">Scaled in vivo combination testing; initial regimens prioritized.</p>
           </li>
 
           <li class="tl-item t-b">
-            <div class="tl-line">
-              <span class="tl-year">2026</span>
+            <span class="tl-tag" aria-hidden="true">Trials</span>
+            <span class="tl-year">2026</span>
+            <div class="tl-body">
               <h3 class="tl-title">Oncko clinical operations</h3>
               <span class="tl-cite"><b>Tron</b>, trial operations</span>
+              <p class="tl-what">ComboTrials Lung protocol in finalization.</p>
             </div>
-            <p class="tl-what">ComboTrials Lung protocol in finalization.</p>
           </li>
 
           <li class="tl-join" aria-hidden="true">
@@ -279,12 +299,13 @@
           </li>
 
           <li class="tl-item t-end">
-            <div class="tl-line">
-              <span class="tl-year">2027</span>
+            <span class="tl-tag" aria-hidden="true">Oncko</span>
+            <span class="tl-year">2027</span>
+            <div class="tl-body">
               <h3 class="tl-title">ComboTrials Lung</h3>
               <span class="tl-cite"><b>Oncko</b></span>
+              <p class="tl-what">First patient anticipated Q1 2027.</p>
             </div>
-            <p class="tl-what">First patient anticipated Q1 2027.</p>
           </li>
 
         </ol>

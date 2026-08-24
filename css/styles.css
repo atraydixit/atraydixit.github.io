@@ -506,6 +506,23 @@ footer {
    NO scroll-snap, ever. `mandatory` traps the reader: the scroller must always
    come to rest on a snap point, so leaving in either direction gets pulled back.
    The gate needs no cooperation from the scroller. */
+/* THE TRACK IS THE RUNWAY, THE PIN IS THE STAGE.
+   Touch gets one viewport and a carousel. A pointer device gets 2.2 viewports
+   with the board `position: sticky` inside them, so the beat is a pure function
+   of how far the reader has scrolled through the track. This replaced a gate
+   that cancelled the reader's wheel events and held the page in place; the whole
+   point is that nothing is cancelled now. Every earlier version of this failed
+   by trying to stop the reader leaving. A scrub does not have to: a reader
+   travelling through the track passes through every position, so every beat is
+   drawn on the way past whether they linger or fling.
+
+   2.2 is the smallest runway that still gives each of the two transitions most
+   of a viewport of scroll. Shorter and the sequence flickers past; longer and
+   the section costs more page than the story is worth.
+
+   The media query MUST stay in sync with `TOUCH` in main.js, which tests the
+   same `(hover: none) and (pointer: coarse)`. If the CSS says sticky and the JS
+   says carousel, the board goes dead. */
 .board-track {
   position: relative;
   height: 100vh;
@@ -518,19 +535,28 @@ footer {
   align-content: center;
 }
 
-/* On a touch device the board is a carousel: the browser owns the vertical axis
-   (so the reader can always scroll past) and the card owns the horizontal one.
-   `pinch-zoom` is kept deliberately - a bare `pan-y` would make the one dense
-   graphic on the site un-zoomable. */
-.board-wrap { touch-action: pan-y pinch-zoom; }
+@media (hover: hover) and (pointer: fine) {
+  .board-track { height: 220svh; }
+  .board-pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+  }
+}
 
-/* While the gate is shut, block vertical panning so a touch that starts on the
-   board never begins a native scroll at all — on iOS a fling cannot be
-   cancelled once it has started. `pan-x pinch-zoom` keeps pinch-to-zoom, which
-   `none` would take away. DESKTOP ONLY NOW: `html.gated` is never added on a
-   touch-primary device, so this rule cannot fire there. */
-html.gated,
-html.gated body { touch-action: pan-x pinch-zoom; }
+/* Reduced motion gets no runway at all: SCRUB is false in main.js, the ticks
+   drive the state directly, and 2.6 viewports of empty scrolling would be a
+   pure tax on a reader who has asked for less movement. */
+@media (prefers-reduced-motion: reduce) {
+  .board-track { height: 100svh; }
+  .board-pin { position: static; }
+}
+
+/* On touch the card owns the horizontal axis and the browser keeps the vertical
+   one, so the reader can always scroll past. `pinch-zoom` is kept deliberately -
+   a bare `pan-y` would make the one dense graphic on the site un-zoomable. */
+.board-wrap { touch-action: pan-y pinch-zoom; }
 
 /* The gate stops the page scrolling, so it has to say why. Goes on the first
    step and does not come back. */
@@ -769,10 +795,7 @@ html.gated body { touch-action: pan-x pinch-zoom; }
   .onb-flab { font-size: 12px; }
 }
 
-/* SHORT PHONES. Beat 1's statement runs six lines in a phone-width column, and
-   reserve() locks the copy block to the tallest beat, so on a 667px-tall screen
-   the card outgrew the viewport by 54px and the ticks fell off the bottom. Only
-   screens under 700px tall pay for it; 844 and 932 keep full-size type. */
+
 @media (max-height: 700px) {
   .onb-line { font-size: 20.5px; }
   .onb-frac { font-size: 20.5px; }
@@ -799,19 +822,49 @@ html.gated body { touch-action: pan-x pinch-zoom; }
   }
 }
 
+/* SHORT PHONES. Beat 1's statement runs six lines in a phone-width column, and
+   reserve() locks the copy block to the tallest beat, so on a 667px-tall screen
+   the card outgrew the viewport by 54px and the ticks fell off the bottom. Only
+   screens under 700px tall pay for it; 844 and 932 keep full-size type. */
+/* A LAPTOP AT 200% BROWSER ZOOM IS A 640x360 VIEWPORT, and the board is one
+   viewport tall, so at that height the card overflowed its pin by 40px - an
+   external review made 200% zoom a launch gate and it was failing. The 700px
+   tier above is not enough on its own: it is tuned for a landscape phone, which
+   has room to spare. This tier is the one that has to find 40px, and it takes
+   them from padding, the row gap and the tick height rather than from the
+   graphic, which is already capped by 40vh. */
+@media (max-height: 480px) {
+  .board-wrap.pad { padding: 14px; }
+  .onb { gap: 9px; }
+  .onb-tick { height: 26px; }
+  .onb-line { font-size: 17.5px; }
+  .onb-frac { font-size: 17.5px; }
+  .onb-hint { font-size: 9.5px; }
+}
+
 /* --------------------------------------------------------------- timeline --
 
-   TWO THREADS, ONE TIME AXIS, ONE ENDPOINT.
+   TWO THREADS, ONE TIME AXIS, ONE ENDPOINT - EXPRESSED TWICE.
 
-   Everything structural lives in a narrow left gutter: two 1px rails at fixed
-   fractions of --gut, a node on whichever rail owns the row, and a confluence
-   that bends both rails into the endpoint. The content column is a single
-   left-aligned column at every width, so mobile and desktop are the same
-   picture with a different gutter and nothing reflows. That is the whole reason
-   for doing it in a gutter rather than as two columns: converging COLUMNS have
-   nowhere to go on a phone, a converging gutter does not care how wide the page
-   is. The 18% / 72% / 45% fractions are shared by the CSS and by the join
-   SVG's viewBox - change one and you must change the other. */
+   An external review: "the rails imply two capabilities, the layout reads as one
+   list", and "once the labels scroll away the two narrow rails become nearly
+   anonymous". Both were correct. Every row's text started at the same offset, so
+   lane membership was carried only by a node sitting 54px left or right, and the
+   only key was a header that scrolled off the top.
+
+   So the structure is now stated in the idiom each width can actually support,
+   and never left to a dot alone:
+
+     NARROW   one gutter with two rails, and an explicit MEASURE / TRIALS tag on
+              every row. The tag is what makes the lane legible with the header
+              off screen; the rails and the join SVG draw the convergence.
+     WIDE     two real text lanes with a centre date rail. Which SIDE the text
+              sits on is unmistakable, so the per-row tag is dropped and the
+              column headers carry the names. The endpoint spans both lanes and
+              centres, which is the convergence.
+
+   The 18% / 72% / 45% fractions in the narrow form are shared by the CSS and by
+   the join SVG's viewBox - change one and you must change the other. */
 
 .tl {
   --gut: 44px;
@@ -823,15 +876,103 @@ html.gated body { touch-action: pan-x pinch-zoom; }
   padding: 0;
 }
 
+/* ---- the toggle ---------------------------------------------------------- */
+
+.tl-bar { display: flex; justify-content: flex-start; margin-bottom: 18px; }
+
+.tl-toggle {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 9px 16px;
+  min-height: 38px;
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+.tl-toggle:hover { color: var(--ink); border-color: var(--mint-mid); }
+.tl-toggle:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+
+/* One label is present and the other is not, rather than both being present with
+   one hidden by opacity: a screen reader should not read "Show details Hide
+   details". aria-expanded on the button carries the state. */
+.tl-tg-b { display: none; }
+.tl-toggle[aria-expanded="true"] .tl-tg-a { display: none; }
+.tl-toggle[aria-expanded="true"] .tl-tg-b { display: inline; }
+
+/* Compressed is the DEFAULT. What is hidden is only the description sentence -
+   year, linked title and attribution stay, so nothing checkable is behind the
+   click. */
+.tl-what { display: none; }
+.tl.is-open .tl-what { display: block; }
+
+/* ---- narrow: one gutter, two rails, a tag on every row ------------------- */
+
 .tl-item {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
-  padding: 0 0 clamp(18px, 2.2vw, 24px) calc(var(--gut) + 14px);
+  grid-template-columns: 58px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: start;
+  padding: 0 0 clamp(14px, 1.8vw, 20px) calc(var(--gut) + 14px);
 }
 
-/* both rails, drawn per row as two stripes, so continuity is automatic and no
-   element has to know where the list ends */
+.tl-tag  { grid-column: 1; grid-row: 1; }
+.tl-year { grid-column: 1; grid-row: 2; }
+.tl-body { grid-column: 2; grid-row: 1 / span 2; min-width: 0; }
+
+.tl-tag {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  line-height: 1.9;
+  white-space: nowrap;
+}
+.tl-item.t-b .tl-tag  { color: var(--mint-mid); }
+.tl-item.t-end .tl-tag { color: var(--lime); }
+
+.tl-year {
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  color: var(--faint);
+  line-height: 1.5;
+}
+
+.tl-title {
+  font-size: clamp(16px, 1.5vw, 19px);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.35;
+}
+.tl-title a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.tl-title a:hover { border-bottom-color: var(--mint); }
+
+.tl-cite {
+  display: block;
+  font-size: clamp(12px, 1.1vw, 13.5px);
+  color: var(--faint);
+  line-height: 1.6;
+  margin-top: 2px;
+}
+.tl-cite b { color: var(--muted); font-weight: 600; }
+
+.tl-what {
+  font-size: clamp(13px, 1.2vw, 14.5px);
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 6px 0 0;
+  max-width: 62ch;
+}
+
+/* the two rails, drawn behind every row so they are continuous */
 .tl-item::before,
 .tl-key::before,
 .tl-join::before {
@@ -841,182 +982,165 @@ html.gated body { touch-action: pan-x pinch-zoom; }
   top: 9px;
   bottom: 0;
   width: var(--gut);
-  /* rail A solid, rail B dashed. Two mint dots at different x positions is not
-     enough to read at a glance; a different stroke is. */
   background:
     linear-gradient(var(--rule), var(--rule)) var(--ra) 0 / 1px 100% no-repeat,
     repeating-linear-gradient(var(--rule) 0 4px, transparent 4px 9px) var(--rb) 0 / 1px 100% no-repeat;
 }
-/* the endpoint is the end of the line */
-.tl-item.t-end::before { display: none; }
+.tl-item:last-child::before { bottom: auto; height: 9px; }
 
-/* the node, on its own thread */
+/* the node: a ring only, no glow, so a row does not read as a status light */
 .tl-item::after {
   content: "";
   position: absolute;
   top: 9px;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   margin: -4px 0 0 -4px;
   border-radius: 50%;
   background: var(--mint);
-  /* ring only. The single glow on this page belongs to the endpoint, so that
-     the one thing the reader should end on is the one thing that lights. */
   box-shadow: 0 0 0 4px var(--ground);
 }
 .tl-item.t-a::after { left: calc(var(--gut) * 0.18); }
 .tl-item.t-b::after { left: calc(var(--gut) * 0.72); }
-/* MORPHEUS ran for eight years. A point node on a time axis claims it happened
-   in one, which is what kept making 2017 look like it came after 2019. */
+
+/* a duration is a band, not a point */
 .tl-item.is-span::after {
   height: 34px;
   border-radius: 4px;
   margin-top: -4px;
-  /* dimmer than a point node: it is a band, and the one mark on this timeline
-     allowed to draw the eye is the endpoint */
   background: var(--mint-mid);
 }
+
 .tl-item.t-end::after {
   left: calc(var(--gut) * 0.45);
   width: 11px;
   height: 11px;
-  margin: -5.5px 0 0 -5.5px;
+  margin-left: -5px;
   background: var(--lime);
   box-shadow: 0 0 0 4px var(--ground), 0 0 16px rgba(206, 228, 68, 0.55);
 }
 
-/* the confluence */
-.tl-join {
-  position: relative;
-  height: 44px;
-  padding-left: calc(var(--gut) + 14px);
-}
-.tl-join::before { background: none; }
-.tl-join svg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--gut);
-  height: 100%;
-  overflow: visible;
-}
-/* lime, because the confluence is the one place on the page that says both
-   threads arrive at Oncko's trial. It is the only other lime on the timeline
-   besides the endpoint node it feeds. */
-.tl-join path {
-  fill: none;
-  stroke: var(--lime);
-  stroke-width: 1;
-  opacity: 0.5;
-}
+/* ---- the lane headers (narrow: hidden, the per-row tag says it) ---------- */
 
-/* the legend teaches which rail is which, once, at the top */
-.tl-key {
-  position: relative;
-  display: grid;
-  gap: 8px;
-  padding: 0 0 22px;
-}
-.tl-key::before { top: 0; }
-/* each label starts just right of ITS OWN dot rather than out in the content
-   column, so the stagger itself shows which rail is which */
-.tl-k {
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  position: relative;
-}
-.tl-k.t-a { padding-left: calc(var(--gut) * 0.18 + 13px); }
-.tl-k.t-b { padding-left: calc(var(--gut) * 0.72 + 13px); }
-.tl-k::before {
-  content: "";
-  position: absolute;
-  top: 0.44em;
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
-  border-radius: 50%;
-  background: var(--mint);
-  box-shadow: 0 0 0 4px var(--ground);
-}
-.tl-k.t-a::before { left: calc(var(--gut) * 0.18); }
-.tl-k.t-b::before { left: calc(var(--gut) * 0.72); }
+/* `position: relative` is LOAD-BEARING even while this is display:none, because
+   the wide form turns it into a grid and its ::before draws a rail. Without it
+   the rail's containing block is the viewport, `top: 9px; bottom: 0` resolves
+   against the whole document, and a 7,521px line runs down the entire page
+   through the team cards. That was the bug. */
+.tl-key { display: none; position: relative; }
 
-/* year, title and attribution on one baseline */
-.tl-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 0.7em;
-  margin-bottom: 4px;
-}
+/* ---- the confluence ------------------------------------------------------ */
 
-/* the year is a coordinate, not the point: quiet weight, quiet colour, so the
-   capability is what the eye takes first */
-.tl-year {
-  font-variant-numeric: tabular-nums;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  color: var(--faint);
-  white-space: nowrap;
-}
-.tl-item.t-end .tl-year { color: var(--lime); font-weight: 500; }
+.tl-join { position: relative; height: 46px; }
+.tl-join svg { position: absolute; left: 0; top: 0; width: var(--gut); height: 100%; }
+.tl-join path { fill: none; stroke: var(--lime); stroke-width: 1; opacity: 0.5; }
 
-.tl-title {
-  font-size: clamp(16.5px, 3.7vw, 19px);
-  font-weight: 500;
-  letter-spacing: -0.014em;
-  line-height: 1.25;
-  margin: 0;
-  color: var(--text);
-}
-.tl-title a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
-}
-.tl-title a:hover,
-.tl-title a:focus-visible { color: var(--mint); border-bottom-color: var(--mint); }
+/* ---- wide: two real lanes, one centre date rail -------------------------- */
 
-.tl-what {
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.6;
-  color: var(--body);
-  margin: 0;
-  max-width: 62ch;
-}
+@media (min-width: 900px) {
+  .tl { --rail: 116px; }
 
-.tl-cite {
-  font-size: 12px;
-  font-weight: 300;
-  line-height: 1.5;
-  color: var(--faint);
-}
-.tl-cite em { font-style: italic; color: var(--muted); }
-.tl-cite b { font-weight: 500; color: var(--body); }
-.tl-cite a {
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-}
-.tl-cite a:hover,
-.tl-cite a:focus-visible { color: var(--mint); border-bottom-color: var(--mint); }
+  .tl-bar { justify-content: center; }
 
-@media (min-width: 820px) {
-  .tl { --gut: 100px; }
-  .tl-item, .tl-join { padding-left: calc(var(--gut) + 22px); }
-  .tl-title { font-size: 20px; }
-  .tl-cite { font-size: 12.5px; }
-  .tl-what { font-size: 14.5px; }
-  .tl-join { height: 62px; }
-}
+  .tl-item {
+    grid-template-columns: minmax(0, 1fr) var(--rail) minmax(0, 1fr);
+    column-gap: 0;
+    padding: 0 0 clamp(18px, 2vw, 26px) 0;
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .tl-title a, .tl-cite a { transition: none; }
+  /* the side IS the lane, so the tag stops earning its line */
+  .tl-tag { display: none; }
+
+  .tl-year {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: center;
+    padding: 0 10px;
+  }
+  .tl-body { grid-column: 1; grid-row: 1; text-align: right; padding-right: 6px; }
+  .tl-item.t-b .tl-body { grid-column: 3; text-align: left; padding: 0 0 0 6px; }
+  .tl-what { max-width: none; }
+  .tl-item.t-a .tl-what { margin-left: auto; }
+
+  /* ONE centre rail now, not two in a gutter: with the text on opposite sides
+     the lane is already unambiguous, and a single shared axis is what makes the
+     two columns read as one chronology instead of two lists. */
+  .tl-item::before,
+  .tl-key::before,
+  .tl-join::before {
+    left: 50%;
+    width: 0;
+    margin-left: -0.5px;
+    border-left: 1px solid var(--rule);
+    background: none;
+  }
+
+  /* THE YEAR IS THE NODE HERE. A separate dot at 50% landed on top of the year
+     and rendered "2016" as "2 - 6"; there is only one centre and they were both
+     in it. So the year gets the ground colour and sits ON the rail, masking it,
+     which is the node, the date and the break in the line all at once. Lane is
+     carried by the tint, and by the side the text is on. */
+  .tl-year {
+    background: var(--ground);
+    padding: 2px 12px;
+    border-radius: 999px;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-item.t-b .tl-year   { color: var(--mint-mid); }
+  .tl-item.t-end .tl-year { color: var(--lime); }
+
+  .tl-item::after { display: none; }
+
+  /* a duration thickens the rail for the length of its row, behind the chip */
+  .tl-item.is-span::after {
+    display: block;
+    left: 50%;
+    top: 0;
+    margin: 0 0 0 -1.5px;
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--mint-mid);
+    box-shadow: none;
+    opacity: 0.75;
+  }
+
+  /* the endpoint spans both lanes and centres: that is the convergence. Year on
+     its own row above the title, or the two land in the same cell. */
+  .tl-item.t-end {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+    padding-top: 10px;
+  }
+  .tl-item.t-end .tl-year { grid-column: 1; grid-row: 1; text-align: center; }
+  .tl-item.t-end .tl-body { grid-column: 1; grid-row: 2; text-align: center; padding: 6px 0 0; }
+  .tl-item.t-end .tl-what { margin-left: auto; margin-right: auto; }
+  .tl-item.t-end::before { bottom: auto; height: 22px; top: 0; }
+
+  /* the lane headers become the column headers */
+  .tl-key {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--rail) minmax(0, 1fr);
+    padding: 0 0 22px 0;
+  }
+  .tl-k {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 0;
+  }
+  .tl-k.t-a { grid-column: 1; text-align: right; padding-right: 6px; }
+  .tl-k.t-b { grid-column: 3; text-align: left; padding-left: 6px; }
+  .tl-k::before { content: none; }
+
+  /* the narrow form's two-rail confluence has nothing to converge here: the
+     centred endpoint is the convergence, so the SVG stands down. */
+  .tl-join { height: 26px; }
+  .tl-join svg { display: none; }
 }
 
 /* ------------------------------------------------------- clinical programs */
