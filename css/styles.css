@@ -535,8 +535,12 @@ footer {
   align-content: center;
 }
 
+/* The track HEIGHT is set by main.js from its own HOLD/TRANS budget, so the
+   dwell arithmetic has exactly one home and the two files cannot drift. CSS owns
+   only whether the pin is sticky - and if JS never runs, the track stays one
+   viewport, the pin sticks for zero pixels, and the board is a static first
+   beat rather than a tall empty column. */
 @media (hover: hover) and (pointer: fine) {
-  .board-track { height: 220svh; }
   .board-pin {
     position: sticky;
     top: 0;
@@ -1003,12 +1007,16 @@ footer {
 .tl-item.t-a::after { left: calc(var(--gut) * 0.18); }
 .tl-item.t-b::after { left: calc(var(--gut) * 0.72); }
 
-/* a duration is a band, not a point */
+/* A DURATION IS A BAND, NOT A POINT, and it has to be as long as the duration.
+   --span-h is measured in main.js by interpolating the end year between the two
+   rows that bracket it, because the axis is evenly spaced by row and not by
+   year. The 34px fallback is what shows if that script never runs. */
 .tl-item.is-span::after {
-  height: 34px;
+  height: var(--span-h, 34px);
   border-radius: 4px;
   margin-top: -4px;
   background: var(--mint-mid);
+  opacity: 0.85;
 }
 
 .tl-item.t-end::after {
@@ -1092,19 +1100,26 @@ footer {
 
   .tl-item::after { display: none; }
 
-  /* a duration thickens the rail for the length of its row, behind the chip */
+  /* A DURATION RUNS DOWN THE INSIDE EDGE OF ITS OWN LANE, not down the rail. On
+     the rail it was chopped into three pieces by the year chips it passed
+     behind, which read as three events rather than one nine-year run - and
+     drawing it OVER the chips instead would strike through "2019" and "2021".
+     At the boundary between the date column and the trials column it is one
+     unbroken bar, and being in the lane says whose duration it is. */
   .tl-item.is-span::after {
     display: block;
-    left: 50%;
-    top: 0;
-    margin: 0 0 0 -1.5px;
+    left: calc(50% + var(--rail) / 2);
+    top: 9px;
+    margin: 0;
     width: 3px;
-    height: 100%;
+    height: var(--span-h, 34px);
     border-radius: 2px;
     background: var(--mint-mid);
     box-shadow: none;
-    opacity: 0.75;
+    opacity: 0.8;
   }
+  /* clear the bar so it is a bracket on the lane, not an underline of the text */
+  .tl-item.t-b .tl-body { padding-left: 16px; }
 
   /* the endpoint spans both lanes and centres: that is the convergence. Year on
      its own row above the title, or the two land in the same cell. */

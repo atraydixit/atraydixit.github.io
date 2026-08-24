@@ -35,6 +35,67 @@ document.addEventListener("DOMContentLoaded", function () {
     Array.prototype.forEach.call(els, function (el) { io.observe(el); });
   }
 
+  /* --------------------------------------------------- timeline span band --
+
+     A row that is a DURATION has to look like one for its whole duration.
+     MORPHEUS ran 2017 to 2025; it was drawn as a band inside its own row, so it
+     stopped at 2017 and the trials thread looked like a point event with a
+     four-year gap after it. Atray: "Morpheus spans all the way through 2025
+     right on the clinical side, not sure if there is a clean way to show that".
+
+     The clean way is to measure it. The vertical axis is NOT linear in time -
+     rows are evenly spaced whatever the year gaps - so the band cannot be sized
+     from years alone. It is interpolated between the two rows that actually
+     BRACKET the target year, which puts 2025 four fifths of the way from the
+     2021 row to the 2026 row: honest about where the year falls without
+     pretending the axis is a scale. Measured in JS rather than hard-coded in px
+     because both idioms and every width give different row heights, and a title
+     that wraps at one width does not at another.
+
+     The year cell says "2017-25" as well. The geometry and the label have to
+     agree, and only the label survives the compressed default. */
+  (function () {
+    var list = document.getElementById("tl-list");
+    if (!list) return;
+    var spans = list.querySelectorAll(".tl-item[data-span-to]");
+    if (!spans.length) return;
+    var items = [].slice.call(list.querySelectorAll(".tl-item[data-year]"));
+
+    /* the node of a row sits 9px below its top; see `.tl-item::after { top: 9px }` */
+    function nodeY(el) { return el.offsetTop + 9; }
+
+    function yForYear(target) {
+      var lo = null, hi = null;
+      for (var i = 0; i < items.length; i++) {
+        var y = +items[i].getAttribute("data-year");
+        if (y <= target && (!lo || y >= +lo.getAttribute("data-year"))) lo = items[i];
+        if (y >= target && !hi) hi = items[i];
+      }
+      if (!lo) return hi ? nodeY(hi) : 0;
+      if (!hi || hi === lo) return nodeY(lo);
+      var ly = +lo.getAttribute("data-year"), hy = +hi.getAttribute("data-year");
+      var f = hy === ly ? 0 : (target - ly) / (hy - ly);
+      return nodeY(lo) + (nodeY(hi) - nodeY(lo)) * f;
+    }
+
+    function size() {
+      for (var i = 0; i < spans.length; i++) {
+        var el = spans[i];
+        var end = yForYear(+el.getAttribute("data-span-to"));
+        var h = Math.max(34, Math.round(end - nodeY(el)));
+        el.style.setProperty("--span-h", h + "px");
+      }
+    }
+
+    size();
+    /* the toggle changes every row height, so the band has to be re-measured
+       after it - and after any reflow that changes wrapping */
+    var btn = document.getElementById("tl-toggle");
+    if (btn) btn.addEventListener("click", function () { setTimeout(size, 0); });
+    if (window.ResizeObserver) new ResizeObserver(size).observe(list);
+    else window.addEventListener("resize", size);
+  })();
+
   /* ------------------------------------------------------ timeline toggle --
 
      One control for all seven descriptions, not seven accordions: a per-row
@@ -719,15 +780,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* ---- the scrub ----------------------------------------------------- */
 
-    /* Progress through the sticky window: 0 when the board arrives, 1 when it is
-       about to leave. Measured from the PIN rather than from innerHeight, because
-       a phone address bar changes innerHeight mid-scroll and `svh` does not. */
-    function progress() {
-      if (!track || !pin) return 0;
-      var span = track.offsetHeight - pin.offsetHeight;
-      if (span <= 0) return 0;
-      var p = -track.getBoundingClientRect().top / span;
-      return p < 0 ? 0 : p > 1 ? 1 : p;
+    /* SCROLL POSITION TO BEAT, WITH DWELL.
+
+       The first version mapped progress LINEARLY, which gives every beat exactly
+       one scroll position: the moment the track pins, the reader is at beat 1,
+       and the very next pixel is already a transition. Atray, on real Chrome:
+       "it skips to the next scene before I can read the 1st ... and if I scroll
+       too fast into it then it skips to the end." Both follow from the same
+       mistake. Beat 1 had ZERO pixels of dwell, and the whole span was 864px at
+       1280x720 - less than one trackpad fling.
+
+       So the runway is cut into holds and transitions, and measured in PIXELS
+       rather than viewport fractions. A hold has to be comparable to a wheel
+       gesture to read as a rest, and a fraction of a tall monitor's viewport is
+       far more than that while the same fraction of a laptop's is less - the
+       thing being matched is the gesture, not the screen.
+
+       HOLD[0] is the biggest number here on purpose: it is the arrival, and it
+       is the one the reader has to be able to read before anything moves.
+       HOLD[N-1] is the smallest, because the last beat also gets the whole
+       un-pinning travel for free as the board scrolls up out of view.
+
+       The holds are kept MODEST on purpose. A long hold is a pinned board that
+       does not respond to scrolling, which is what the deleted gate felt like -
+       the failure mode to avoid is not just "too fast", it is also "why is
+       nothing happening". At these numbers the camera is responding to the wheel
+       for 58% of the runway, and the readable time on each beat comes mostly
+       from the copy's own opacity plateau (the first and last 12% of a segment
+       hold full opacity) rather than from a frozen pin. */
+    var HOLD  = [360, 200, 110];   /* dwell, in px of scroll, at each beat */
+    var TRANS = [450, 450];        /* travel between consecutive beats */
+    var SPAN  = 0;
+    (function () {
+      for (var i = 0; i < HOLD.length; i++) SPAN += HOLD[i];
+      for (var j = 0; j < TRANS.length; j++) SPAN += TRANS[j];
+    })();
+
+    /* The track's height is set from SPAN here rather than in the stylesheet, so
+       the two cannot drift apart. CSS owns only whether the pin is sticky. */
+    function runway() {
+      if (SCRUB && track) track.style.height = "calc(100svh + " + SPAN + "px)";
+    }
+
+    /* px of scroll consumed, 0 at the moment the board pins */
+    function travelled() {
+      if (!track) return 0;
+      var t = -track.getBoundingClientRect().top;
+      return t < 0 ? 0 : t > SPAN ? SPAN : t;
+    }
+
+    /* Piecewise: inside a hold the answer is a whole beat and nothing moves;
+       inside a transition it is the fraction across it. */
+    function beatAt(x) {
+      for (var i = 0; i < N; i++) {
+        if (x <= HOLD[i]) return i;
+        x -= HOLD[i];
+        if (i >= TRANS.length) return N - 1;
+        if (x <= TRANS[i]) return i + x / TRANS[i];
+        x -= TRANS[i];
+      }
+      return N - 1;
     }
 
     /* The scrub sets `cur` DIRECTLY and never starts the animation loop, so
@@ -736,7 +848,7 @@ document.addEventListener("DOMContentLoaded", function () {
        tick click or swipe has a sane starting point. */
     function scrub() {
       scrubRaf = null;
-      var v = progress() * (N - 1);
+      var v = beatAt(travelled());
       if (Math.abs(v - cur) < 0.0005) return;
       cur = v;
       target = Math.round(v);
@@ -747,13 +859,21 @@ document.addEventListener("DOMContentLoaded", function () {
       if (near && scrubRaf === null) scrubRaf = requestAnimationFrame(scrub);
     }
 
-    /* Where the page must be for beat i. The explicit controls move the PAGE and
-       let the scrub follow, so the scrollbar and the board can never disagree. */
+    /* Where the page must be for beat i: the MIDDLE of that beat's hold, so an
+       explicit control lands in the dwell zone rather than on its edge where the
+       next flick would immediately start a transition. The controls move the
+       PAGE and let the scrub follow, so the scrollbar and the board can never
+       disagree about where we are. */
+    function offsetOfBeat(i) {
+      var x = 0;
+      for (var k = 0; k < i; k++) x += HOLD[k] + (TRANS[k] || 0);
+      return x + HOLD[i] * 0.5;
+    }
+
     function scrollToBeat(i) {
-      if (!track || !pin) return;
-      var span = track.offsetHeight - pin.offsetHeight;
+      if (!track) return;
       var top = track.getBoundingClientRect().top + window.pageYOffset;
-      window.scrollTo({ top: Math.round(top + span * (i / (N - 1))), behavior: "smooth" });
+      window.scrollTo({ top: Math.round(top + offsetOfBeat(i)), behavior: "smooth" });
     }
 
     function step(dir) {
@@ -873,7 +993,8 @@ document.addEventListener("DOMContentLoaded", function () {
        there would jump the camera under the reader's finger. */
     function boot() {
       tokens(); layout(); reserve(); lastKey = "";
-      if (SCRUB) { cur = progress() * (N - 1); target = Math.round(cur); }
+      runway();
+      if (SCRUB) { cur = beatAt(travelled()); target = Math.round(cur); }
       else cur = target;
       draw();
     }
