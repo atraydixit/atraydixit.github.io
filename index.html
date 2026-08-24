@@ -108,47 +108,34 @@
 
           <div class="hero-mark" aria-hidden="true">
             <div class="hero-orb" data-reveal style="--d:160ms">
-              <!-- THE COMBINATION SPACE, SAMPLED. A teammate asked for movement in
-                   the hero. The orb already had three glow animations and none of
-                   them registered, because blurred gradients pulsing behind a logo
-                   are ambience, not an idea. This is the site's own argument as
-                   motion instead: a ring of drug classes with pairs being drawn
-                   between them, one at a time. Chords are held to a separation of
-                   two or three nodes so each stays in the annulus and reads as a
-                   pair rather than vanishing behind the mark. `pathLength="1"`
-                   normalises every path, so one dash-offset keyframe draws all of
-                   them whatever their real length. -->
-                <svg class="hero-web" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-                  <g class="hero-web-nodes">
-                    <circle cx="100.0" cy="12.0" r="1.7" style="--i:0"/>
-                    <circle cx="133.7" cy="18.7" r="1.7" style="--i:1"/>
-                    <circle cx="162.2" cy="37.8" r="1.7" style="--i:2"/>
-                    <circle cx="181.3" cy="66.3" r="1.7" style="--i:3"/>
-                    <circle cx="188.0" cy="100.0" r="1.7" style="--i:4"/>
-                    <circle cx="181.3" cy="133.7" r="1.7" style="--i:5"/>
-                    <circle cx="162.2" cy="162.2" r="1.7" style="--i:6"/>
-                    <circle cx="133.7" cy="181.3" r="1.7" style="--i:7"/>
-                    <circle cx="100.0" cy="188.0" r="1.7" style="--i:8"/>
-                    <circle cx="66.3" cy="181.3" r="1.7" style="--i:9"/>
-                    <circle cx="37.8" cy="162.2" r="1.7" style="--i:10"/>
-                    <circle cx="18.7" cy="133.7" r="1.7" style="--i:11"/>
-                    <circle cx="12.0" cy="100.0" r="1.7" style="--i:12"/>
-                    <circle cx="18.7" cy="66.3" r="1.7" style="--i:13"/>
-                    <circle cx="37.8" cy="37.8" r="1.7" style="--i:14"/>
-                    <circle cx="66.3" cy="18.7" r="1.7" style="--i:15"/>
-                  </g>
-                  <g class="hero-web-chords">
-                    <path pathLength="1" d="M100.0 12.0 L181.3 66.3" style="--i:0"/>
-                    <path pathLength="1" d="M188.0 100.0 L162.2 162.2" style="--i:1"/>
-                    <path pathLength="1" d="M133.7 181.3 L37.8 162.2" style="--i:2"/>
-                    <path pathLength="1" d="M18.7 133.7 L18.7 66.3" style="--i:3"/>
-                    <path pathLength="1" d="M162.2 37.8 L181.3 133.7" style="--i:4"/>
-                    <path pathLength="1" d="M66.3 181.3 L12.0 100.0" style="--i:5"/>
-                    <path pathLength="1" d="M18.7 66.3 L66.3 18.7" style="--i:6"/>
-                    <path pathLength="1" d="M181.3 133.7 L133.7 181.3" style="--i:7"/>
-                  </g>
-                </svg>
+              <!-- THE GLOW MOVES, AND THE MARK COUNTS ITS OWN COMBINATIONS.
+                   Atray, on the ring-and-chords version that was here: "don't like
+                   the animation with dots and lines, can you just make the glow
+                   move in addition to fading in an out? another idea is that there
+                   are essentially 4 nodes in the logo...and we could have all 2^4 =
+                   subsets light up randomly."
+
+                   Both, because they are different registers. .hero-sweep is one
+                   off-centre blob orbiting the orb, which is the moving light. The
+                   four .hero-node glows sit exactly on the mark's own rings and a
+                   different SUBSET of them lights each beat - sixteen subsets of
+                   four nodes, in a fixed shuffled order, so it looks random and is
+                   deterministic and needs no script. The empty set is one of the
+                   sixteen and earns its place: it is the dark beat that stops the
+                   cycle reading as a loop.
+
+                   Node centres and colours are MEASURED from ONCKO-ICON.png, not
+                   guessed: the three closed rings were found as the centroids of
+                   their holes, the open "C" by scanline against the mirrored
+                   geometry of the ring opposite it. If the icon art ever changes,
+                   these four coordinates are wrong and must be re-measured. -->
+              <div class="hero-sweep" aria-hidden="true"></div>
+
               <div class="hero-logo-wrap">
+                <span class="hero-node n0"></span>
+                <span class="hero-node n1"></span>
+                <span class="hero-node n2"></span>
+                <span class="hero-node n3"></span>
                 <img src="img/ONCKO-ICON.png" alt="" class="hero-logo-mark">
               </div>
             </div>

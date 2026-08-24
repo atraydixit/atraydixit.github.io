@@ -437,65 +437,143 @@ footer {
   animation: heroRing 6.4s ease-in-out infinite;
 }
 
-/* THE SAMPLING RING. Sits between the orb's glow and the logo, filling the
-   annulus. One 16s cycle carries all eight chords: each draws in, holds, then
-   fades, staggered 2s apart so roughly one is drawing at any moment and the
-   thing never reads as a loop. Only `stroke-dashoffset` and `opacity` animate -
-   no layout, no filter, no blur per frame - so eight paths cost nothing next to
-   the three blurred gradients that were already here. */
-.hero-web {
+/* THE GLOW MOVES. `.hero-orb::before` still breathes in place - three gradients
+   pulsing scale and opacity - and that was the whole problem: it was motion
+   without travel, so nothing registered. This is one off-centre blob that orbits,
+   which is light moving ACROSS the mark rather than throbbing behind it. Rotation
+   only, on its own element, because two animations on one element cannot both own
+   `transform`. 26s is deliberately slower than anything else in the orb: it
+   should be noticed on the second look, not the first. */
+.hero-sweep {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  inset: -14%;
+  border-radius: inherit;
   pointer-events: none;
+  background: radial-gradient(circle at 50% 12%,
+    rgba(206, 228, 68, 0.30), rgba(206, 228, 68, 0.10) 26%, transparent 52%);
+  filter: blur(20px);
+  animation: heroSweep 26s linear infinite;
 }
 
-.hero-web-nodes circle {
-  fill: var(--mint);
-  opacity: 0.28;
-  animation: webNode 5.2s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.33s);
+@keyframes heroSweep {
+  to { transform: rotate(360deg); }
 }
 
-.hero-web-chords path {
-  fill: none;
-  stroke: var(--mint);
-  stroke-width: 0.9;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+/* THE MARK COUNTS ITS OWN COMBINATIONS. One glow per node, sitting exactly on
+   that ring, in that ring's own colour sampled from the art. A ring-shaped
+   gradient rather than a blob, because the thing being lit is an annulus:
+   transparent through the hole, bright at 44% - which is where the stroke lands
+   once --d is 4.55x the ring's mid radius - and gone by 72%.
+
+   The four numbers per node are MEASURED from ONCKO-ICON.png. Re-measure them if
+   the icon art changes; they are not guesses and they cannot be nudged by eye
+   without losing the alignment. */
+.hero-node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--d);
+  height: var(--d);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle,
+    transparent 0 26%, var(--c) 44%, transparent 72%);
+  filter: blur(7px);
   opacity: 0;
-  animation: webChord 16s linear infinite;
-  animation-delay: calc(var(--i) * 2s);
+  animation-duration: 24s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
-@keyframes webNode {
-  0%, 100% { opacity: 0.20; }
-  50%      { opacity: 0.55; }
+.hero-node.n0 { --x: 14.9%; --y: 14.6%; --d: 53.4%; --c: #d4e23c; animation-name: nodeLight0; }
+.hero-node.n1 { --x: 51.2%; --y: 50.0%; --d: 78.2%; --c: #9de583; animation-name: nodeLight1; }
+.hero-node.n2 { --x: 14.9%; --y: 85.4%; --d: 53.4%; --c: #a2e57d; animation-name: nodeLight2; }
+.hero-node.n3 { --x: 87.4%; --y: 85.4%; --d: 53.4%; --c: #6fe8bf; animation-name: nodeLight3; }
+
+/* Sixteen steps of 6.25%, each held flat with a 1.1% crossfade into the next, so
+   a node lit across two consecutive subsets does not blink between them.
+   Generated from a fixed shuffled order of the subsets 0-15. Every node has a
+   duty cycle of exactly 8 of 16, which is what four independent bits gives you
+   and is why no one node dominates the cycle. */
+@keyframes nodeLight0 {
+  1.10%, 6.25% { opacity: 0; }
+  7.35%, 12.50% { opacity: 1; }
+  13.60%, 18.75% { opacity: 0; }
+  19.85%, 25.00% { opacity: 1; }
+  26.10%, 31.25% { opacity: 0; }
+  32.35%, 37.50% { opacity: 1; }
+  38.60%, 43.75% { opacity: 0; }
+  44.85%, 50.00% { opacity: 0; }
+  51.10%, 56.25% { opacity: 1; }
+  57.35%, 62.50% { opacity: 0; }
+  63.60%, 68.75% { opacity: 1; }
+  69.85%, 75.00% { opacity: 0; }
+  76.10%, 81.25% { opacity: 1; }
+  82.35%, 87.50% { opacity: 1; }
+  88.60%, 93.75% { opacity: 0; }
+  94.85%, 100.00% { opacity: 1; }
+}
+@keyframes nodeLight1 {
+  1.10%, 6.25% { opacity: 1; }
+  7.35%, 12.50% { opacity: 0; }
+  13.60%, 18.75% { opacity: 0; }
+  19.85%, 25.00% { opacity: 0; }
+  26.10%, 31.25% { opacity: 1; }
+  32.35%, 37.50% { opacity: 1; }
+  38.60%, 43.75% { opacity: 0; }
+  44.85%, 50.00% { opacity: 0; }
+  51.10%, 56.25% { opacity: 0; }
+  57.35%, 62.50% { opacity: 1; }
+  63.60%, 68.75% { opacity: 1; }
+  69.85%, 75.00% { opacity: 1; }
+  76.10%, 81.25% { opacity: 1; }
+  82.35%, 87.50% { opacity: 0; }
+  88.60%, 93.75% { opacity: 0; }
+  94.85%, 100.00% { opacity: 1; }
+}
+@keyframes nodeLight2 {
+  1.10%, 6.25% { opacity: 0; }
+  7.35%, 12.50% { opacity: 1; }
+  13.60%, 18.75% { opacity: 1; }
+  19.85%, 25.00% { opacity: 0; }
+  26.10%, 31.25% { opacity: 1; }
+  32.35%, 37.50% { opacity: 0; }
+  38.60%, 43.75% { opacity: 0; }
+  44.85%, 50.00% { opacity: 0; }
+  51.10%, 56.25% { opacity: 1; }
+  57.35%, 62.50% { opacity: 0; }
+  63.60%, 68.75% { opacity: 1; }
+  69.85%, 75.00% { opacity: 1; }
+  76.10%, 81.25% { opacity: 0; }
+  82.35%, 87.50% { opacity: 0; }
+  88.60%, 93.75% { opacity: 1; }
+  94.85%, 100.00% { opacity: 1; }
+}
+@keyframes nodeLight3 {
+  1.10%, 6.25% { opacity: 1; }
+  7.35%, 12.50% { opacity: 0; }
+  13.60%, 18.75% { opacity: 1; }
+  19.85%, 25.00% { opacity: 1; }
+  26.10%, 31.25% { opacity: 1; }
+  32.35%, 37.50% { opacity: 0; }
+  38.60%, 43.75% { opacity: 0; }
+  44.85%, 50.00% { opacity: 1; }
+  51.10%, 56.25% { opacity: 1; }
+  57.35%, 62.50% { opacity: 0; }
+  63.60%, 68.75% { opacity: 1; }
+  69.85%, 75.00% { opacity: 0; }
+  76.10%, 81.25% { opacity: 1; }
+  82.35%, 87.50% { opacity: 0; }
+  88.60%, 93.75% { opacity: 0; }
+  94.85%, 100.00% { opacity: 0; }
 }
 
-/* draw over the first 9%, hold lit, then fade. The rest of the cycle is dark,
-   which is what keeps eight chords from ever looking like a static cobweb. */
-@keyframes webChord {
-  0%            { stroke-dashoffset: 1; opacity: 0; }
-  2%            { stroke-dashoffset: 1; opacity: 0.55; }
-  11%           { stroke-dashoffset: 0; opacity: 0.55; }
-  20%           { stroke-dashoffset: 0; opacity: 0.42; }
-  30%           { stroke-dashoffset: 0; opacity: 0; }
-  100%          { stroke-dashoffset: 0; opacity: 0; }
-}
-
-/* Reduced motion keeps the PICTURE and drops the movement: a few pairs drawn and
-   left drawn, which still says "combinations" without anything moving. */
+/* Reduced motion: no orbit and no counting. The nodes hold one subset - all four,
+   faintly - so the mark keeps its depth with nothing in motion. */
 @media (prefers-reduced-motion: reduce) {
-  .hero-web-nodes circle { animation: none; opacity: 0.3; }
-  .hero-web-chords path {
-    animation: none;
-    stroke-dashoffset: 0;
-    opacity: 0.22;
-  }
+  .hero-sweep { animation: none; }
+  .hero-node { animation: none; opacity: 0.4; }
 }
 
 .hero-logo-wrap {
