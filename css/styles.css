@@ -437,6 +437,67 @@ footer {
   animation: heroRing 6.4s ease-in-out infinite;
 }
 
+/* THE SAMPLING RING. Sits between the orb's glow and the logo, filling the
+   annulus. One 16s cycle carries all eight chords: each draws in, holds, then
+   fades, staggered 2s apart so roughly one is drawing at any moment and the
+   thing never reads as a loop. Only `stroke-dashoffset` and `opacity` animate -
+   no layout, no filter, no blur per frame - so eight paths cost nothing next to
+   the three blurred gradients that were already here. */
+.hero-web {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.hero-web-nodes circle {
+  fill: var(--mint);
+  opacity: 0.28;
+  animation: webNode 5.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.33s);
+}
+
+.hero-web-chords path {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: webChord 16s linear infinite;
+  animation-delay: calc(var(--i) * 2s);
+}
+
+@keyframes webNode {
+  0%, 100% { opacity: 0.20; }
+  50%      { opacity: 0.55; }
+}
+
+/* draw over the first 9%, hold lit, then fade. The rest of the cycle is dark,
+   which is what keeps eight chords from ever looking like a static cobweb. */
+@keyframes webChord {
+  0%            { stroke-dashoffset: 1; opacity: 0; }
+  2%            { stroke-dashoffset: 1; opacity: 0.55; }
+  11%           { stroke-dashoffset: 0; opacity: 0.55; }
+  20%           { stroke-dashoffset: 0; opacity: 0.42; }
+  30%           { stroke-dashoffset: 0; opacity: 0; }
+  100%          { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* Reduced motion keeps the PICTURE and drops the movement: a few pairs drawn and
+   left drawn, which still says "combinations" without anything moving. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-web-nodes circle { animation: none; opacity: 0.3; }
+  .hero-web-chords path {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 0.22;
+  }
+}
+
 .hero-logo-wrap {
   position: relative;
   width: 62%;
