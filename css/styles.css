@@ -402,7 +402,14 @@ footer {
 .hero-mark { display: grid; place-items: center; }
 
 .hero-orb {
-  width: min(340px, 74vw);
+  /* One number for the orb's size, because the glow blurs are derived from it.
+     A blur is an absolute length, so a 10px blur on a 340px orb and the same
+     10px on a 140px one are not the same picture - the small one is mush. Every
+     blur below is a fraction of --orb, so the mark looks identical at any size
+     and the mobile version needs no separate tuning. */
+  --orb: min(340px, 74vw);
+  --glow-in: 1.05s;
+  width: var(--orb);
   aspect-ratio: 1;
   border-radius: 999px;
   position: relative;
@@ -451,9 +458,14 @@ footer {
   pointer-events: none;
   background: radial-gradient(circle at 50% 12%,
     rgba(206, 228, 68, 0.24), rgba(206, 228, 68, 0.08) 26%, transparent 54%);
-  filter: blur(24px);
+  filter: blur(calc(var(--orb) * 0.07));
   animation: heroSweep 26s linear infinite;
+  animation-delay: var(--glow-in);
+  animation-play-state: paused;
 }
+
+.hero-orb.is-visible .hero-sweep,
+.hero-orb.is-visible .hero-node { animation-play-state: running; }
 
 @keyframes heroSweep {
   to { transform: rotate(360deg); }
@@ -483,9 +495,29 @@ footer {
      opacity. */
   background: radial-gradient(circle,
     transparent 0 24%, var(--c) 45%, transparent 78%);
-  filter: blur(10px);
+  filter: blur(calc(var(--orb) * 0.03));
   opacity: 0;
+  /* NOTHING GLOWS UNTIL THE ORB HAS ARRIVED. Atray: "there is some initial glitch
+     when the animation starts". Two causes, one fix. The animation clock starts
+     when the CSS applies, not when the page is ready, so the first frame a
+     visitor actually saw already had the glow at 0.26 and climbing - the first
+     bloom was cut off at the front and arrived half lit. And the load stalls the
+     main thread for ~200ms while that clock keeps running, so when painting
+     resumes the glow SNAPS to wherever it got to. Measured: a 0.073 jump in one
+     frame. [data-reveal] is a 760ms transition on a 160ms delay and finished at
+     ~1.2s, so the glow now waits until after that and starts from true zero. */
+  animation-delay: var(--glow-in);
   animation-duration: 49.5s;
+  /* THE CLOCK STARTS WHEN THE ORB DOES, not when the stylesheet parses. On
+     desktop those are nearly the same moment; on a narrow screen the orb sits
+     below the fold and reveals on scroll, so a clock started at load would have
+     it arrive at an arbitrary phase - very likely mid-bloom, which is the same
+     half-lit artefact in a different disguise. Paused until .is-visible lands,
+     then --glow-in covers the 160ms + 760ms reveal before anything lights. */
+  animation-play-state: paused;
+  /* the blur is expensive to rasterise and these animate forever, so promote the
+     layer once rather than re-rastering the first time each becomes visible */
+  will-change: opacity;
   /* EASING IS PER SEGMENT, IN THE KEYFRAMES, NOT HERE. ease-in-out everywhere was
      the mistake: it is slow at BOTH ends of every fade, so each pulse crawled
      into and out of zero and the measured near-black between two subsets was
@@ -649,7 +681,7 @@ footer {
    faintly - so the mark keeps its depth with nothing in motion. */
 @media (prefers-reduced-motion: reduce) {
   .hero-sweep { animation: none; }
-  .hero-node { animation: none; opacity: 0.32; }
+  .hero-node { animation: none; opacity: 0.32; will-change: auto; }
 }
 
 .hero-logo-wrap {
@@ -1700,7 +1732,16 @@ footer {
 
 @media (max-width: 1080px) {
   .hero-grid { grid-template-columns: 1fr; }
-  .hero-mark { display: none; }
+
+  /* THE MARK SURVIVES NARROW, SMALLER. It used to be display:none here, so the
+     one piece of motion on the site was desktop-only. As the second row of a
+     now-single-column hero grid it already lands below the copy and the button,
+     which is the right place for it: a quiet full stop, not competition for the
+     headline. Left-aligned rather than centred, because every other thing in the
+     hero is. --orb carries the size and the blurs follow it, so this is one
+     number and not a re-tune. */
+  .hero-mark { justify-items: start; margin-top: clamp(30px, 7vw, 46px); }
+  .hero-orb { --orb: clamp(112px, 34vw, 168px); }
 }
 
 @media (max-width: 900px) {
