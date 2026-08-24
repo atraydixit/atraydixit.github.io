@@ -450,8 +450,8 @@ footer {
   border-radius: inherit;
   pointer-events: none;
   background: radial-gradient(circle at 50% 12%,
-    rgba(206, 228, 68, 0.30), rgba(206, 228, 68, 0.10) 26%, transparent 52%);
-  filter: blur(20px);
+    rgba(206, 228, 68, 0.24), rgba(206, 228, 68, 0.08) 26%, transparent 54%);
+  filter: blur(24px);
   animation: heroSweep 26s linear infinite;
 }
 
@@ -477,12 +477,18 @@ footer {
   transform: translate(-50%, -50%);
   border-radius: 50%;
   pointer-events: none;
+  /* wider falloff and a heavier blur than the first pass: the ring shape still
+     registers but the edge does not, which is most of what "less bright" means
+     here - a hard-edged halo reads brighter than a diffuse one at the same
+     opacity. */
   background: radial-gradient(circle,
-    transparent 0 26%, var(--c) 44%, transparent 72%);
-  filter: blur(7px);
+    transparent 0 24%, var(--c) 45%, transparent 78%);
+  filter: blur(10px);
   opacity: 0;
-  animation-duration: 24s;
-  animation-timing-function: linear;
+  animation-duration: 38.4s;
+  /* ease-in-out on every segment, so a bloom arrives and leaves on a curve. The
+     hold segments have equal endpoints, so easing across them is a no-op. */
+  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
 }
 
@@ -491,89 +497,141 @@ footer {
 .hero-node.n2 { --x: 14.9%; --y: 85.4%; --d: 53.4%; --c: #a2e57d; animation-name: nodeLight2; }
 .hero-node.n3 { --x: 87.4%; --y: 85.4%; --d: 53.4%; --c: #6fe8bf; animation-name: nodeLight3; }
 
-/* Sixteen steps of 6.25%, each held flat with a 1.1% crossfade into the next, so
-   a node lit across two consecutive subsets does not blink between them.
-   Generated from a fixed shuffled order of the subsets 0-15. Every node has a
-   duty cycle of exactly 8 of 16, which is what four independent bits gives you
-   and is why no one node dominates the cycle. */
+/* EVERY SUBSET RETURNS TO BLACK BEFORE THE NEXT ONE APPEARS. The first pass held
+   a node lit across consecutive subsets so it would not blink between them, which
+   meant the mark was switching between adjacent combinations rather than showing
+   them. Atray: "fade out to 0 and fade back in with a new combo...instead of
+   direct switching between adjacent combos". So each subset is a discrete pulse -
+   bloom, hold, decay, dark - and a node lit in two consecutive subsets now goes
+   out and comes back, because that is the point: two combinations, not one long
+   one.
+
+   Budget inside a 2.4s step: 0.85s bloom, 0.50s hold, 0.85s decay, 0.20s dark.
+   The cycle is 38.4s, up from 24s, because gradual costs time and the fades are
+   the whole effect.
+
+   A node's track carries keyframes ONLY for the steps it is lit in. Between two
+   pulses CSS interpolates from zero to zero, which is flat, so the omitted steps
+   cost nothing and the file stays readable. The explicit 0%/100% pair anchors the
+   loop for nodes that are dark at the seam.
+
+   Generated from a fixed shuffled order of the subsets 0-15; every node has a
+   duty cycle of exactly 8 of 16, which is what four independent bits gives you.
+   The empty set is one of the sixteen and is simply a longer rest. */
 @keyframes nodeLight0 {
-  1.10%, 6.25% { opacity: 0; }
-  7.35%, 12.50% { opacity: 1; }
-  13.60%, 18.75% { opacity: 0; }
-  19.85%, 25.00% { opacity: 1; }
-  26.10%, 31.25% { opacity: 0; }
-  32.35%, 37.50% { opacity: 1; }
-  38.60%, 43.75% { opacity: 0; }
-  44.85%, 50.00% { opacity: 0; }
-  51.10%, 56.25% { opacity: 1; }
-  57.35%, 62.50% { opacity: 0; }
-  63.60%, 68.75% { opacity: 1; }
-  69.85%, 75.00% { opacity: 0; }
-  76.10%, 81.25% { opacity: 1; }
-  82.35%, 87.50% { opacity: 1; }
-  88.60%, 93.75% { opacity: 0; }
-  94.85%, 100.00% { opacity: 1; }
+  0%, 100% { opacity: 0; }
+  6.25%   { opacity: 0; }
+  8.46%, 9.77% { opacity: 0.58; }
+  11.98%   { opacity: 0; }
+  18.75%   { opacity: 0; }
+  20.96%, 22.27% { opacity: 0.58; }
+  24.48%   { opacity: 0; }
+  31.25%   { opacity: 0; }
+  33.46%, 34.77% { opacity: 0.58; }
+  36.98%   { opacity: 0; }
+  50.00%   { opacity: 0; }
+  52.21%, 53.52% { opacity: 0.58; }
+  55.73%   { opacity: 0; }
+  62.50%   { opacity: 0; }
+  64.71%, 66.02% { opacity: 0.58; }
+  68.23%   { opacity: 0; }
+  75.00%   { opacity: 0; }
+  77.21%, 78.52% { opacity: 0.58; }
+  80.73%   { opacity: 0; }
+  81.25%   { opacity: 0; }
+  83.46%, 84.77% { opacity: 0.58; }
+  86.98%   { opacity: 0; }
+  93.75%   { opacity: 0; }
+  95.96%, 97.27% { opacity: 0.58; }
+  99.48%   { opacity: 0; }
 }
 @keyframes nodeLight1 {
-  1.10%, 6.25% { opacity: 1; }
-  7.35%, 12.50% { opacity: 0; }
-  13.60%, 18.75% { opacity: 0; }
-  19.85%, 25.00% { opacity: 0; }
-  26.10%, 31.25% { opacity: 1; }
-  32.35%, 37.50% { opacity: 1; }
-  38.60%, 43.75% { opacity: 0; }
-  44.85%, 50.00% { opacity: 0; }
-  51.10%, 56.25% { opacity: 0; }
-  57.35%, 62.50% { opacity: 1; }
-  63.60%, 68.75% { opacity: 1; }
-  69.85%, 75.00% { opacity: 1; }
-  76.10%, 81.25% { opacity: 1; }
-  82.35%, 87.50% { opacity: 0; }
-  88.60%, 93.75% { opacity: 0; }
-  94.85%, 100.00% { opacity: 1; }
+  0%, 100% { opacity: 0; }
+  0.00%   { opacity: 0; }
+  2.21%, 3.52% { opacity: 0.58; }
+  5.73%   { opacity: 0; }
+  25.00%   { opacity: 0; }
+  27.21%, 28.52% { opacity: 0.58; }
+  30.73%   { opacity: 0; }
+  31.25%   { opacity: 0; }
+  33.46%, 34.77% { opacity: 0.58; }
+  36.98%   { opacity: 0; }
+  56.25%   { opacity: 0; }
+  58.46%, 59.77% { opacity: 0.58; }
+  61.98%   { opacity: 0; }
+  62.50%   { opacity: 0; }
+  64.71%, 66.02% { opacity: 0.58; }
+  68.23%   { opacity: 0; }
+  68.75%   { opacity: 0; }
+  70.96%, 72.27% { opacity: 0.58; }
+  74.48%   { opacity: 0; }
+  75.00%   { opacity: 0; }
+  77.21%, 78.52% { opacity: 0.58; }
+  80.73%   { opacity: 0; }
+  93.75%   { opacity: 0; }
+  95.96%, 97.27% { opacity: 0.58; }
+  99.48%   { opacity: 0; }
 }
 @keyframes nodeLight2 {
-  1.10%, 6.25% { opacity: 0; }
-  7.35%, 12.50% { opacity: 1; }
-  13.60%, 18.75% { opacity: 1; }
-  19.85%, 25.00% { opacity: 0; }
-  26.10%, 31.25% { opacity: 1; }
-  32.35%, 37.50% { opacity: 0; }
-  38.60%, 43.75% { opacity: 0; }
-  44.85%, 50.00% { opacity: 0; }
-  51.10%, 56.25% { opacity: 1; }
-  57.35%, 62.50% { opacity: 0; }
-  63.60%, 68.75% { opacity: 1; }
-  69.85%, 75.00% { opacity: 1; }
-  76.10%, 81.25% { opacity: 0; }
-  82.35%, 87.50% { opacity: 0; }
-  88.60%, 93.75% { opacity: 1; }
-  94.85%, 100.00% { opacity: 1; }
+  0%, 100% { opacity: 0; }
+  6.25%   { opacity: 0; }
+  8.46%, 9.77% { opacity: 0.58; }
+  11.98%   { opacity: 0; }
+  12.50%   { opacity: 0; }
+  14.71%, 16.02% { opacity: 0.58; }
+  18.23%   { opacity: 0; }
+  25.00%   { opacity: 0; }
+  27.21%, 28.52% { opacity: 0.58; }
+  30.73%   { opacity: 0; }
+  50.00%   { opacity: 0; }
+  52.21%, 53.52% { opacity: 0.58; }
+  55.73%   { opacity: 0; }
+  62.50%   { opacity: 0; }
+  64.71%, 66.02% { opacity: 0.58; }
+  68.23%   { opacity: 0; }
+  68.75%   { opacity: 0; }
+  70.96%, 72.27% { opacity: 0.58; }
+  74.48%   { opacity: 0; }
+  87.50%   { opacity: 0; }
+  89.71%, 91.02% { opacity: 0.58; }
+  93.23%   { opacity: 0; }
+  93.75%   { opacity: 0; }
+  95.96%, 97.27% { opacity: 0.58; }
+  99.48%   { opacity: 0; }
 }
 @keyframes nodeLight3 {
-  1.10%, 6.25% { opacity: 1; }
-  7.35%, 12.50% { opacity: 0; }
-  13.60%, 18.75% { opacity: 1; }
-  19.85%, 25.00% { opacity: 1; }
-  26.10%, 31.25% { opacity: 1; }
-  32.35%, 37.50% { opacity: 0; }
-  38.60%, 43.75% { opacity: 0; }
-  44.85%, 50.00% { opacity: 1; }
-  51.10%, 56.25% { opacity: 1; }
-  57.35%, 62.50% { opacity: 0; }
-  63.60%, 68.75% { opacity: 1; }
-  69.85%, 75.00% { opacity: 0; }
-  76.10%, 81.25% { opacity: 1; }
-  82.35%, 87.50% { opacity: 0; }
-  88.60%, 93.75% { opacity: 0; }
-  94.85%, 100.00% { opacity: 0; }
+  0%, 100% { opacity: 0; }
+  0.00%   { opacity: 0; }
+  2.21%, 3.52% { opacity: 0.58; }
+  5.73%   { opacity: 0; }
+  12.50%   { opacity: 0; }
+  14.71%, 16.02% { opacity: 0.58; }
+  18.23%   { opacity: 0; }
+  18.75%   { opacity: 0; }
+  20.96%, 22.27% { opacity: 0.58; }
+  24.48%   { opacity: 0; }
+  25.00%   { opacity: 0; }
+  27.21%, 28.52% { opacity: 0.58; }
+  30.73%   { opacity: 0; }
+  43.75%   { opacity: 0; }
+  45.96%, 47.27% { opacity: 0.58; }
+  49.48%   { opacity: 0; }
+  50.00%   { opacity: 0; }
+  52.21%, 53.52% { opacity: 0.58; }
+  55.73%   { opacity: 0; }
+  62.50%   { opacity: 0; }
+  64.71%, 66.02% { opacity: 0.58; }
+  68.23%   { opacity: 0; }
+  75.00%   { opacity: 0; }
+  77.21%, 78.52% { opacity: 0.58; }
+  80.73%   { opacity: 0; }
 }
 
 /* Reduced motion: no orbit and no counting. The nodes hold one subset - all four,
    faintly - so the mark keeps its depth with nothing in motion. */
 @media (prefers-reduced-motion: reduce) {
   .hero-sweep { animation: none; }
-  .hero-node { animation: none; opacity: 0.4; }
+  .hero-node { animation: none; opacity: 0.32; }
 }
 
 .hero-logo-wrap {
