@@ -1737,10 +1737,12 @@ footer {
      one piece of motion on the site was desktop-only. As the second row of a
      now-single-column hero grid it already lands below the copy and the button,
      which is the right place for it: a quiet full stop, not competition for the
-     headline. Left-aligned rather than centred, because every other thing in the
-     hero is. --orb carries the size and the blurs follow it, so this is one
-     number and not a re-tune. */
-  .hero-mark { justify-items: start; margin-top: clamp(30px, 7vw, 46px); }
+     headline. CENTRED, Atray's call - the copy above it is left-aligned but the
+     button spans the full width, so a centred mark reads as closing the column
+     rather than starting a fourth left-aligned thing. No override needed: the
+     base rule is already place-items: center. --orb carries the size and the
+     blurs follow it, so this is one number and not a re-tune. */
+  .hero-mark { margin-top: clamp(30px, 7vw, 46px); }
   .hero-orb { --orb: clamp(112px, 34vw, 168px); }
 }
 
