@@ -266,10 +266,19 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         {
           /* 3,321 pairs x 36 + 88,560 triples x 216 = 19,248,516. Variant-major,
-             so beat 1 is the literal top-left corner. 1,393 + 1,513 = 2,906 lit. */
+             so beat 1 is the literal top-left corner. 1,393 + 1,513 = 2,906 lit.
+
+             THE COPY SAYS "2- AND 3-DRUG" BECAUSE THE NUMBER IS BOTH. Six settings
+             per drug (3 doses x 2 schedules), so pairs carry 6^2 = 36 variants and
+             triples 6^3 = 216. Saying only "3-drug" describes 19,128,960 and misses
+             the 119,556 pair-variants - 0.62%, small enough to slip past and large
+             enough that a reader doing the arithmetic from the sentence lands on a
+             different number than the one beside it. It would also contradict the
+             section lede, which says "over 90,000 possible pairs and triples". If
+             the depth of this beat ever changes, this sentence changes with it. */
           n: 19248516, zoom: 0.96, upto: 2100,
           frac: [2906, 19248516, "2026 \u00b7 with dose and schedule"],
-          line: "By <b>2026</b>, 82 classes, at three doses and two schedules each."
+          line: "By <b>2026</b>, 82 classes, 2- and 3-drug combos at three doses and two schedules each."
         },
         {
           /* Same n and zoom as beat 2, so the camera holds still and the only
