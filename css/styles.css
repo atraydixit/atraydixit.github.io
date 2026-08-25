@@ -1073,6 +1073,22 @@ footer {
   }
 }
 
+/* THE SMALLEST PHONE HAS NO HEADROOM, so buy some back. At 320x568 the card was
+   553px against a 568px pin on beat 1 but 569px on beats 2 and 3 - one pixel over
+   - because "2,906 / 19,248,516" wraps the inline fraction onto a line that
+   "25 / 28" did not need. One pixel is invisible, and that is exactly the problem:
+   zero margin on the viewport an external review already flagged as clipping, so
+   a larger system font or a longer basis label tips it straight over. Tightening
+   the gaps costs nothing at a size where the layout is dense anyway.
+
+   THIS MUST STAY BELOW THE max-height BLOCK ABOVE. At 320x568 both queries match
+   and both set `.onb { gap }` at the same specificity, so whichever is written
+   last wins. Placed above, this rule silently did nothing. */
+@media (max-width: 340px) {
+  .onb { gap: 10px; }
+  .onb-side { gap: 16px; }
+}
+
 /* SHORT PHONES. Beat 1's statement runs six lines in a phone-width column, and
    reserve() locks the copy block to the tallest beat, so on a 667px-tall screen
    the card outgrew the viewport by 54px and the ticks fell off the bottom. Only

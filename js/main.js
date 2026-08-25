@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
              section lede, which says "over 90,000 possible pairs and triples". If
              the depth of this beat ever changes, this sentence changes with it. */
           n: 19248516, zoom: 0.96, upto: 2100,
-          frac: [2906, 19248516, "2026 \u00b7 with dose and schedule"],
+          frac: [2906, 19248516, "2026 \u00b7 2,3 drugs, dose, schedule"],
           line: "By <b>2026</b>, 82 classes, 2- and 3-drug combos at three doses and two schedules each."
         },
         {
@@ -726,6 +726,16 @@ document.addEventListener("DOMContentLoaded", function () {
         /* the trailing beat carries no fraction: hold the numbers and fade out */
         put(elNum, comma(fa[0]), 0);
         put(elDen, comma(fa[1]), 1);
+        /* THE LABEL HAS TO BE SET HERE TOO. It used to be set only in the branch
+           above, which interpolates between two beats - so it was correct for
+           anyone who scrolled through the transition and WRONG for anyone who
+           arrived at the last beats directly. A tick click, a reload with the
+           browser restoring scroll position, or a deep link all land here, and
+           the label was still whatever the markup shipped with: "1980 - 2-drug
+           combinations" sitting under 2,906 / 19,248,516. The instrument's whole
+           job is that the label says what the numbers are counting, so it cannot
+           depend on the route the reader took to get here. */
+        if (fa[2] && fa[2] !== lastBasis) { lastBasis = fa[2]; elBasis.textContent = fa[2]; }
         elFrac.style.opacity = reduceMotion ? (e < 0.5 ? 1 : 0) : 1 - e;
       } else {
         elFrac.style.opacity = 0;
@@ -816,8 +826,23 @@ document.addEventListener("DOMContentLoaded", function () {
        nothing happening". At these numbers the camera is responding to the wheel
        for 58% of the runway, and the readable time on each beat comes mostly
        from the copy's own opacity plateau (the first and last 12% of a segment
-       hold full opacity) rather than from a frozen pin. */
-    var HOLD  = [360, 200, 110];   /* dwell, in px of scroll, at each beat */
+       hold full opacity) rather than from a frozen pin.
+
+       THE LAST HOLD IS NOT THE SMALLEST ANY MORE. It was, on the theory that the
+       final beat also gets the un-pinning travel for free as the board scrolls
+       away. Measured, that theory was wrong in the way that matters: sliding out
+       of frame is not reading time. Counting only the px where a beat is settled
+       AND the card is still wholly on screen, the payoff beat got 450px at
+       1440x900 and 360px at 1280x720 against 530px for each of the other two -
+       and worse on the shorter viewport, because a released pin clears a 550px
+       card out of a 720px window faster than out of a 900px one. Atray: "I think
+       it sometimes exits prematurely." He was right, and my earlier dwell figure
+       of 560px for this beat was measuring the slide-out as if it were dwell.
+
+       So HOLD[2] goes 110 -> 320, and HOLD[0] gives back 60 to pay for part of
+       it: beat 1 is the one the reader is already looking at while the board
+       scrolls into place, so it is the one that can afford to lose some. */
+    var HOLD  = [300, 200, 320];   /* dwell, in px of scroll, at each beat */
     var TRANS = [450, 450];        /* travel between consecutive beats */
     var SPAN  = 0;
     (function () {
