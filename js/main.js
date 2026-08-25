@@ -613,37 +613,32 @@ document.addEventListener("DOMContentLoaded", function () {
     var MAXSTEP = 1 / 28;
 
 
-    /* TWO NATIVE MECHANICS, NO CAPTURE ANYWHERE.
-       This replaces a gate that consumed the reader's wheel and touch events and
-       held the page in place. It failed on real hardware for two independent
-       testers while every synthetic profile passed, which is the signature of a
-       bug in the layer a harness cannot reach: on iOS `touch-action` on the root
-       scroller is honoured inconsistently and a momentum scroll already under
-       way cannot be cancelled at all, and on desktop the arriving gesture was
-       spent docking the board, so the reader's first push did nothing.
+    /* ONE MECHANIC, EVERY DEVICE: a sticky vertical scrub.
 
-       Nothing here calls preventDefault on a vertical gesture any more. There is
-       no spring, no failsafe, no escape hatch and no gesture classifier, because
-       there is nothing left to escape from.
+       This replaced a gate that consumed the reader's wheel and touch events and
+       held the page in place. The gate could not be made reliable on iOS - its
+       preventDefault has to win a race against a momentum scroll that cannot be
+       cancelled once started - so touch got a horizontal carousel instead. That
+       was the right call while desktop still had a gate. It is not any more.
 
-         DESKTOP  the beat is a pure function of scroll position. The track is
-                  2.2 viewports tall and the board is `position: sticky` inside
-                  it, so scrolling through the track plays the sequence and
-                  scrolling past it leaves. This is strictly BETTER than the gate
-                  at the one thing the gate was for: a scrub renders every beat
-                  on the way past, because the reader traverses every position.
-                  A gate could be defeated by one long fling. A scrub cannot.
-         TOUCH    a carousel - swipe sideways, tap the board, tap a tick - on a
-                  one-viewport track, because 2.2 viewports of scrolling for a
-                  single card is punishing on a phone.
+       A scrub never calls preventDefault on a vertical gesture and cannot trap
+       anyone, so the reason touch needed its own language is gone. What is left
+       is the argument against the carousel: a sideways swipe inside a vertically
+       scrolling page is a LEARNED gesture, and a reader who does not guess it
+       sees beat 1 and nothing else. Under a scrub, doing nothing but scrolling
+       plays the whole sequence. That is the difference between an interaction
+       most phone readers will miss and one none of them can.
 
-       Detection is by POINTER, not width: a narrow desktop window is still a
-       mouse and an iPad is still iOS. The CSS that makes the track tall and the
-       board sticky keys off the SAME query, so the two cannot disagree. */
-    var TOUCH = window.matchMedia
+       The failure modes are also asymmetric, which is what makes this safe to
+       ship without a real iOS device: if the gate misbehaved the reader was
+       STUCK; if the scrub misbehaves the board simply does not advance while
+       they scroll past it, and the tick buttons still work. Graceful either way.
+
+       Budget differs by pointer, not mechanic - see SPAN below. */
+    var COARSE = window.matchMedia
       ? window.matchMedia("(hover: none) and (pointer: coarse)").matches
       : "ontouchstart" in window;
-    var SCRUB = !TOUCH && !reduceMotion;
+    var SCRUB = !reduceMotion;
 
     var near = false;      /* board is on or near screen; skips work when not */
     var scrubRaf = null;
@@ -661,8 +656,7 @@ document.addEventListener("DOMContentLoaded", function () {
       progBox.appendChild(b);
     });
 
-    if (hint) hint.textContent = reduceMotion ? "Tap to advance"
-      : TOUCH ? "Swipe to advance" : "Scroll to play";
+    if (hint) hint.textContent = reduceMotion ? "Tap to advance" : "Scroll to play";
 
     /* The hint STAYS. It used to fade after the first step, on the theory that a
        reader who has advanced once has learned the control. Atray: "should never
@@ -758,6 +752,14 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       var fade = reduceMotion ? 1 : Math.min(1, Math.abs(e - 0.5) / 0.26);
       elLine.style.opacity = fade;
+
+      /* THE INSTRUCTION RETIRES WHEN IT STOPS BEING TRUE. "Scroll to play" was
+         shown on all three beats at 0.85, including the last one, where there is
+         nothing left to play. Atray's rule that the hint must never disappear
+         came from the gate era, when the page was being held and a reader who
+         paused needed to be told why; with no gate and no beats remaining, the
+         line is simply false. It fades only at the end, and only there. */
+      root.classList.toggle("at-end", cur > N - 1.02);
       fraction(a, e, fade);
 
       /* Glow is the costly part of a frame, so it fades out through a move rather
@@ -842,8 +844,15 @@ document.addEventListener("DOMContentLoaded", function () {
        So HOLD[2] goes 110 -> 320, and HOLD[0] gives back 60 to pay for part of
        it: beat 1 is the one the reader is already looking at while the board
        scrolls into place, so it is the one that can afford to lose some. */
-    var HOLD  = [300, 200, 320];   /* dwell, in px of scroll, at each beat */
-    var TRANS = [450, 450];        /* travel between consecutive beats */
+    var HOLD  = COARSE ? [190, 130, 210] : [300, 200, 320];
+    var TRANS = COARSE ? [260, 260]        : [450, 450];
+    /* A THUMB FLICK IS BIG. On a phone one flick moves 500-1500px, so the same
+       1,720px runway that reads as deliberate on a trackpad would be crossed in
+       two gestures - and it would cost a phone reader two extra screens. 1,050px
+       puts the section at 2.24 viewports at 390x844, inside the 2.0-2.3 budget
+       the reviewer proposed, while keeping every hold at least ~130px so no beat
+       is a single frame. Still px and not viewport fractions, for the same reason
+       as before: what a hold has to feel comparable to is a gesture. */
     var SPAN  = 0;
     (function () {
       for (var i = 0; i < HOLD.length; i++) SPAN += HOLD[i];
@@ -940,59 +949,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* `target`, not `state`: `state` is the nearest DRAWN beat, so tapping or
-       swiping mid-transition against it is a dead input. Against `target` every
-       gesture lands, and MAXSTEP keeps a burst of them animating rather than
-       teleporting. */
-    var swiped = false;
-
+    /* The board is still tappable as a fallback, and the tap moves the PAGE so
+       the scrub follows - the scrollbar and the board can never disagree. The
+       horizontal-swipe carousel that used to live here is gone with the split. */
     stage.addEventListener("click", function () {
-      if (swiped) { swiped = false; return; }   /* that was a swipe, not a tap */
       var i = Math.round(cur) + 1;
       if (i > N - 1) return;
       if (SCRUB) scrollToBeat(i); else goTo(i);
     });
 
-    if (TOUCH) {
-      var SWIPE_MIN = 45;   /* px of horizontal travel that counts as a swipe */
-      var AXIS_LOCK = 10;   /* px of travel before the axis is decided */
-      var card = (root.closest && root.closest(".board-wrap")) || root;
-      var sx = 0, sy = 0, axis = 0;   /* 0 undecided, 1 horizontal, 2 vertical */
-
-      card.addEventListener("touchstart", function (e) {
-        if (e.touches.length !== 1) { axis = 2; return; }
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
-        axis = 0;
-      }, { passive: true });
-
-      card.addEventListener("touchmove", function (e) {
-        if (e.touches.length !== 1 || axis === 2) return;
-        var dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-        if (!axis) {
-          if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
-          /* decided ONCE per touch and never revisited, so a swipe that drifts
-             downward does not turn into a scroll halfway through, and a scroll
-             that wobbles sideways never steals a beat */
-          axis = Math.abs(dx) > Math.abs(dy) ? 1 : 2;
-        }
-        /* only the horizontal branch ever cancels. A vertical gesture on a
-           phone is the reader leaving, and that is now allowed. */
-        if (axis === 1 && e.cancelable) e.preventDefault();
-      }, { passive: false });
-
-      card.addEventListener("touchend", function (e) {
-        if (axis !== 1) { axis = 0; return; }
-        axis = 0;
-        var t = e.changedTouches && e.changedTouches[0];
-        if (!t || Math.abs(t.clientX - sx) < SWIPE_MIN) return;
-        swiped = true;
-        goTo(target + (t.clientX - sx < 0 ? 1 : -1));   /* left = forward */
-      }, { passive: true });
-    }
-
-    /* Focusable, so the arrow keys can be reached at all - it was tabIndex -1,
-       which made the board keyboard-navigable only by accident of the ticks. */
     root.tabIndex = 0;
     root.addEventListener("keydown", function (e) {
       var d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1

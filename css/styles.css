@@ -787,7 +787,9 @@ footer {
    only whether the pin is sticky - and if JS never runs, the track stays one
    viewport, the pin sticks for zero pixels, and the board is a static first
    beat rather than a tall empty column. */
-@media (hover: hover) and (pointer: fine) {
+/* Sticky at EVERY width now, not just fine pointers. The pointer split existed
+   because touch had a carousel; it has a scrub like everything else. */
+@media (min-width: 0px) {
   .board-pin {
     position: sticky;
     top: 0;
@@ -804,10 +806,9 @@ footer {
   .board-pin { position: static; }
 }
 
-/* On touch the card owns the horizontal axis and the browser keeps the vertical
-   one, so the reader can always scroll past. `pinch-zoom` is kept deliberately -
-   a bare `pan-y` would make the one dense graphic on the site un-zoomable. */
-.board-wrap { touch-action: pan-y pinch-zoom; }
+/* No touch-action rule any more. It existed to give the card the horizontal axis
+   for the swipe carousel; nothing captures a gesture now, so the browser default
+   is exactly right and pinch-zoom needs no special pleading. */
 
 /* The gate stops the page scrolling, so it has to say why. Goes on the first
    step and does not come back. */
@@ -959,6 +960,11 @@ footer {
 
 /* the only scroll-position indicator left, so it earns a little more presence
    than it had when it sat beside a play button */
+/* The hint is an instruction, so it goes when the instruction expires. Slow
+   enough (420ms) that it reads as the sentence retiring rather than blinking. */
+.onb-hint { transition: opacity 420ms ease; }
+.onb.at-end .onb-hint { opacity: 0; }
+
 .onb-prog { display: flex; gap: 6px; align-items: center; }
 
 /* THE BUTTON IS THE TAP TARGET, THE ::before IS THE BAR. These were the same
@@ -1087,6 +1093,22 @@ footer {
 @media (max-width: 340px) {
   .onb { gap: 10px; }
   .onb-side { gap: 16px; }
+}
+
+/* SEVEN FULL-WIDTH CARDS IS 1,916px OF A PHONE PAGE, measured - the reviewer
+   said ~1,900 and was almost exactly right. Advisors go two-up below 640px,
+   which halves their block. Their bios STAY: the reviewer wanted them behind a
+   tap, and a bio is the part that says why the advisor matters, so hiding it
+   keeps the height and loses the point. Leadership stays full width, because
+   the three people running the company should not be a directory. */
+@media (max-width: 640px) {
+  .tier + .tier .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tier + .tier .person { padding: 16px 14px; }
+  .tier + .tier .avatar { width: clamp(52px, 15vw, 68px); }
+  .tier + .tier h3 { font-size: 15px; }
+  .tier + .tier .role { font-size: 12px; }
+  .tier + .tier .bio { font-size: 12.5px; line-height: 1.5; }
+  .tier + .tier .li { display: none; }
 }
 
 /* SHORT PHONES. Beat 1's statement runs six lines in a phone-width column, and
@@ -1747,7 +1769,14 @@ footer {
 /* ---------------------------------------------------------- responsive ---- */
 
 @media (max-width: 1080px) {
-  .hero-grid { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr), NOT 1fr. A `1fr` track has an automatic minimum of
+     min-content, so the track cannot shrink below the longest unbreakable run in
+     the H1 - and at a larger root font (an OS "larger text" setting, or a raised
+     default font size in the browser, neither of which is browser zoom) that
+     minimum exceeds the viewport and the whole page scrolls sideways. Measured at
+     a 32px root font: 137px of horizontal overflow at 390px wide and 207px at
+     320px. The desktop rule above already guards this; this one did not. */
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
 
   /* THE MARK SURVIVES NARROW, SMALLER. It used to be display:none here, so the
      one piece of motion on the site was desktop-only. As the second row of a
