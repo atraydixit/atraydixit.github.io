@@ -1817,6 +1817,34 @@ footer {
 }
 
 @media (max-width: 760px) {
+  /* ON A PHONE THE MARK LEADS, AND THERE IS ONLY ONE OF IT.
+     Internal engineering feedback: below the button it "looks like something to
+     put after hero title and description". Two causes. The mobile hero is 861px
+     against an 844px viewport, so the only motion on the site sat below the fold;
+     and a phone was carrying two marks, the wordmark at the top and the icon at
+     the bottom, about 700px apart and saying the same thing.
+
+     So the icon moves to the front of the hero and the wordmark stands down here.
+     `order: -1` reorders the grid item without touching the DOM, which is safe
+     because .hero-mark is aria-hidden and holds nothing focusable. Atray chose
+     this over keeping the wordmark; the company name still appears in the footer
+     and in the hero copy.
+
+     Scoped to 760px, not the 1080px where the hero goes single-column: a tablet
+     has room for both and reads fine with the mark closing the column, so it
+     keeps the wordmark. The complaint was about phones.
+
+     LEFT, not centred. Atray asked for centred when this sat under a full-width
+     button and needed to close the column. Leading a left-aligned headline it has
+     to share that edge. One line to put back if he disagrees. */
+  .site-header { display: none; }
+  .hero-mark {
+    order: -1;
+    justify-items: start;
+    margin: 0 0 clamp(18px, 5vw, 26px);
+  }
+  .hero-orb { --orb: clamp(76px, 22vw, 104px); }
+
   .cp .track { grid-template-columns: 1fr; margin-top: 30px; }
 
   .cp .stage {
