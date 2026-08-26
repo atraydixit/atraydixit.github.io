@@ -77,8 +77,16 @@
     <a class="nav-dot" href="#contact" aria-label="Contact"><span class="nav-label">Contact</span></a>
   </nav>
 
+  <!-- The logo and the footer both used to hang off the viewport's left edge while
+       every other thing on the page sits in a centred 1200px column. They agreed
+       only at 1280px wide, which is why it went unnoticed: at 1440 the footer was
+       43px out and at 1920 it was 283px out, with the logo 361px out. Both now sit
+       in the same .container as the content, so one rule governs the page's left
+       edge instead of three. -->
   <header class="site-header">
-    <a href="#home" aria-label="Oncko home"><img src="img/ONCKO-LOGO.svg" alt="Oncko" class="logo"></a>
+    <div class="container">
+      <a href="#home" aria-label="Oncko home"><img src="img/ONCKO-LOGO.svg" alt="Oncko" class="logo"></a>
+    </div>
   </header>
 
   <main class="shell">
@@ -567,9 +575,11 @@
   </main>
 
   <footer>
-    <span>&copy; 2026 Oncko</span>
-    <span>500 Lincoln Centre Dr, Foster City, CA</span>
-    <a href="https://www.linkedin.com/company/oncko/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    <div class="container foot-row">
+      <span>&copy; 2026 Oncko</span>
+      <span>500 Lincoln Centre Dr, Foster City, CA</span>
+      <a href="https://www.linkedin.com/company/oncko/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
   </footer>
 
   <script src="js/main.js"></script>

@@ -174,7 +174,21 @@ p { margin: 0; }
 .section-head { margin-bottom: clamp(38px, 4.5vw, 60px); }
 .section-head .lede { margin-top: 22px; }
 
-.site-header { position: absolute; top: 26px; left: 36px; z-index: 50; }
+/* The header spans the full width and pads itself exactly like `.shell` plus
+   `.section`, so its inner .container lands on the same left edge as every
+   headline on the page. It must not swallow clicks meant for the hero, hence the
+   pointer-events pair: off on the bar, back on for the link itself. */
+.site-header {
+  position: absolute;
+  top: 26px;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 0 var(--pad-x);
+  padding-left: calc(var(--nav-w) + var(--pad-x));
+  pointer-events: none;
+}
+.site-header a { pointer-events: auto; display: inline-block; }
 .logo { height: 80px; width: auto; display: block; }
 
 footer {
@@ -182,11 +196,23 @@ footer {
   z-index: 1;
   padding: 34px var(--pad-x);
   padding-left: calc(var(--nav-w) + var(--pad-x));
+  font-size: 12px;
+  color: var(--faint);
+}
+
+.foot-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 30px;
-  font-size: 12px;
-  color: var(--faint);
+  align-items: baseline;
+}
+
+/* Spread across the content column once there is a column to spread across. It
+   used to leave 837px empty at 1440 and 1077px at 1920, which is what made the
+   footer read as falling off the left of the page. Below 900px the three items
+   cannot share a line, so spreading them would only look like a mistake. */
+@media (min-width: 900px) {
+  .foot-row { justify-content: space-between; }
 }
 
 /* ------------------------------------------------------------- side nav --- */
@@ -1786,7 +1812,7 @@ footer {
   .side-nav { display: none; }
   .shell { padding-left: 0; }
   footer { padding-left: var(--pad-x); }
-  .site-header { top: 20px; left: var(--pad-x); }
+  .site-header { top: 20px; padding-left: var(--pad-x); }
   .logo { height: 60px; }
 }
 
