@@ -1459,6 +1459,26 @@ footer {
   .tl-join svg { display: none; }
 }
 
+/* THE LOOP WORDMARK. The four capitals in the headline sit directly above the
+   four words they stand for, and the SAME mint marks both, which is what makes
+   the mapping read without a caption. Mint because it is the colour the board
+   uses for a searched cell: the thing that loops is the search. */
+.h2-mark b {
+  color: var(--mint);
+  font-weight: inherit;
+}
+
+.lm-exp {
+  display: block;
+  margin-top: 10px;
+  font-size: clamp(11px, 1vw, 12.5px);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.lm-exp b { color: var(--mint); font-weight: 600; }
+
 /* ------------------------------------------------------- clinical programs */
 
 .cp { display: grid; gap: 24px; }

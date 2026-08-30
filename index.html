@@ -454,7 +454,27 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <p class="eyebrow">Trials &amp; Partnering</p>
-          <h2>ComboTrials programs.</h2>
+          <!-- THE WORDMARK APPEARS EXACTLY ONCE, IN THE HEADLINE, ABOVE ITS
+               EXPANSION. It went under the H2 first and the word then appeared
+               twice forty pixels apart, styled once and not the other - so it
+               lives IN the headline instead, which is where a wordmark belongs and
+               leaves the word said once.
+
+               The name stays plain "ComboTrials" in all eight other places on the
+               page. Mid-word capitals get spelled out by screen readers and read as
+               a typo wherever the reader has not been told what they mean, and the
+               protocol and the deck say ComboTrials, so the site should not be the
+               one document that disagrees. Here the four letters sit directly above
+               the four words they stand for and the same mint marks both, so the
+               device explains itself in a glance and never has to appear again.
+
+               aria-label carries the plain name; the styled copy is aria-hidden, so
+               assistive tech says "ComboTrials programs" and recites no letters. -->
+          <h2 class="h2-mark">
+            <span aria-label="ComboTrials"><span aria-hidden="true">Combo<b>T</b>r<b>IAL</b>s</span></span> programs.
+          </h2>
+          <p class="lm-exp"><b>T</b>rial <b>i</b>n <b>a</b> <b>l</b>oop</p>
+
           <p class="lede">
             Platform clinical trials designed to scale combination testing. Built for teams exploring
             new combinations in lung, colorectal or pancreatic cancer.
