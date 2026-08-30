@@ -1,13 +1,4 @@
-/* ==========================================================================
-   Oncko — oncko.com
 
-   One typeface: Poppins. Hierarchy comes from weight, size and tracking,
-   never from a second family.
-
-   One accent: mint. The search board tiers it by luminance only -- dim mint for
-   "ever tried", full mint plus glow for "in standard of care" -- so brightness,
-   never a second hue, carries rank.
-   ========================================================================== */
 
 :root {
   --ground:      #0A1312;
@@ -51,11 +42,7 @@ body {
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
-  /* NO overflow-x here. It computes to `hidden auto`, which makes body a scroll
-     container: the snap points are body's descendants, so they join body's snap
-     container rather than the document's and scroll-snap silently does nothing.
-     It was masking a mobile overflow that no longer exists (harness reports 0 at
-     390px). If overflow ever returns, fix the offending element, not the body. */
+
 }
 
 body::before {
@@ -82,8 +69,6 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/* --------------------------------------------------------------- type ---- */
-
 h1, h2, h3 {
   color: var(--text);
   margin: 0;
@@ -92,9 +77,7 @@ h1, h2, h3 {
 }
 
 h1 {
-  /* min(vw, vh) so the display size answers to the SHORT axis too: on a laptop
-     viewport a width-only clamp gave a three-line h1 that pushed the CTA below
-     the fold. See the hero note further down. */
+
   font-size: clamp(2.2rem, min(6.6vw, 10.4vh), 5.4rem);
   font-weight: 600;
   line-height: 0.98;
@@ -163,8 +146,6 @@ p { margin: 0; }
   color: var(--faint);
 }
 
-/* ------------------------------------------------------------ scaffold ---- */
-
 .shell { position: relative; z-index: 1; padding-left: var(--nav-w); }
 
 .section { padding: var(--pad-y) var(--pad-x); }
@@ -174,10 +155,6 @@ p { margin: 0; }
 .section-head { margin-bottom: clamp(38px, 4.5vw, 60px); }
 .section-head .lede { margin-top: 22px; }
 
-/* The header spans the full width and pads itself exactly like `.shell` plus
-   `.section`, so its inner .container lands on the same left edge as every
-   headline on the page. It must not swallow clicks meant for the hero, hence the
-   pointer-events pair: off on the bar, back on for the link itself. */
 .site-header {
   position: absolute;
   top: 26px;
@@ -207,15 +184,9 @@ footer {
   align-items: baseline;
 }
 
-/* Spread across the content column once there is a column to spread across. It
-   used to leave 837px empty at 1440 and 1077px at 1920, which is what made the
-   footer read as falling off the left of the page. Below 900px the three items
-   cannot share a line, so spreading them would only look like a mistake. */
 @media (min-width: 900px) {
   .foot-row { justify-content: space-between; }
 }
-
-/* ------------------------------------------------------------- side nav --- */
 
 .side-nav {
   position: fixed;
@@ -300,8 +271,6 @@ footer {
   transform: translateY(-50%) translateX(0);
 }
 
-/* ---------------------------------------------------------------- cards --- */
-
 .card {
   border-radius: var(--radius);
   border: 1px solid var(--rule);
@@ -313,14 +282,24 @@ footer {
 
 .pad { padding: clamp(22px, 2.8vw, 34px); }
 
-/* ---------------------------------------------------------------- hero ---- */
-
 #home {
   min-height: min(94vh, 900px);
   display: flex;
   align-items: center;
   padding-top: clamp(150px, 17vw, 200px);
 }
+
+/* THE ROTATING SWEEP IS A SQUARE BOX. border-radius makes it LOOK like a disc,
+   but the layout box stays square, so rotating it grows its bounding box to
+   root-two of its width, and at some angles that reaches past the viewport: 27px
+   of horizontal page scroll at 1280x720, intermittent because it depends where
+   the 26s rotation happens to be when you look. Only 1280 shows it, because
+   there the content column sits closest to the right edge.
+
+   `clip` rather than `hidden` on purpose: hidden would make this a scroll
+   container, which is the mistake that silently broke scroll-snap on this page
+   once before. The only thing clipped is the part already off-screen. */
+#home { overflow-x: clip; }
 
 .hero-grid {
   display: grid;
@@ -331,8 +310,6 @@ footer {
 
 .hero h1 { margin-bottom: 28px; }
 
-/* the hero has to stand alone: a thesis couplet at display weight, then one
-   grounding line at body weight. Two sizes, not one paragraph. */
 .hero-support {
   margin-top: 20px;
   font-size: clamp(15.5px, 1.35vw, 17px);
@@ -343,20 +320,11 @@ footer {
   text-wrap: pretty;
 }
 
-/* the ComboTrials sentence is a second .hero-support, set tighter to the one
-   above it so the pair reads as problem-then-answer, not two paragraphs */
 .hero-support + .hero-support { margin-top: 12px; color: var(--body); }
 .hero-support strong { color: var(--text); font-weight: 500; }
 
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
 
-/* THE HERO IS THE FIRST SCREEN, AND IT WAS NOT FITTING ON ONE.
-   Measured before this block: the ComboTrials line and the CTA both sat below
-   the fold at every laptop-class viewport -- 206px over at 1366x625, 166px at
-   1280x660, 106px at 1280x720, 42px at 1440x789 -- and cleared only at 832px+
-   of viewport height. The fixed clamp(150px, 17vw, 200px) of top padding was
-   the main cost, the three-line h1 the rest. Both now scale with viewport
-   HEIGHT rather than width. Re-measure with fold2.mjs after any hero edit. */
 @media (max-height: 880px) {
   #home {
     min-height: 100vh;
@@ -395,7 +363,6 @@ footer {
 
 .btn-primary:hover { color: #06110D; filter: brightness(1.06); border-color: transparent; }
 
-/* metric strip */
 .metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -424,15 +391,10 @@ footer {
   max-width: 22ch;
 }
 
-/* the orb */
 .hero-mark { display: grid; place-items: center; }
 
 .hero-orb {
-  /* One number for the orb's size, because the glow blurs are derived from it.
-     A blur is an absolute length, so a 10px blur on a 340px orb and the same
-     10px on a 140px one are not the same picture - the small one is mush. Every
-     blur below is a fraction of --orb, so the mark looks identical at any size
-     and the mobile version needs no separate tuning. */
+
   --orb: min(340px, 74vw);
   --glow-in: 1.05s;
   width: var(--orb);
@@ -470,13 +432,6 @@ footer {
   animation: heroRing 6.4s ease-in-out infinite;
 }
 
-/* THE GLOW MOVES. `.hero-orb::before` still breathes in place - three gradients
-   pulsing scale and opacity - and that was the whole problem: it was motion
-   without travel, so nothing registered. This is one off-centre blob that orbits,
-   which is light moving ACROSS the mark rather than throbbing behind it. Rotation
-   only, on its own element, because two animations on one element cannot both own
-   `transform`. 26s is deliberately slower than anything else in the orb: it
-   should be noticed on the second look, not the first. */
 .hero-sweep {
   position: absolute;
   inset: -14%;
@@ -497,15 +452,6 @@ footer {
   to { transform: rotate(360deg); }
 }
 
-/* THE MARK COUNTS ITS OWN COMBINATIONS. One glow per node, sitting exactly on
-   that ring, in that ring's own colour sampled from the art. A ring-shaped
-   gradient rather than a blob, because the thing being lit is an annulus:
-   transparent through the hole, bright at 44% - which is where the stroke lands
-   once --d is 4.55x the ring's mid radius - and gone by 72%.
-
-   The four numbers per node are MEASURED from ONCKO-ICON.png. Re-measure them if
-   the icon art changes; they are not guesses and they cannot be nudged by eye
-   without losing the alignment. */
 .hero-node {
   position: absolute;
   left: var(--x);
@@ -515,42 +461,19 @@ footer {
   transform: translate(-50%, -50%);
   border-radius: 50%;
   pointer-events: none;
-  /* wider falloff and a heavier blur than the first pass: the ring shape still
-     registers but the edge does not, which is most of what "less bright" means
-     here - a hard-edged halo reads brighter than a diffuse one at the same
-     opacity. */
+
   background: radial-gradient(circle,
     transparent 0 24%, var(--c) 45%, transparent 78%);
   filter: blur(calc(var(--orb) * 0.03));
   opacity: 0;
-  /* NOTHING GLOWS UNTIL THE ORB HAS ARRIVED. Atray: "there is some initial glitch
-     when the animation starts". Two causes, one fix. The animation clock starts
-     when the CSS applies, not when the page is ready, so the first frame a
-     visitor actually saw already had the glow at 0.26 and climbing - the first
-     bloom was cut off at the front and arrived half lit. And the load stalls the
-     main thread for ~200ms while that clock keeps running, so when painting
-     resumes the glow SNAPS to wherever it got to. Measured: a 0.073 jump in one
-     frame. [data-reveal] is a 760ms transition on a 160ms delay and finished at
-     ~1.2s, so the glow now waits until after that and starts from true zero. */
+
   animation-delay: var(--glow-in);
   animation-duration: 36.3s;
-  /* THE CLOCK STARTS WHEN THE ORB DOES, not when the stylesheet parses. On
-     desktop those are nearly the same moment; on a narrow screen the orb sits
-     below the fold and reveals on scroll, so a clock started at load would have
-     it arrive at an arbitrary phase - very likely mid-bloom, which is the same
-     half-lit artefact in a different disguise. Paused until .is-visible lands,
-     then --glow-in covers the 160ms + 760ms reveal before anything lights. */
+
   animation-play-state: paused;
-  /* the blur is expensive to rasterise and these animate forever, so promote the
-     layer once rather than re-rastering the first time each becomes visible */
+
   will-change: opacity;
-  /* EASING IS PER SEGMENT, IN THE KEYFRAMES, NOT HERE. ease-in-out everywhere was
-     the mistake: it is slow at BOTH ends of every fade, so each pulse crawled
-     into and out of zero and the measured near-black between two subsets was
-     ~400ms rather than the 60ms budgeted. The keyframes now ease OUT leaving zero
-     and IN arriving at it - brisk through the dark, slow at the top - which is
-     what makes consecutive pulses read as one swell. This declaration only covers
-     segments the keyframes do not name. */
+
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
@@ -560,42 +483,6 @@ footer {
 .hero-node.n2 { --x: 14.9%; --y: 85.4%; --d: 53.4%; --c: #a2e57d; animation-name: nodeLight2; }
 .hero-node.n3 { --x: 87.4%; --y: 85.4%; --d: 53.4%; --c: #6fe8bf; animation-name: nodeLight3; }
 
-/* THE PULSES ALMOST TOUCH. Atray: "make the fade in and fade out more gradual
-   with less pause between - I want them to look like they almost flow into one
-   another continuously."
-
-   So the bloom and the decay fill nearly the whole step and the dark between them
-   is a few frames rather than a beat. Inside a 3.30s step: 2.00s bloom, 0.10s
-   hold, 1.15s decay, 0.05s dark.
-
-   THE PULSE IS ASYMMETRIC ON PURPOSE. Atray: "can you make the bloom even
-   slower". Only the bloom grew - 1.22s to 2.00s - so light swells in slowly and
-   releases faster, which is what the word bloom describes and is a better shape
-   than a symmetric throb. The dead lead-in was measured across four candidate
-   curves before settling: a gentler bezier on the bloom (0.2,0,0.55,1 and
-   friends) buys a softer onset but costs 110-215ms of invisible lead-in, which is
-   the pause coming straight back. ease-out spends only 25ms under 2% of peak and
-   puts all its slowness in the approach to full brightness, which is where slow
-   is actually perceived. So the bloom got longer and the pause got SHORTER.
-
-   It still touches ZERO, which was the previous ask and is not negotiable - a
-   subset must finish before the next begins or the mark is switching between
-   adjacent combinations rather than showing them. Four frames of black at 60Hz is
-   enough for that, and because ease-in-out makes the decay slowest as it arrives
-   at zero, the darkness reads longer than it is.
-
-   ELEVEN SUBSETS: COMBINATIONS ONLY. Sizes 2, 3 and 4 - six pairs, four triples,
-   one quadruple. The empty set went first (it is the one beat that cannot flow
-   into anything), and the four SINGLE-node subsets went next, at Atray's call: a
-   lone node is not a combination, and lighting one says the opposite of what the
-   whole site argues. It also lines the mark up with the board, which counts
-   2- and 3-drug combinations. Each node is lit in 7 of the 11, because a node
-   belongs to 8 subsets and exactly one of those is itself alone.
-
-   A node's track carries frames ONLY for the steps it is lit in. Between two
-   pulses CSS interpolates zero to zero, which is flat, so the omitted steps cost
-   nothing and the block stays readable. The explicit 0%/100% pair anchors the loop
-   for nodes dark at the seam. */
 @keyframes nodeLight0 {
   0%, 100% { opacity: 0; }
   18.182%   { opacity: 0; animation-timing-function: ease-out; }
@@ -693,8 +580,6 @@ footer {
   99.862%   { opacity: 0; }
 }
 
-/* Reduced motion: no orbit and no counting. The nodes hold one subset - all four,
-   faintly - so the mark keeps its depth with nothing in motion. */
 @media (prefers-reduced-motion: reduce) {
   .hero-sweep { animation: none; }
   .hero-node { animation: none; opacity: 0.32; will-change: auto; }
@@ -748,44 +633,8 @@ footer {
   50%      { transform: scale(1.06); opacity: 1; }
 }
 
-/* The timeline now carries the institutional credential, with a DOI on each
-   row. The unattributed brand strip that used to sit here was the third and
-   weakest statement of the same thing - the person cards already name BMS,
-   Genentech, Apple and Multus - so it was cut. The timeline now butts straight
-   against the Leadership rule, and the last row's own padding-bottom is part of
-   the gap, so this is smaller than the tier-to-tier rhythm on purpose. */
 .tl + .tier { margin-top: clamp(34px, 3.6vw, 50px); }
 
-/* ----------------------------------------------------------------- board -- */
-
-/* Exactly one viewport, and no runway. Every earlier version gave the track
-   several viewports of runway and derived the beat from how far through it the
-   reader had scrolled; runway is precisely what let one flick carry the scroll
-   out of the section with beats unplayed. The gate in main.js holds the page
-   here instead, so there is nothing to scroll through. svh (not vh) so a
-   collapsing mobile address bar does not resize the board mid-sequence; the vh
-   line before each svh line is the fallback for browsers without svh.
-
-   NO scroll-snap, ever. `mandatory` traps the reader: the scroller must always
-   come to rest on a snap point, so leaving in either direction gets pulled back.
-   The gate needs no cooperation from the scroller. */
-/* THE TRACK IS THE RUNWAY, THE PIN IS THE STAGE.
-   Touch gets one viewport and a carousel. A pointer device gets 2.2 viewports
-   with the board `position: sticky` inside them, so the beat is a pure function
-   of how far the reader has scrolled through the track. This replaced a gate
-   that cancelled the reader's wheel events and held the page in place; the whole
-   point is that nothing is cancelled now. Every earlier version of this failed
-   by trying to stop the reader leaving. A scrub does not have to: a reader
-   travelling through the track passes through every position, so every beat is
-   drawn on the way past whether they linger or fling.
-
-   2.2 is the smallest runway that still gives each of the two transitions most
-   of a viewport of scroll. Shorter and the sequence flickers past; longer and
-   the section costs more page than the story is worth.
-
-   The media query MUST stay in sync with `TOUCH` in main.js, which tests the
-   same `(hover: none) and (pointer: coarse)`. If the CSS says sticky and the JS
-   says carousel, the board goes dead. */
 .board-track {
   position: relative;
   height: 100vh;
@@ -798,13 +647,6 @@ footer {
   align-content: center;
 }
 
-/* The track HEIGHT is set by main.js from its own HOLD/TRANS budget, so the
-   dwell arithmetic has exactly one home and the two files cannot drift. CSS owns
-   only whether the pin is sticky - and if JS never runs, the track stays one
-   viewport, the pin sticks for zero pixels, and the board is a static first
-   beat rather than a tall empty column. */
-/* Sticky at EVERY width now, not just fine pointers. The pointer split existed
-   because touch had a carousel; it has a scrub like everything else. */
 @media (min-width: 0px) {
   .board-pin {
     position: sticky;
@@ -814,20 +656,11 @@ footer {
   }
 }
 
-/* Reduced motion gets no runway at all: SCRUB is false in main.js, the ticks
-   drive the state directly, and 2.6 viewports of empty scrolling would be a
-   pure tax on a reader who has asked for less movement. */
 @media (prefers-reduced-motion: reduce) {
   .board-track { height: 100svh; }
   .board-pin { position: static; }
 }
 
-/* No touch-action rule any more. It existed to give the card the horizontal axis
-   for the swipe carousel; nothing captures a gesture now, so the browser default
-   is exactly right and pinch-zoom needs no special pleading. */
-
-/* The gate stops the page scrolling, so it has to say why. Goes on the first
-   step and does not come back. */
 .onb-hint {
   margin: 10px 0 0;
   font-size: 12px;
@@ -864,32 +697,16 @@ footer {
 .onb-stage { grid-area: stage; }
 .onb-prog  { grid-area: prog; }
 
-/* THE FRACTION. searched over space, two fixed slots, every beat. --fw reserves
-   the column at the width of the widest number the instrument will ever hold
-   ("19,248,516"), so the rule and the labels never shift as the digits roll.
-   Change the largest number and you must re-check --fw. */
 .onb-frac {
-  /* The number font-size lives HERE, and the number spans and the rule all
-     inherit it, because --fw is in `ch` and a custom property in `ch` resolves
-     against each USING element's own font-size. With the size set per child the
-     numbers, the rule and the reserved column all computed different widths:
-     the number overflowed its own box and the rule came out half as wide. */
+
   font-size: clamp(24px, 5.4vw, 34px);
-  /* weight lives here too, for the same reason as the size: `ch` is the advance
-     of "0" IN THE ELEMENT'S OWN FONT, and Poppins Bold's zero is ~6% wider than
-     Regular's, so a bold number and a regular-weight rule computed 11ch
-     differently and the rule came out 20px short. */
+
   font-weight: 700;
   --fw: 11ch;
   font-variant-numeric: tabular-nums;
   transition: opacity 0.25s linear;
 }
-/* MOBILE DEFAULT: INLINE. Stacked, the fraction spends 85px of height on two
-   numbers and a rule, which is what pushed the card past a short viewport and
-   scrolled the whole instrument off the top. Inline it is ~42px and says the
-   same thing. `display: contents` flattens the two rows into one flex context
-   so `order` can interleave them; the stacked form is restored at the same
-   breakpoint where the board goes two-column, so layout and type switch together. */
+
 .onb-frac {
   display: flex;
   flex-wrap: wrap;
@@ -915,10 +732,7 @@ footer {
   letter-spacing: -0.03em;
   line-height: 1.06;
 }
-/* --fw and the right alignment belong to the STACKED form only, and they are set
-   in the two-column block below. Declared here they would win on the cascade
-   over the inline form's `width: auto` and each number would reserve 11ch,
-   which overflows a phone column and wraps the fraction into three lines. */
+
 .onb-fnum { color: var(--mint); }
 .onb-fden { color: var(--text); }
 .onb-frule {
@@ -928,7 +742,7 @@ footer {
   background: var(--rule-strong);
 }
 .onb-flab {
-  /* absolute, so the labels do not scale with the numbers */
+
   font-size: 11.5px;
   font-weight: 400;
   letter-spacing: 0.07em;
@@ -950,10 +764,9 @@ footer {
   text-wrap: balance;
 }
 
-/* three tiers in one sentence: quiet setup, white counts, mint coverage */
 .onb-line b    { color: var(--text); font-weight: 600; }
 .onb-line em   { font-style: normal; color: var(--mint); font-weight: 600; }
-/* lime is reserved for the Oncko layer, matching the cells it paints */
+
 .onb-line mark { background: none; color: var(--lime); font-weight: 600; }
 
 .onb-stage {
@@ -972,24 +785,11 @@ footer {
 
 .onb-canvas { width: 100%; height: 100%; display: block; }
 
-/* keyboard users must never lose the controls */
-
-/* the only scroll-position indicator left, so it earns a little more presence
-   than it had when it sat beside a play button */
-/* The hint is an instruction, so it goes when the instruction expires. Slow
-   enough (420ms) that it reads as the sentence retiring rather than blinking. */
 .onb-hint { transition: opacity 420ms ease; }
 .onb.at-end .onb-hint { opacity: 0; }
 
 .onb-prog { display: flex; gap: 6px; align-items: center; }
 
-/* THE BUTTON IS THE TAP TARGET, THE ::before IS THE BAR. These were the same
-   3px-tall box, which is a 3px tap target - Apple asks for 44px and Atray asked
-   for something he could actually hit. So the button now reserves 44px of
-   height and the bar is drawn centred inside it, which costs 41px of column
-   height and buys the only control on the board a thumb can reach. Keep the
-   gap small so the strip reads as one instrument and the dead space between
-   targets stays narrow. */
 .onb-tick {
   width: clamp(34px, 8vw, 46px);
   height: 44px;
@@ -1014,10 +814,6 @@ footer {
   transition: background 140ms ease;
 }
 
-/* scaleX, not inset: animating the inset shorthand is unreliable across
-   engines and was one reason the loop looked stalled. The fill carries its own
-   radius rather than being clipped by `overflow: hidden` on the button, which
-   would also have clipped the enlarged tap target. */
 .onb-tick i {
   position: absolute;
   left: 0;
@@ -1054,13 +850,9 @@ footer {
   .onb-frule { display: block; }
   .onb-fnum, .onb-fden {
     width: var(--fw);
-    /* flex: none, or the row shrinks the number below --fw when the label is
-       long - and by a DIFFERENT amount per row, since the two labels differ in
-       length, so the two numbers stop sharing a right edge and the rule stops
-       matching. */
+
     flex: none;
-    /* right-aligned so the ones place holds still and a short number stays next
-       to its label instead of being stranded at the far edge of the column */
+
     text-align: right;
   }
   .onb-fden::before { content: none; }
@@ -1068,21 +860,15 @@ footer {
   .onb-flab { font-size: 12px; }
 }
 
-
 @media (max-height: 700px) {
   .onb-line { font-size: 20.5px; }
   .onb-frac { font-size: 20.5px; }
   .onb { gap: 14px; }
-  /* A 44px tap target is worth 41px of column height on a tall phone and not on
-     a landscape one, where the whole board has to fit in under 700px. */
+
   .onb-tick { height: 34px; }
-  /* the square canvas is the biggest single block; cap it by viewport height
-     rather than container width, or a landscape phone gets a 300px canvas in a
-     390px window and everything above it leaves the screen */
+
   .onb-stage { max-width: min(100%, 40vh); }
 
-  /* short AND wide: side by side halves the card's height, and a landscape
-     phone at 844x390 misses the 740px container query by a dozen pixels */
   @container (min-width: 620px) {
     .onb {
       grid-template-columns: minmax(220px, 1fr) minmax(200px, 340px);
@@ -1095,28 +881,11 @@ footer {
   }
 }
 
-/* THE SMALLEST PHONE HAS NO HEADROOM, so buy some back. At 320x568 the card was
-   553px against a 568px pin on beat 1 but 569px on beats 2 and 3 - one pixel over
-   - because "2,906 / 19,248,516" wraps the inline fraction onto a line that
-   "25 / 28" did not need. One pixel is invisible, and that is exactly the problem:
-   zero margin on the viewport an external review already flagged as clipping, so
-   a larger system font or a longer basis label tips it straight over. Tightening
-   the gaps costs nothing at a size where the layout is dense anyway.
-
-   THIS MUST STAY BELOW THE max-height BLOCK ABOVE. At 320x568 both queries match
-   and both set `.onb { gap }` at the same specificity, so whichever is written
-   last wins. Placed above, this rule silently did nothing. */
 @media (max-width: 340px) {
   .onb { gap: 10px; }
   .onb-side { gap: 16px; }
 }
 
-/* SEVEN FULL-WIDTH CARDS IS 1,916px OF A PHONE PAGE, measured - the reviewer
-   said ~1,900 and was almost exactly right. Advisors go two-up below 640px,
-   which halves their block. Their bios STAY: the reviewer wanted them behind a
-   tap, and a bio is the part that says why the advisor matters, so hiding it
-   keeps the height and loses the point. Leadership stays full width, because
-   the three people running the company should not be a directory. */
 @media (max-width: 640px) {
   .tier + .tier .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .tier + .tier .person { padding: 16px 14px; }
@@ -1127,17 +896,6 @@ footer {
   .tier + .tier .li { display: none; }
 }
 
-/* SHORT PHONES. Beat 1's statement runs six lines in a phone-width column, and
-   reserve() locks the copy block to the tallest beat, so on a 667px-tall screen
-   the card outgrew the viewport by 54px and the ticks fell off the bottom. Only
-   screens under 700px tall pay for it; 844 and 932 keep full-size type. */
-/* A LAPTOP AT 200% BROWSER ZOOM IS A 640x360 VIEWPORT, and the board is one
-   viewport tall, so at that height the card overflowed its pin by 40px - an
-   external review made 200% zoom a launch gate and it was failing. The 700px
-   tier above is not enough on its own: it is tuned for a landscape phone, which
-   has room to spare. This tier is the one that has to find 40px, and it takes
-   them from padding, the row gap and the tick height rather than from the
-   graphic, which is already capped by 40vh. */
 @media (max-height: 480px) {
   .board-wrap.pad { padding: 14px; }
   .onb { gap: 9px; }
@@ -1146,30 +904,6 @@ footer {
   .onb-frac { font-size: 17.5px; }
   .onb-hint { font-size: 9.5px; }
 }
-
-/* --------------------------------------------------------------- timeline --
-
-   TWO THREADS, ONE TIME AXIS, ONE ENDPOINT - EXPRESSED TWICE.
-
-   An external review: "the rails imply two capabilities, the layout reads as one
-   list", and "once the labels scroll away the two narrow rails become nearly
-   anonymous". Both were correct. Every row's text started at the same offset, so
-   lane membership was carried only by a node sitting 54px left or right, and the
-   only key was a header that scrolled off the top.
-
-   So the structure is now stated in the idiom each width can actually support,
-   and never left to a dot alone:
-
-     NARROW   one gutter with two rails, and an explicit MEASURE / TRIALS tag on
-              every row. The tag is what makes the lane legible with the header
-              off screen; the rails and the join SVG draw the convergence.
-     WIDE     two real text lanes with a centre date rail. Which SIDE the text
-              sits on is unmistakable, so the per-row tag is dropped and the
-              column headers carry the names. The endpoint spans both lanes and
-              centres, which is the convergence.
-
-   The 18% / 72% / 45% fractions in the narrow form are shared by the CSS and by
-   the join SVG's viewBox - change one and you must change the other. */
 
 .tl {
   --gut: 44px;
@@ -1180,8 +914,6 @@ footer {
   margin: 0;
   padding: 0;
 }
-
-/* ---- the toggle ---------------------------------------------------------- */
 
 .tl-bar { display: flex; justify-content: flex-start; margin-bottom: 18px; }
 
@@ -1203,20 +935,12 @@ footer {
 .tl-toggle:hover { color: var(--ink); border-color: var(--mint-mid); }
 .tl-toggle:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
 
-/* One label is present and the other is not, rather than both being present with
-   one hidden by opacity: a screen reader should not read "Show details Hide
-   details". aria-expanded on the button carries the state. */
 .tl-tg-b { display: none; }
 .tl-toggle[aria-expanded="true"] .tl-tg-a { display: none; }
 .tl-toggle[aria-expanded="true"] .tl-tg-b { display: inline; }
 
-/* Compressed is the DEFAULT. What is hidden is only the description sentence -
-   year, linked title and attribution stay, so nothing checkable is behind the
-   click. */
 .tl-what { display: none; }
 .tl.is-open .tl-what { display: block; }
-
-/* ---- narrow: one gutter, two rails, a tag on every row ------------------- */
 
 .tl-item {
   position: relative;
@@ -1277,7 +1001,6 @@ footer {
   max-width: 62ch;
 }
 
-/* the two rails, drawn behind every row so they are continuous */
 .tl-item::before,
 .tl-key::before,
 .tl-join::before {
@@ -1293,7 +1016,6 @@ footer {
 }
 .tl-item:last-child::before { bottom: auto; height: 9px; }
 
-/* the node: a ring only, no glow, so a row does not read as a status light */
 .tl-item::after {
   content: "";
   position: absolute;
@@ -1308,10 +1030,6 @@ footer {
 .tl-item.t-a::after { left: calc(var(--gut) * 0.18); }
 .tl-item.t-b::after { left: calc(var(--gut) * 0.72); }
 
-/* A DURATION IS A BAND, NOT A POINT, and it has to be as long as the duration.
-   --span-h is measured in main.js by interpolating the end year between the two
-   rows that bracket it, because the axis is evenly spaced by row and not by
-   year. The 34px fallback is what shows if that script never runs. */
 .tl-item.is-span::after {
   height: var(--span-h, 34px);
   border-radius: 4px;
@@ -1329,22 +1047,11 @@ footer {
   box-shadow: 0 0 0 4px var(--ground), 0 0 16px rgba(206, 228, 68, 0.55);
 }
 
-/* ---- the lane headers (narrow: hidden, the per-row tag says it) ---------- */
-
-/* `position: relative` is LOAD-BEARING even while this is display:none, because
-   the wide form turns it into a grid and its ::before draws a rail. Without it
-   the rail's containing block is the viewport, `top: 9px; bottom: 0` resolves
-   against the whole document, and a 7,521px line runs down the entire page
-   through the team cards. That was the bug. */
 .tl-key { display: none; position: relative; }
-
-/* ---- the confluence ------------------------------------------------------ */
 
 .tl-join { position: relative; height: 46px; }
 .tl-join svg { position: absolute; left: 0; top: 0; width: var(--gut); height: 100%; }
 .tl-join path { fill: none; stroke: var(--lime); stroke-width: 1; opacity: 0.5; }
-
-/* ---- wide: two real lanes, one centre date rail -------------------------- */
 
 @media (min-width: 900px) {
   .tl { --rail: 116px; }
@@ -1357,7 +1064,6 @@ footer {
     padding: 0 0 clamp(18px, 2vw, 26px) 0;
   }
 
-  /* the side IS the lane, so the tag stops earning its line */
   .tl-tag { display: none; }
 
   .tl-year {
@@ -1371,9 +1077,6 @@ footer {
   .tl-what { max-width: none; }
   .tl-item.t-a .tl-what { margin-left: auto; }
 
-  /* ONE centre rail now, not two in a gutter: with the text on opposite sides
-     the lane is already unambiguous, and a single shared axis is what makes the
-     two columns read as one chronology instead of two lists. */
   .tl-item::before,
   .tl-key::before,
   .tl-join::before {
@@ -1384,11 +1087,6 @@ footer {
     background: none;
   }
 
-  /* THE YEAR IS THE NODE HERE. A separate dot at 50% landed on top of the year
-     and rendered "2016" as "2 - 6"; there is only one centre and they were both
-     in it. So the year gets the ground colour and sits ON the rail, masking it,
-     which is the node, the date and the break in the line all at once. Lane is
-     carried by the tint, and by the side the text is on. */
   .tl-year {
     background: var(--ground);
     padding: 2px 12px;
@@ -1401,12 +1099,6 @@ footer {
 
   .tl-item::after { display: none; }
 
-  /* A DURATION RUNS DOWN THE INSIDE EDGE OF ITS OWN LANE, not down the rail. On
-     the rail it was chopped into three pieces by the year chips it passed
-     behind, which read as three events rather than one nine-year run - and
-     drawing it OVER the chips instead would strike through "2019" and "2021".
-     At the boundary between the date column and the trials column it is one
-     unbroken bar, and being in the lane says whose duration it is. */
   .tl-item.is-span::after {
     display: block;
     left: calc(50% + var(--rail) / 2);
@@ -1419,11 +1111,9 @@ footer {
     box-shadow: none;
     opacity: 0.8;
   }
-  /* clear the bar so it is a bracket on the lane, not an underline of the text */
+
   .tl-item.t-b .tl-body { padding-left: 16px; }
 
-  /* the endpoint spans both lanes and centres: that is the convergence. Year on
-     its own row above the title, or the two land in the same cell. */
   .tl-item.t-end {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
@@ -1435,7 +1125,6 @@ footer {
   .tl-item.t-end .tl-what { margin-left: auto; margin-right: auto; }
   .tl-item.t-end::before { bottom: auto; height: 22px; top: 0; }
 
-  /* the lane headers become the column headers */
   .tl-key {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--rail) minmax(0, 1fr);
@@ -1453,16 +1142,10 @@ footer {
   .tl-k.t-b { grid-column: 3; text-align: left; padding-left: 6px; }
   .tl-k::before { content: none; }
 
-  /* the narrow form's two-rail confluence has nothing to converge here: the
-     centred endpoint is the convergence, so the SVG stands down. */
   .tl-join { height: 26px; }
   .tl-join svg { display: none; }
 }
 
-/* THE LOOP WORDMARK. The four capitals in the headline sit directly above the
-   four words they stand for, and the SAME mint marks both, which is what makes
-   the mapping read without a caption. Mint because it is the colour the board
-   uses for a searched cell: the thing that loops is the search. */
 .h2-mark b {
   color: var(--mint);
   font-weight: inherit;
@@ -1479,11 +1162,8 @@ footer {
 }
 .lm-exp b { color: var(--mint); font-weight: 600; }
 
-/* ------------------------------------------------------- clinical programs */
-
 .cp { display: grid; gap: 24px; }
 
-/* humans / mice / clinic */
 .layers { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
 
 .layer {
@@ -1520,7 +1200,6 @@ footer {
 .cp .program h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
 .cp .indication { font-size: 15px; font-weight: 300; color: var(--muted); margin-top: 6px; }
 
-/* stage track */
 .cp .track {
   list-style: none;
   margin: 36px 0 0;
@@ -1624,7 +1303,6 @@ footer {
 
 .cp .detail-body strong { display: block; font-weight: 500; color: var(--mint); margin-bottom: 3px; }
 
-/* arms, behind a toggle */
 .cp .arms-detail { border-top: 1px solid var(--rule); margin-top: 34px; padding-top: 22px; }
 
 .cp .arms-detail summary {
@@ -1673,7 +1351,6 @@ footer {
 .cp .arm.selected  { background: var(--mint-wash); border-color: var(--mint-mid); }
 .cp .arm.control   { background: var(--faint); border-color: var(--rule-strong); }
 
-/* kept for when the trial opens; not in the legend until they mean something */
 .cp .arm.enrolling { background: var(--mint-mid); border-color: var(--mint-mid); }
 .cp .arm.evaluated {
   background: var(--mint);
@@ -1696,14 +1373,11 @@ footer {
 .cp .control-row .arm { width: 28px; flex: 0 0 auto; }
 .cp .control-row span { font-size: 15px; font-weight: 300; color: var(--text); }
 
-/* next indications */
 .cp .next { display: grid; gap: 14px; }
 .cp .next-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
 .cp .next-card { border-radius: 18px; border: 1px solid var(--rule); background: var(--panel-2); padding: 20px 24px; }
 .cp .next-card h3 { font-size: 17px; font-weight: 500; color: var(--muted); }
 .cp .next-card p { font-size: 14px; font-weight: 300; color: var(--faint); margin-top: 4px; }
-
-/* ----------------------------------------------------------------- team --- */
 
 .tier + .tier { margin-top: clamp(46px, 5vw, 68px); }
 
@@ -1716,8 +1390,6 @@ footer {
 
 .people { display: grid; grid-template-columns: repeat(auto-fit, minmax(252px, 1fr)); gap: 18px; }
 
-/* Section-level, above the indication cards. No top rule: it is not a card
-   footer any more, it is the answer to the invitation in the lede. */
 .join { margin: -18px 0 clamp(34px, 4vw, 52px); }
 
 .join p {
@@ -1744,11 +1416,6 @@ footer {
 
 .person:hover { border-color: rgba(111, 220, 174, 0.4); transform: translateY(-6px); }
 
-/* Bigger, and grounded. At 66px with a centred crop the faces read as heads
-   floating in a disc: too much headroom above, shoulders cut off, and no shadow
-   to sit the disc on the card. Fixes are all three at once - larger frame,
-   object-position pulled up so the face fills it, and a ring plus a soft drop
-   shadow so it rests on the surface. */
 .person .avatar {
   width: clamp(88px, 9vw, 104px);
   aspect-ratio: 1;
@@ -1765,12 +1432,11 @@ footer {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 18%;   /* faces sit high in these crops */
+  object-position: 50% 18%;
   display: block;
-  transform: scale(1.06);     /* trims the last of the headroom */
+  transform: scale(1.06);
 }
 
-/* grounds the bottom of the disc against the card instead of floating on it */
 .person .avatar::after {
   content: "";
   position: absolute;
@@ -1787,11 +1453,7 @@ footer {
 .person:hover .li { color: var(--mint); }
 .person .li svg { display: block; }
 
-/* -------------------------------------------------------------- contact --- */
-
 #contact { padding-block: clamp(72px, 8vw, 110px); }
-
-/* ----------------------------------------------------------- animation ---- */
 
 [data-reveal] {
   opacity: 0;
@@ -1802,33 +1464,16 @@ footer {
 
 [data-reveal].is-visible { opacity: 1; transform: none; }
 
-/* ---------------------------------------------------------- responsive ---- */
-
 @media (max-width: 1080px) {
-  /* minmax(0, 1fr), NOT 1fr. A `1fr` track has an automatic minimum of
-     min-content, so the track cannot shrink below the longest unbreakable run in
-     the H1 - and at a larger root font (an OS "larger text" setting, or a raised
-     default font size in the browser, neither of which is browser zoom) that
-     minimum exceeds the viewport and the whole page scrolls sideways. Measured at
-     a 32px root font: 137px of horizontal overflow at 390px wide and 207px at
-     320px. The desktop rule above already guards this; this one did not. */
+
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
 
-  /* THE MARK SURVIVES NARROW, SMALLER. It used to be display:none here, so the
-     one piece of motion on the site was desktop-only. As the second row of a
-     now-single-column hero grid it already lands below the copy and the button,
-     which is the right place for it: a quiet full stop, not competition for the
-     headline. CENTRED, Atray's call - the copy above it is left-aligned but the
-     button spans the full width, so a centred mark reads as closing the column
-     rather than starting a fourth left-aligned thing. No override needed: the
-     base rule is already place-items: center. --orb carries the size and the
-     blurs follow it, so this is one number and not a re-tune. */
   .hero-mark { margin-top: clamp(30px, 7vw, 46px); }
   .hero-orb { --orb: clamp(112px, 34vw, 168px); }
 }
 
 @media (max-width: 900px) {
-  /* the rail is a desktop affordance; narrower than this it sits on the copy */
+
   .side-nav { display: none; }
   .shell { padding-left: 0; }
   footer { padding-left: var(--pad-x); }
@@ -1837,26 +1482,7 @@ footer {
 }
 
 @media (max-width: 760px) {
-  /* ON A PHONE THE MARK LEADS, AND THERE IS ONLY ONE OF IT.
-     Internal engineering feedback: below the button it "looks like something to
-     put after hero title and description". Two causes. The mobile hero is 861px
-     against an 844px viewport, so the only motion on the site sat below the fold;
-     and a phone was carrying two marks, the wordmark at the top and the icon at
-     the bottom, about 700px apart and saying the same thing.
 
-     So the icon moves to the front of the hero and the wordmark stands down here.
-     `order: -1` reorders the grid item without touching the DOM, which is safe
-     because .hero-mark is aria-hidden and holds nothing focusable. Atray chose
-     this over keeping the wordmark; the company name still appears in the footer
-     and in the hero copy.
-
-     Scoped to 760px, not the 1080px where the hero goes single-column: a tablet
-     has room for both and reads fine with the mark closing the column, so it
-     keeps the wordmark. The complaint was about phones.
-
-     LEFT, not centred. Atray asked for centred when this sat under a full-width
-     button and needed to close the column. Leading a left-aligned headline it has
-     to share that edge. One line to put back if he disagrees. */
   .site-header { display: none; }
   .hero-mark {
     order: -1;
