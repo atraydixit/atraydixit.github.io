@@ -896,11 +896,6 @@ footer {
   .tier + .tier .li { display: none; }
 }
 
-@media (max-width: 520px) {
-  .tier + .tier .person h3 .deg { display: block; }
-  .tier + .tier .person h3 .deg::before { content: none; }
-}
-
 @media (max-height: 480px) {
   .board-wrap.pad { padding: 14px; }
   .onb { gap: 9px; }
@@ -1452,7 +1447,6 @@ footer {
 }
 .person h3 { color: var(--text); margin-bottom: 5px; }
 .person h3 .deg { font-weight: 400; font-size: 0.86em; letter-spacing: 0; color: var(--faint); white-space: nowrap; }
-.person h3 .deg::before { content: ", "; }
 .person .role { font-size: 12px; font-weight: 400; letter-spacing: 0.03em; color: var(--mint); margin-bottom: 14px; }
 .person .bio { font-size: 14px; font-weight: 300; line-height: 1.65; color: var(--muted); }
 
