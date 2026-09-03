@@ -890,10 +890,15 @@ footer {
   .tier + .tier .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .tier + .tier .person { padding: 16px 14px; }
   .tier + .tier .avatar { width: clamp(52px, 15vw, 68px); }
-  .tier + .tier h3 { font-size: 15px; }
+  .tier + .tier h3 { font-size: 15px; text-wrap: pretty; }
   .tier + .tier .role { font-size: 12px; }
   .tier + .tier .bio { font-size: 12.5px; line-height: 1.5; }
   .tier + .tier .li { display: none; }
+}
+
+@media (max-width: 520px) {
+  .tier + .tier .person h3 .deg { display: block; }
+  .tier + .tier .person h3 .deg::before { content: none; }
 }
 
 @media (max-height: 480px) {
@@ -1446,6 +1451,8 @@ footer {
   pointer-events: none;
 }
 .person h3 { color: var(--text); margin-bottom: 5px; }
+.person h3 .deg { font-weight: 400; font-size: 0.86em; letter-spacing: 0; color: var(--faint); white-space: nowrap; }
+.person h3 .deg::before { content: ", "; }
 .person .role { font-size: 12px; font-weight: 400; letter-spacing: 0.03em; color: var(--mint); margin-bottom: 14px; }
 .person .bio { font-size: 14px; font-weight: 300; line-height: 1.65; color: var(--muted); }
 
