@@ -1,5 +1,11 @@
 
 
+@font-face{font-family:Raleway;font-style:normal;font-weight:300;font-display:swap;src:url(../fonts/raleway-latin-300-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Raleway;font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/raleway-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Raleway;font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/raleway-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Raleway;font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/raleway-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:Raleway;font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/raleway-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
 :root {
   --ground:      #0A1312;
   --ground-2:    #070F0E;
@@ -9,16 +15,17 @@
   --rule-strong: rgba(255,255,255,0.22);
 
   --text:  #FFFFFF;
-  --body:  #C9D7CE;
-  --muted: #93A79B;
-  --faint: #7E9186;
+  --ink:   var(--text);
+  --body:  #D0DAD4;
+  --muted: #A2B3A8;
+  --faint: #879A8F;
 
   --lime:      #CEE444;
   --mint:      #6FDCAE;
   --mint-mid:  #4FC49A;
   --mint-wash: rgba(111, 220, 174, 0.14);
 
-  --sans: Poppins, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: Raleway, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --pad-y:  clamp(84px, 10vw, 140px);
   --pad-x:  clamp(20px, 4vw, 40px);
@@ -39,8 +46,8 @@ body {
   color: var(--body);
   font-family: var(--sans);
   font-size: 16px;
-  font-weight: 300;
-  line-height: 1.7;
+  font-weight: 400;
+  line-height: 1.62;
   -webkit-font-smoothing: antialiased;
 
 }
@@ -81,7 +88,7 @@ h1 {
   font-size: clamp(2.2rem, min(6.6vw, 10.4vh), 5.4rem);
   font-weight: 600;
   line-height: 0.98;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
   max-width: 16ch;
 }
 
@@ -89,7 +96,7 @@ h2 {
   font-size: clamp(2rem, 4.6vw, 3.5rem);
   font-weight: 600;
   line-height: 1.02;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   max-width: 22ch;
 }
 
@@ -110,9 +117,9 @@ p { margin: 0; }
   border: 1px solid rgba(111, 220, 174, 0.26);
   background: rgba(111, 220, 174, 0.09);
   color: rgba(236, 250, 246, 0.94);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.25em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -122,7 +129,7 @@ p { margin: 0; }
 .lede {
   font-size: clamp(17px, 1.6vw, 20px);
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.62;
   color: var(--body);
   max-width: 52ch;
 }
@@ -131,17 +138,17 @@ p { margin: 0; }
 
 .caption {
   font-size: 12px;
-  font-weight: 300;
-  line-height: 1.8;
+  font-weight: 400;
+  line-height: 1.7;
   letter-spacing: 0.01em;
   color: var(--faint);
   max-width: 90ch;
 }
 
 .label {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--faint);
 }
@@ -289,16 +296,6 @@ footer {
   padding-top: clamp(150px, 17vw, 200px);
 }
 
-/* THE ROTATING SWEEP IS A SQUARE BOX. border-radius makes it LOOK like a disc,
-   but the layout box stays square, so rotating it grows its bounding box to
-   root-two of its width, and at some angles that reaches past the viewport: 27px
-   of horizontal page scroll at 1280x720, intermittent because it depends where
-   the 26s rotation happens to be when you look. Only 1280 shows it, because
-   there the content column sits closest to the right edge.
-
-   `clip` rather than `hidden` on purpose: hidden would make this a scroll
-   container, which is the mistake that silently broke scroll-snap on this page
-   once before. The only thing clipped is the part already off-screen. */
 #home { overflow-x: clip; }
 
 .hero-grid {
@@ -314,7 +311,7 @@ footer {
   margin-top: 20px;
   font-size: clamp(15.5px, 1.35vw, 17px);
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.62;
   color: var(--muted);
   max-width: 56ch;
   text-wrap: pretty;
@@ -342,9 +339,9 @@ footer {
   align-items: center;
   gap: 9px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.015em;
   padding: 14px 24px;
   border: 1px solid var(--rule-strong);
   color: var(--text);
@@ -375,7 +372,7 @@ footer {
 .metric .v {
   font-size: clamp(30px, 3.6vw, 44px);
   font-weight: 500;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.035em;
   line-height: 1;
   color: var(--text);
   font-variant-numeric: tabular-nums;
@@ -385,7 +382,7 @@ footer {
   display: block;
   margin-top: 12px;
   font-size: 13px;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.55;
   color: var(--muted);
   max-width: 22ch;
@@ -757,7 +754,7 @@ footer {
 .onb-line {
   font-size: clamp(26px, 6.6vw, 38px);
   font-weight: 600;
-  letter-spacing: -0.038em;
+  letter-spacing: -0.03em;
   line-height: 1.12;
   margin: 0;
   color: var(--body);
@@ -886,7 +883,7 @@ footer {
   .onb-side { gap: 16px; }
 }
 
-@media (max-width: 640px) {
+@media (min-width: 521px) and (max-width: 640px) {
   .tier + .tier .people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .tier + .tier .person { padding: 16px 14px; }
   .tier + .tier .avatar { width: clamp(52px, 15vw, 68px); }
@@ -956,9 +953,9 @@ footer {
 .tl-body { grid-column: 2; grid-row: 1 / span 2; min-width: 0; }
 
 .tl-tag {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--faint);
   line-height: 1.9;
@@ -1175,7 +1172,7 @@ footer {
 
 .layer .label { display: block; margin-bottom: 14px; }
 .layer strong { display: block; font-size: 16px; font-weight: 500; color: var(--mint); margin-bottom: 6px; }
-.layer p { font-size: 13.5px; font-weight: 300; line-height: 1.6; color: var(--muted); }
+.layer p { font-size: 13.5px; font-weight: 400; line-height: 1.6; color: var(--muted); }
 
 .cp .loop-line {
   font-size: clamp(16px, 1.6vw, 19px);
@@ -1198,7 +1195,7 @@ footer {
 }
 
 .cp .program h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; }
-.cp .indication { font-size: 15px; font-weight: 300; color: var(--muted); margin-top: 6px; }
+.cp .indication { font-size: 15px; font-weight: 400; color: var(--muted); margin-top: 6px; }
 
 .cp .track {
   list-style: none;
@@ -1244,13 +1241,13 @@ footer {
 .cp .stage.done .dot { background: var(--mint); border-color: var(--mint); }
 .cp .stage.current .dot { border-color: var(--mint); box-shadow: 0 0 0 4px var(--mint-wash); }
 
-.cp .stage-name { font-size: 13.5px; font-weight: 400; line-height: 1.4; color: var(--faint); }
+.cp .stage-name { font-size: 14.5px; font-weight: 500; line-height: 1.4; color: var(--muted); }
 .cp .stage.done .stage-name,
 .cp .stage.current .stage-name { color: var(--text); }
 
 .cp .stage-status {
-  font-size: 11px;
-  font-weight: 300;
+  font-size: 12.5px;
+  font-weight: 400;
   letter-spacing: 0.03em;
   color: var(--faint);
   margin-top: 6px;
@@ -1295,7 +1292,7 @@ footer {
   border: 1px solid var(--rule);
   padding: 12px 14px;
   font-size: 12.5px;
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.6;
   color: var(--muted);
   text-align: left;
@@ -1364,20 +1361,20 @@ footer {
   align-items: center;
   gap: 8px;
   font-size: 12.5px;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--faint);
 }
 .cp .arm-keys .arm { width: 13px; flex: 0 0 auto; border-radius: 4px; }
 
 .cp .control-row { display: flex; align-items: center; gap: 13px; }
 .cp .control-row .arm { width: 28px; flex: 0 0 auto; }
-.cp .control-row span { font-size: 15px; font-weight: 300; color: var(--text); }
+.cp .control-row span { font-size: 15px; font-weight: 400; color: var(--text); }
 
 .cp .next { display: grid; gap: 14px; }
 .cp .next-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
 .cp .next-card { border-radius: 18px; border: 1px solid var(--rule); background: var(--panel-2); padding: 20px 24px; }
 .cp .next-card h3 { font-size: 17px; font-weight: 500; color: var(--muted); }
-.cp .next-card p { font-size: 14px; font-weight: 300; color: var(--faint); margin-top: 4px; }
+.cp .next-card p { font-size: 14px; font-weight: 400; color: var(--faint); margin-top: 4px; }
 
 .tier + .tier { margin-top: clamp(46px, 5vw, 68px); }
 
@@ -1394,8 +1391,8 @@ footer {
 
 .join p {
   font-size: 15px;
-  font-weight: 300;
-  line-height: 1.7;
+  font-weight: 400;
+  line-height: 1.62;
   color: var(--muted);
   max-width: 62ch;
   margin: 0 0 18px;
@@ -1448,7 +1445,7 @@ footer {
 .person h3 { color: var(--text); margin-bottom: 5px; }
 .person h3 .deg { font-weight: 400; font-size: 0.86em; letter-spacing: 0; color: var(--faint); }
 .person .role { font-size: 12px; font-weight: 400; letter-spacing: 0.03em; color: var(--mint); margin-bottom: 14px; }
-.person .bio { font-size: 14px; font-weight: 300; line-height: 1.65; color: var(--muted); }
+.person .bio { font-size: 14px; font-weight: 400; line-height: 1.65; color: var(--muted); }
 
 .person .li { position: absolute; top: 24px; right: 24px; color: var(--faint); transition: color 200ms var(--ease); }
 .person:hover .li { color: var(--mint); }
