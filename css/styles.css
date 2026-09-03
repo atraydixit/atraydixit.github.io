@@ -1,6 +1,5 @@
 
 
-@font-face{font-family:Raleway;font-style:normal;font-weight:300;font-display:swap;src:url(../fonts/raleway-latin-300-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Raleway;font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/raleway-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Raleway;font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/raleway-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:Raleway;font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/raleway-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -128,7 +127,7 @@ p { margin: 0; }
 
 .lede {
   font-size: clamp(17px, 1.6vw, 20px);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.62;
   color: var(--body);
   max-width: 52ch;
@@ -310,7 +309,7 @@ footer {
 .hero-support {
   margin-top: 20px;
   font-size: clamp(15.5px, 1.35vw, 17px);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.62;
   color: var(--muted);
   max-width: 56ch;
@@ -893,6 +892,11 @@ footer {
   .tier + .tier .li { display: none; }
 }
 
+@media (max-width: 520px) {
+  .tier + .tier .person { padding: 20px; }
+  .tier + .tier .avatar { width: clamp(72px, 20vw, 80px); margin-bottom: 17px; }
+}
+
 @media (max-height: 480px) {
   .board-wrap.pad { padding: 14px; }
   .onb { gap: 9px; }
@@ -1443,7 +1447,7 @@ footer {
   pointer-events: none;
 }
 .person h3 { color: var(--text); margin-bottom: 5px; }
-.person h3 .deg { font-weight: 400; font-size: 0.86em; letter-spacing: 0; color: var(--faint); }
+.person h3 .deg { font-weight: 400; font-size: 0.86em; letter-spacing: 0; color: var(--muted); }
 .person .role { font-size: 12px; font-weight: 400; letter-spacing: 0.03em; color: var(--mint); margin-bottom: 14px; }
 .person .bio { font-size: 14px; font-weight: 400; line-height: 1.65; color: var(--muted); }
 
